@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal"
+    >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginRight="50px"
+        android:layout_marginTop="52px"
+        android:background="@drawable/ctrl_volume_bg"
+        android:orientation="horizontal"
+        android:paddingBottom="45px"
+        android:paddingLeft="18px"
+        android:paddingRight="18px"
+        android:paddingTop="15px">
+        <!--microphone-->
+        <RelativeLayout
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="40px"
+            android:layout_marginTop="100px"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+
+
+            <com.zx.zxktv.ui.widget.BoxedVertical
+                android:id="@+id/microphone_progress"
+                android:layout_width="@dimen/px42"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                app:backgroundColor="@color/color_background"
+                app:cornerRadius="10"
+                app:defaultImage="@drawable/ic_volume_down_black_48dp"
+                app:imageEnabled="true"
+                app:max="100"
+                app:maxImage="@drawable/ic_volume_up_black_48dp"
+                app:minImage="@drawable/ic_volume_off_black_48dp"
+                app:progressColor="@color/yellow"
+                app:step="5"
+                app:textBottomPadding="20"
+                app:textColor="#FF0000"
+                app:textEnabled="false"
+                app:textSize="12sp"
+                app:touchDisabled="false"/>
+
+
+        </RelativeLayout>
+
+        <!--music-->
+        <RelativeLayout
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="40px"
+            android:layout_marginTop="100px"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+
+
+            <com.zx.zxktv.ui.widget.BoxedVertical
+                android:id="@+id/music_progress"
+                android:layout_width="@dimen/px42"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                app:backgroundColor="@color/color_background"
+                app:cornerRadius="10"
+                app:defaultImage="@drawable/ic_volume_down_black_48dp"
+                app:imageEnabled="true"
+                app:max="100"
+                app:maxImage="@drawable/ic_volume_up_black_48dp"
+                app:minImage="@drawable/ic_volume_off_black_48dp"
+                app:progressColor="@color/yellow"
+                app:step="5"
+                app:textBottomPadding="20"
+                app:textColor="#FF0000"
+                app:textEnabled="false"
+                app:textSize="12sp"
+                app:touchDisabled="false"/>
+
+
+        </RelativeLayout>
+
+        <!--power amplifier-->
+        <RelativeLayout
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="40px"
+            android:layout_marginTop="100px"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+
+            <com.zx.zxktv.ui.widget.BoxedVertical
+                android:id="@+id/power_progress"
+                android:layout_width="@dimen/px42"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                app:backgroundColor="@color/color_background"
+                app:cornerRadius="10"
+                app:defaultImage="@drawable/ic_volume_down_black_48dp"
+                app:imageEnabled="true"
+                app:max="100"
+                app:maxImage="@drawable/ic_volume_up_black_48dp"
+                app:minImage="@drawable/ic_volume_off_black_48dp"
+                app:progressColor="@color/yellow"
+                app:step="5"
+                app:textBottomPadding="20"
+                app:textColor="#FF0000"
+                app:textEnabled="false"
+                app:textSize="12sp"
+                app:touchDisabled="false"/>
+
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:background="@drawable/btn_ctrl_popup_close"
+        />
+</FrameLayout>

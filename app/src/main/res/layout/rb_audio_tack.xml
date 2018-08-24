@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioButton xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/month_popwindow_radiobutton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:gravity="center_horizontal"
+             android:paddingBottom="@dimen/px6"
+             android:paddingLeft="@dimen/px24"
+             android:paddingRight="@dimen/px4"
+             android:paddingTop="@dimen/px6"
+             android:text="@string/audio_tackinfo_rb_title"
+             android:textColor="@color/white"
+             android:textSize="24sp" />

@@ -1,0 +1,75 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              android:padding="@dimen/px20"
+    >
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/ic_live_focus"
+        android:orientation="vertical"
+        android:padding="@dimen/px15">
+
+        <ListView
+            android:id="@+id/list_view"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            />
+
+
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/button_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/list_view"
+        android:layout_below="@id/list_view"
+        android:text="@string/button_play"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/button01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/list_view"
+        android:layout_below="@id/list_view"
+        android:text="@string/button_show"
+        android:visibility="gone"/>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/px12"
+        android:layout_weight="2"
+        android:background="@drawable/bg_focus_selected">
+
+        <SurfaceView
+            android:id="@+id/surfaceview1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:id="@+id/framelayout1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/px12"
+        android:layout_weight="2"
+        android:background="@drawable/bg_focus_selected"/>
+
+
+</LinearLayout>

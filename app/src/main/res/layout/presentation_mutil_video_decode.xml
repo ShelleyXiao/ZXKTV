@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent"
+             android:baselineAligned="false"
+             android:gravity="center"
+             android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextureView
+            android:id="@+id/texture_view_1_0"
+            android:layout_width="@dimen/px480"
+            android:layout_height="@dimen/px320"
+            />
+
+        <TextureView
+            android:id="@+id/texture_view_1_1"
+            android:layout_width="@dimen/px480"
+            android:layout_height="@dimen/px320"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            />
+
+        <TextureView
+            android:id="@+id/texture_view_2_0"
+            android:layout_width="@dimen/px480"
+            android:layout_height="@dimen/px320"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            />
+
+        <TextureView
+            android:id="@+id/texture_view_2_1"
+            android:layout_width="@dimen/px480"
+            android:layout_height="@dimen/px320"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            />
+
+        <TextureView
+            android:id="@+id/texture_view_2_2"
+            android:layout_width="@dimen/px480"
+            android:layout_height="@dimen/px320"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            />
+
+        <TextureView
+            android:id="@+id/texture_view_3_0"
+            android:layout_width="@dimen/px480"
+            android:layout_height="@dimen/px320"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            />
+
+    </RelativeLayout>
+
+
+    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+                  <!--android:layout_width="fill_parent"-->
+                  <!--android:layout_height="fill_parent"-->
+                  <!--android:baselineAligned="false"-->
+                  <!--android:gravity="center"-->
+                  <!--android:orientation="vertical">-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:orientation="horizontal"-->
+            <!--&gt;-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="fill_parent"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="horizontal">-->
+
+                <!--<TextureView-->
+                    <!--android:id="@+id/texture_view_1_0"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"/>-->
+            <!--</LinearLayout>-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="fill_parent"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="horizontal"-->
+                <!--&gt;-->
+
+                <!--<TextureView-->
+                    <!--android:id="@+id/texture_view_1_1"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"/>-->
+            <!--</LinearLayout>-->
+
+            <!--&lt;!&ndash;<LinearLayout&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="fill_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="fill_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:orientation="horizontal">&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<TextureView&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/texture_view_1_2"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="wrap_content"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;</LinearLayout>&ndash;&gt;-->
+
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:orientation="horizontal"-->
+            <!--&gt;-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="fill_parent"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="horizontal">-->
+
+                <!--<TextureView-->
+                    <!--android:id="@+id/texture_view_2_0"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"/>-->
+            <!--</LinearLayout>-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="fill_parent"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="horizontal">-->
+
+                <!--<TextureView-->
+                    <!--android:id="@+id/texture_view_2_1"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"/>-->
+            <!--</LinearLayout>-->
+
+            <!--&lt;!&ndash;<LinearLayout&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="fill_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="fill_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:orientation="horizontal">&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<TextureView&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/texture_view_2_2"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="wrap_content"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;</LinearLayout>&ndash;&gt;-->
+
+        <!--</LinearLayout>-->
+    <!--</LinearLayout>-->
+
+
+    <!--<TextureView-->
+        <!--android:id="@+id/texture_view_2_2"-->
+        <!--android:layout_width="@dimen/px640"-->
+        <!--android:layout_height="@dimen/px480"-->
+        <!--android:layout_gravity="center"-->
+        <!--/>-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="horizontal"-->
+    <!--&gt;-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="horizontal">-->
+
+    <!--<TextureView-->
+    <!--android:id="@+id/texture_view_3_0"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"/>-->
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="horizontal">-->
+
+    <!--<TextureView-->
+    <!--android:id="@+id/texture_view_3_1"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"/>-->
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="horizontal">-->
+
+    <!--<TextureView-->
+    <!--android:id="@+id/texture_view_3_2"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"/>-->
+    <!--</LinearLayout>-->
+
+    <!--</LinearLayout>-->
+
+
+</FrameLayout>

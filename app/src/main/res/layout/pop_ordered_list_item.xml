@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:paddingLeft="15px"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.zx.zxktv.ui.view.MagicTextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="#fff"
+        android:layout_centerVertical="true"
+        />
+    
+    <Button
+        android:id="@+id/btn_first"
+        android:layout_width="83.44px"
+        android:layout_height="42px"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/btn_pop_ordered_first"
+        android:layout_marginRight="110px"
+        />
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="83.44px"
+        android:layout_height="42px"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/btn_pop_ordered_delete"
+        android:layout_marginRight="11px"
+        />
+    <com.zx.zxktv.ui.view.MagicTextView
+        android:id="@+id/tv_state"
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:textColor="#fff"
+        android:text="@string/video_playing_title"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="11px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

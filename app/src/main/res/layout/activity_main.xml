@@ -1,0 +1,97 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/blue_bg"
+                tools:context=".ui.MainActivity"
+    >
+
+    <include
+        android:id="@+id/top_bar"
+        layout="@layout/main_top_control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        />
+
+    <TextView
+        android:id="@+id/empty_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/empty_data"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:visibility="gone"
+        />
+
+    <RelativeLayout
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottom_ctl"
+        android:layout_below="@+id/top_bar"
+        >
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/song_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/page_index_contanier"
+            android:padding="6dp"
+            />
+
+        <RelativeLayout
+            android:id="@+id/page_index_contanier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            >
+
+
+            <ImageView
+                android:id="@+id/page_pre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/px80"
+                android:contentDescription="@null"
+                android:src="@drawable/star_left_arrow_letter"
+                />
+
+            <TextView
+                android:id="@+id/page_index"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/px30"
+                android:layout_toRightOf="@+id/page_pre"
+                android:text="1/20"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                />
+
+
+            <ImageView
+                android:id="@+id/page_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/px30"
+                android:layout_toRightOf="@+id/page_index"
+                android:contentDescription="@null"
+                android:src="@drawable/star_right_arrow_letter"
+                />
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+
+    <include
+        android:id="@+id/bottom_ctl"
+        layout="@layout/main_bottom_control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        />
+
+
+</RelativeLayout>

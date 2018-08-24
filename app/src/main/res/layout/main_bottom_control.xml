@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_gravity="bottom">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/px200"
+        android:layout_gravity="bottom"
+        android:gravity="bottom|center_horizontal">
+
+        <Button
+            android:id="@+id/btn_volume"
+            style="@style/bottomMenuNormalButton"
+            android:background="@drawable/btn_volume"/>
+
+
+        <CheckBox
+            android:id="@+id/cb_origin"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/btn_volume"
+            android:background="@drawable/cb_bottom_accompany"
+            android:button="@null"/>
+
+        <Button
+            android:id="@+id/btn_track"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/cb_origin"
+            android:background="@drawable/btn_track"
+            android:paddingTop="@dimen/px8"
+            android:visibility="gone"
+            />
+
+        <Button
+            android:id="@+id/btn_resing"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/cb_origin"
+            android:background="@drawable/btn_again"/>
+
+        <Button
+            android:id="@+id/btn_next"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/btn_resing"
+            android:background="@drawable/btn_change_song"/>
+
+        <CheckBox
+            android:id="@+id/cb_play"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/btn_next"
+            android:background="@drawable/cb_bottom_play_ctrl"
+            android:button="@null"/>
+
+        <FrameLayout
+            android:id="@+id/videoView_container"
+            android:layout_width="@dimen/px320"
+            android:layout_height="@dimen/px240"
+            android:layout_toRightOf="@+id/cb_play"
+            android:background="@drawable/bg_focus_selected"
+            >
+
+            <!--<com.kk.taurus.playerbase.widget.BaseVideoView-->
+                <!--android:id="@+id/videoView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_margin="2dp"-->
+                <!--android:background="#000000"-->
+                <!--android:visibility="gone"-->
+                <!--/>-->
+
+            <!--<SurfaceView-->
+                <!--android:id="@+id/surfaceview1"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_margin="2dp"-->
+                <!--/>-->
+        </FrameLayout>
+
+        <com.zx.zxktv.ui.view.LongTouchButton
+            android:id="@+id/btn_back"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@+id/videoView_container"
+            android:background="@drawable/btn_bottom_back"/>
+
+
+        <com.zx.zxktv.ui.view.LongTouchButton
+            android:id="@+id/btn_forward"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/btn_back"
+            android:background="@drawable/btn_bottom_forward"/>
+
+        <CheckBox
+            android:id="@+id/cb_quite"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/btn_forward"
+            android:background="@drawable/cb_bottom_voice_ctrl"
+            android:button="@null"/>
+
+        <Button
+            android:id="@+id/btn_call"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/cb_quite"
+            android:background="@drawable/btn_bottom_call"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btn_effect"
+            style="@style/bottomMenuNormalButton"
+            android:layout_toRightOf="@id/btn_call"
+            android:background="@drawable/btn_bottom_effect"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_ordered"
+        android:layout_width="235px"
+        android:layout_height="71.34px"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="top|right"
+        android:background="@drawable/music_bg_normal"
+        android:visibility="visible"
+        >
+
+        <com.zx.zxktv.ui.view.MagicTextView
+            android:id="@+id/tv_order_tips"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical|left"
+            android:paddingLeft="30px"
+            android:text="@string/selected_songs"
+            android:textColor="#9bffffff"
+            android:textSize="20sp"/>
+
+        <com.zx.zxktv.ui.view.MagicTextView
+            android:id="@+id/tv_order_num"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical|right"
+            android:paddingLeft="20px"
+            android:paddingRight="10dip"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="60"
+            android:text="23"
+            android:textColor="#9bff9000"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+
+</FrameLayout>

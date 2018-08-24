@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="transparent">#00000000</color>
+    <!--KeyBoard colors-->
+    <color name="keyboard_bg">#757575</color>
+    <color name="keyboard_top_bg">#434343</color>
+    <color name="keyboard_res_txt">#4ACCFC</color>
+    <color name="keyboard_center_bg">#1B1B1B</color>
+
+    <color name="gray_text_color">#666668</color>
+    <color name="purple_text_color">#8948BE</color>
+    <color name="light_gray_hint_text_color">#26252A</color>
+
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="black_overlay">#66000000</color>
+
+    <color name="lightgray">#8dfdfdfd</color>
+    <color name="lightGreen">#3e00a9fd</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="red">#ff0000</color>
+    <color name="yellow">#ffff00</color>
+    <color name="green">#00ff00</color>
+    <color name="green_aphal_01">#c501b701</color>
+
+    <color name="DEEPSKYBLUE">#ff00bfff</color>
+
+    <color name="zhihu_item_placeholder">#EAEEF4</color>
+    <color name="checkCircle_backgroundColor">#1E8AE8</color>
+    <color name="checkCircle_borderColor">#FFFFFF</color>
+
+    <color name="primary_pink">#e91e63</color>
+
+    <color name="color_text">@android:color/black</color>
+    <color name="color_progress">#fbfbfb</color>
+    <color name="color_background">#24585151</color>
+
+</resources>

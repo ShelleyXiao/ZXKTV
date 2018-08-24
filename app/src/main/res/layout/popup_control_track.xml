@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="@dimen/px12"
+        android:layout_marginTop="@dimen/px8"
+        android:background="@drawable/track_bg">
+
+        <RadioGroup
+            android:id="@+id/track"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/px12"
+            android:layout_marginTop="@dimen/px12"
+            android:paddingTop="@dimen/px32"
+            android:paddingLeft="@dimen/px12"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
+
+
+        </RadioGroup>
+
+
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="@dimen/px48"
+        android:layout_height="@dimen/px48"
+        android:layout_gravity="right|top"
+        android:background="@drawable/btn_ctrl_popup_close"/>
+</FrameLayout>

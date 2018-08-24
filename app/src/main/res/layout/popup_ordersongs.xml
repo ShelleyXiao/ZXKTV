@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/fg_content"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/order_bg"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="50px"
+        android:layout_marginTop="50px"
+        android:background="@drawable/song_bg"
+        android:orientation="vertical"
+        >
+
+        <RadioGroup
+            android:id="@+id/rg_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15px"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_popup_ordersongs_song"
+                android:button="@null"/>
+
+            <RadioButton
+                android:id="@+id/rb_rank"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/btn_popup_ordersongs_sing"
+                android:button="@null"/>
+        </RadioGroup>
+
+        <FrameLayout
+            android:id="@+id/ll_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/px20"
+            android:layout_marginRight="@dimen/px10"
+
+            android:paddingLeft="@dimen/px15"
+            android:paddingRight="@dimen/px15"
+            android:paddingBottom="@dimen/px20"
+
+            />
+
+
+        <!--<TabHost-->
+        <!--android:id="@android:id/tabhost"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="fill_parent"-->
+        <!--android:layout_marginLeft="50px"-->
+        <!--android:layout_marginTop="130px"-->
+        <!--android:paddingBottom="80px"-->
+        <!--android:visibility="gone"-->
+        <!--&gt;-->
+
+        <!--<FrameLayout-->
+        <!--android:id="@android:id/tabcontent"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="fill_parent"-->
+        <!--/>-->
+
+        <!--<TabWidget-->
+        <!--android:id="@android:id/tabs"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="0px"-->
+        <!--android:visibility="gone"/>-->
+        <!--</TabHost>-->
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:background="@drawable/btn_ctrl_popup_close"/>
+</FrameLayout>

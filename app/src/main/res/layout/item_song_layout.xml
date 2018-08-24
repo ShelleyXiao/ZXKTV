@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    >
+
+    <!--<FrameLayout-->
+        <!--android:id="@+id/avatar_bg"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1.5"-->
+        <!--android:background="@drawable/song_list_pic_bg"-->
+        <!--&gt;-->
+
+        <!--<ImageView-->
+            <!--android:id="@+id/avatar"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:focusable="true"-->
+            <!--android:scaleType="centerCrop"/>-->
+
+    <!--</FrameLayout>-->
+
+    <!--<View-->
+        <!--android:layout_width="@dimen/px30"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:visibility="gone"-->
+        <!--/>-->
+
+    <!--<FrameLayout-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="3"-->
+        <!--&gt;-->
+
+        <!--<ImageButton-->
+            <!--android:id="@+id/song_info"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@drawable/btn_song_list_information_bg"-->
+            <!--android:button="@drawable/blank_button"-->
+            <!--/>-->
+
+        <!--<RelativeLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_marginBottom="@dimen/px15"-->
+            <!--android:layout_marginLeft="@dimen/px20"-->
+            <!--android:layout_marginRight="@dimen/px60"-->
+            <!--android:layout_marginTop="@dimen/px15"-->
+            <!--&gt;-->
+
+            <!--<com.zx.zxktv.ui.view.MarqueeTextView-->
+                <!--android:id="@+id/song_name"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:singleLine="true"-->
+                <!--android:text="test"-->
+                <!--android:textColor="@color/white"-->
+                <!--android:textSize="24sp"-->
+                <!--/>-->
+
+            <!--&lt;!&ndash;<TextView&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/singer_name"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_below="@+id/song_name"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:singleLine="true"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:text="test"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:textColor="@color/white"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:textSize="20sp"&ndash;&gt;-->
+
+            <!--&lt;!&ndash;/>&ndash;&gt;-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/position"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_below="@+id/song_name"-->
+                <!--android:layout_marginRight="@dimen/px20"-->
+                <!--android:singleLine="true"-->
+                <!--android:text="test"-->
+                <!--android:textColor="@color/white"-->
+                <!--android:textSize="22sp"-->
+                <!--/>-->
+
+            <!--<ImageButton-->
+                <!--android:id="@+id/preview"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_marginRight="@dimen/px20"-->
+                <!--android:background="@drawable/btn_song_list_preview"-->
+                <!--android:button="@drawable/blank_button"-->
+                <!--/>-->
+
+        <!--</RelativeLayout>-->
+    <!--</FrameLayout>-->
+
+</FrameLayout>
