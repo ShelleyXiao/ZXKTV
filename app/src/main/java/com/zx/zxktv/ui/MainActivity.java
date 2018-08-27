@@ -43,13 +43,11 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kk.taurus.playerbase.widget.BaseVideoView;
 import com.zx.zxktv.R;
 import com.zx.zxktv.adapter.SongListAdapter;
 import com.zx.zxktv.data.LoadVideoModelPresenterImpl;
 import com.zx.zxktv.data.Song;
 import com.zx.zxktv.data.interfaces.VideoModelContract;
-import com.zx.zxktv.presentation.MsgEvent;
 import com.zx.zxktv.presentation.PresentationService;
 import com.zx.zxktv.ui.fragment.SongPreviewWin;
 import com.zx.zxktv.ui.view.LongTouchButton;
@@ -62,9 +60,6 @@ import com.zx.zxktv.ui.widget.pagelayout.PagerGridLayoutManager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridSnapHelper;
 import com.zx.zxktv.utils.AudioMngHelper;
 import com.zx.zxktv.utils.LogUtils;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 
 public class MainActivity extends BaseActivity implements View.OnClickListener
@@ -111,8 +106,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private OrderSangView mOrderSangView;
     private OrderSongsView mOrderSongsView;
-
-    private BaseVideoView mVideoView;
 
     private EditText mSearchEdit;
 
@@ -264,35 +257,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         tv_PageIndex.setText("0/0");
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(MsgEvent msg) {
-        if (mVideoView != null) {
-//            mVideoView.stopPlayback();
 
-//            VideoPlayListmanager.getIntanse().removeSong(song);
-//            Song next = VideoPlayListmanager.getIntanse().getTop();
-//            DataSource source = new DataSource();
-//            source.setUri(next.uri);
-//            mVideoView.setDataSource(source);
-//            mVideoView.start();
-
-            if (msg.eventType == MsgEvent.Type.SYNC_VIDEO) {
-                Song song = msg.mSong;
-                if (song != null) {
-                    int size = VideoPlayListmanager.getIntanse().getPlaySongSize();
-                    mtv_num.setText(String.valueOf(size));
-                    playSyncVideo(song);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            cb_orignal.setChecked(true);
-                        }
-                    });
-                }
-            }
-        }
-    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {

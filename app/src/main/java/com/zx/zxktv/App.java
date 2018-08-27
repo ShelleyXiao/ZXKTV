@@ -2,10 +2,6 @@ package com.zx.zxktv;
 
 import android.app.Application;
 
-import com.kk.taurus.exoplayer.ExoMediaPlayer;
-import com.kk.taurus.playerbase.config.PlayerConfig;
-import com.kk.taurus.playerbase.config.PlayerLibrary;
-import com.kk.taurus.playerbase.entity.DecoderPlan;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 
 /**
@@ -36,11 +32,11 @@ public class App extends Application {
 
         //播放器目前只是简单DEMO，后续要基于FFMEPG去做定制开发，
         // 解码应用自己去做，方便以后添加音视频特效
-        PlayerConfig.setUseDefaultNetworkEventProducer(false);
-
-        PlayerLibrary.init(this);
-
-        PlayerConfig.addDecoderPlan(new DecoderPlan(PLAN_ID_EXO, ExoMediaPlayer.class.getName(), "ExoPlayer"));
+//        PlayerConfig.setUseDefaultNetworkEventProducer(false);
+//
+//        PlayerLibrary.init(this);
+//
+//        PlayerConfig.addDecoderPlan(new DecoderPlan(PLAN_ID_EXO, ExoMediaPlayer.class.getName(), "ExoPlayer"));
 
 //        PlayerConfig.setDefaultPlanId(PLAN_ID_EXO);
 

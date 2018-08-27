@@ -316,6 +316,7 @@ public class  GLPlayRenderThread extends Thread {
 			if (false == mSuspend) {
 				synchronized(app){
 					//
+//					LogUtils.i("draw image");
 					app.attachPlayTexture(mTexName);
 					app.updatePlayPreview();
 					GLES20.glViewport(0, 0, mWidth, mHeight);
@@ -336,6 +337,7 @@ public class  GLPlayRenderThread extends Thread {
 			}
 		
 			try{
+//			    LogUtils.i("wait start surface");
 				wait();
 			}
 			catch (Exception e){

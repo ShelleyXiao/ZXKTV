@@ -45,9 +45,11 @@ import com.zx.zxktv.data.Song;
 import com.zx.zxktv.ui.MainActivity;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.LogUtils;
+import com.zxktv.ZXPlayer.ZXVideoPlayer;
+import com.zxktv.listener.OnErrorListener;
+import com.zxktv.listener.OnPreparedListener;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -70,7 +72,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private int mCurrentIndex = 0;
     private Song mCurSong;
     static private PresentationService sPresentationService = null;
-    public static final boolean USE_TEXTURE_VIEW = false;
+    public static final boolean USE_TEXTURE_VIEW = true;
 
     private boolean isPause = false, playing = false;
 
@@ -81,6 +83,8 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private ArrayList<Integer> mTrackIndex = new ArrayList<>();
     private AudioManager mAudioManager;
     private PowerManager.WakeLock wl;
+
+    private ZXVideoPlayer mVideoPlayer;
 
     @Override
     public void onCreate() {
@@ -135,7 +139,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        //Log.i(TAG,"onFrameAvailable");
         int size = mThreadList.size();
         for (int i = 0; i < size; i++) {
             GLPlayRenderThread t = mThreadList.get(i);
@@ -147,8 +150,8 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        MediaPlayer.TrackInfo[] trackInfos = mp.getTrackInfo();
         mTrackIndex.clear();
+        MediaPlayer.TrackInfo[] trackInfos = mp.getTrackInfo();
 
         if (trackInfos != null && trackInfos.length > 0) {
             int audioNum = 0;
@@ -243,7 +246,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
         public void surfaceDestroyed(SurfaceHolder holder) {
             mThreadList.remove(mThread);
         }
-
     }
 
     //=======================
@@ -256,16 +258,38 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
             mSurfaceTexture = new SurfaceTexture(texture);
             mSurfaceTexture.setOnFrameAvailableListener(this);
-            mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setOnErrorListener(this);
-            mMediaPlayer.setOnPreparedListener(this);
-            mMediaPlayer.setOnCompletionListener(this);
+//            mMediaPlayer = new MediaPlayer();
+//            mMediaPlayer.setOnErrorListener(this);
+//            mMediaPlayer.setOnPreparedListener(this);
+//            mMediaPlayer.setOnCompletionListener(this);
+//
+//            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//            Surface mSurface = new Surface(mSurfaceTexture);
+//            mMediaPlayer.setSurface(mSurface);
 
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            Surface mSurface = new Surface(mSurfaceTexture);
-            mMediaPlayer.setSurface(mSurface);
+            mVideoPlayer = new ZXVideoPlayer();
+            mVideoPlayer.setOnlyMusic(false);
+            mVideoPlayer.setOnlySoft(false);
+            mVideoPlayer.setSurface(new Surface(mSurfaceTexture));
 
             mSurfaceTexture.detachFromGLContext();
+
+
+            mVideoPlayer.setOnPreparedListener(new OnPreparedListener() {
+                @Override
+                public void onPrepared() {
+                    LogUtils.d("prepare starting......");
+                    mVideoPlayer.start();
+                }
+            });
+
+            mVideoPlayer.setOnErrorListener(new OnErrorListener() {
+                @Override
+                public void onError(int code, String msg) {
+                    LogUtils.e("Error: " + msg);
+                }
+            });
+
         } else {
             //mSurfaceTexture.attachToGLContext(texture);
         }
@@ -311,32 +335,40 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private void playVideo(String url) {
         LogUtils.i("url = " + url);
         mPath = url;
-        mMediaPlayer.reset();
+//        mMediaPlayer.reset();
+//
+//        try {
+//            mMediaPlayer.setDataSource(mPath);
+//        } catch (IllegalArgumentException e) {
+//            e.printStackTrace();
+//        } catch (SecurityException e) {
+//            e.printStackTrace();
+//        } catch (IllegalStateException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        mMediaPlayer.prepareAsync();
 
-        try {
-            mMediaPlayer.setDataSource(mPath);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (mVideoPlayer != null) {
+            mVideoPlayer.setDataSource(mPath);
+            mVideoPlayer.prepared();
+
+            playing = true;
         }
-        mMediaPlayer.prepareAsync();
-        playing = true;
     }
 
 
     public void pauseOrStart() {
-        if (mMediaPlayer.isPlaying() && !isPause) {
+        if (!isPause) {
             isPause = true;
-            mMediaPlayer.pause();
+            mVideoPlayer.pause();
         } else {
             isPause = false;
-            mMediaPlayer.start();
+            mVideoPlayer.resume();
         }
+
+
     }
 
 

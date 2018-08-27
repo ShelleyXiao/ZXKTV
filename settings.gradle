@@ -1,1 +1,1 @@
-include ':app', ':playerbase', 'exoplayer'
+include ':app', ':libzxplayer'
