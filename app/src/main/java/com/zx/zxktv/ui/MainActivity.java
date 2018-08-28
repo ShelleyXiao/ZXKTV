@@ -651,7 +651,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
                 break;
             case R.id.btn_resing:
-                playSyncVideo(mCurSong);
+                mPresentationService.songResing();
                 break;
             case R.id.btn_effect:
 //                mPresentationService.showGiftPresentation();
@@ -707,18 +707,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         public void onLongTouchDown(View v) {
 
             if (v.getId() == R.id.btn_back) {
-                mPresentationService.playBack();
+                mPresentationService.seekBack();
             } else if (v.getId() == R.id.btn_forward) {
-                mPresentationService.playForward();
+                mPresentationService.seekForward();
             }
         }
 
         @Override
         public void onShortTouch(View v) {
             if (v.getId() == R.id.btn_back) {
-                mPresentationService.playBack();
+                mPresentationService.seekBack();
             } else if (v.getId() == R.id.btn_forward) {
-                mPresentationService.playForward();
+                mPresentationService.seekForward();
             }
         }
 

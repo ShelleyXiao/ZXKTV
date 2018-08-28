@@ -61,10 +61,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PresentationService extends Service implements OnFrameAvailableListener,
-        MediaPlayer.OnErrorListener, OnCompleteListener, OnStopListener, OnInfoListener {
+        OnPreparedListener, OnCompleteListener, OnStopListener, OnInfoListener {
 
     private final static String TAG = "PresentationService";
-    private final static int PROGRESS_DETAL = 2000;
+    private final static int PROGRESS_DETAL =  2;
     private final IBinder mBinder = new LocalBinder();
     private DisplayManager mDisplayManager;
     private GiftPresentation giftDisplay;
@@ -93,6 +93,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
     private ZXVideoPlayer mVideoPlayer;
     private TimeBean mTimeBean;
+    private int progress = 0;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
@@ -101,7 +102,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
             super.handleMessage(msg);
             if (msg.what == 1) {
 //                playVideo(mCurSong);
-                if (mVideoPlayer != null) {
+                if (mVideoPlayer != null && mCurSong != null) {
                     mVideoPlayer.setDataSource(mCurSong.filePath);
                     mVideoPlayer.prepared();
 
@@ -184,8 +185,16 @@ public class PresentationService extends Service implements OnFrameAvailableList
     }
 
     @Override
-    public void onInfo(TimeBean timeBean) {
+    public void onPrepared() {
+        LogUtils.d("prepare starting......");
+        mVideoPlayer.start();
+    }
 
+    @Override
+    public void onInfo(TimeBean timeBean) {
+        mTimeBean = timeBean;
+
+        progress = timeBean.getCurrt_secds() * 100 / timeBean.getTotal_secds();
     }
 
     @Override
@@ -224,10 +233,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
         handler.sendMessage(message);
     }
 
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        return false;
-    }
 
     public void attachFrameLayout(FrameLayout fl) {
         Log.i(TAG, "attachFrameLayout");
@@ -310,14 +315,8 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
             mVideoPlayer.setOnStopListener(this);
             mVideoPlayer.setOnCompleteListener(this);
-
-            mVideoPlayer.setOnPreparedListener(new OnPreparedListener() {
-                @Override
-                public void onPrepared() {
-                    LogUtils.d("prepare starting......");
-                    mVideoPlayer.start();
-                }
-            });
+            mVideoPlayer.setOnInfoListener(this);
+            mVideoPlayer.setOnPreparedListener(this);
 
             mVideoPlayer.setOnErrorListener(new OnErrorListener() {
                 @Override
@@ -398,6 +397,15 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
+    public void songResing() {
+        mVideoPlayer.stop(false);
+        mVideoPresentation.updatePlayInfo(mCurSong);
+
+        Message message = Message.obtain();
+        message.what = 1;
+        handler.sendMessage(message);
+    }
+
 
     public void pauseOrStart() {
         if (!isPause) {
@@ -449,21 +457,24 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
 
     public void seekForward() {
-        LogUtils.i(TAG, "seekForward");
-        if (mVideoPlayer != null && mMediaPlayer.isPlaying()) {
-            int pos = mMediaPlayer.getCurrentPosition();
-            pos += PROGRESS_DETAL;
-            mMediaPlayer.seekTo(pos);
-            LogUtils.i(TAG, "seekForward 1");
+        LogUtils.i("seekForward");
+        if (mVideoPlayer != null && isPlaying()) {
+            progress += PROGRESS_DETAL;
+            int pos = mVideoPlayer.getDuration() * progress / 100;
+            if (pos <= mVideoPlayer.getDuration()) {
+                mVideoPlayer.seek(pos);
+            }
         }
     }
 
 
     public void seekBack() {
-        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-            int pos = mMediaPlayer.getCurrentPosition();
-            pos -= PROGRESS_DETAL;
-            mMediaPlayer.seekTo(pos);
+        if (mVideoPlayer != null && isPlaying()) {
+            progress -= PROGRESS_DETAL;
+            int pos = mVideoPlayer.getDuration() * progress / 100;
+            if (pos >= 0) {
+                mVideoPlayer.seek(pos);
+            }
         }
     }
 
@@ -476,7 +487,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
             return;
         }
 
-//
         mVideoPlayer.stop(false);
         mCurSong = song;
 

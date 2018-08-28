@@ -7,8 +7,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.zx.zxktv.utils.LogUtils;
-
 /**
  * User: ShaudXiao
  * Date: 2018-06-07
@@ -72,8 +70,8 @@ public class LongTouchButton extends AppCompatButton {
 
             while (isStillClick) {
                 sleep(TIME_CHECK);
-                LogUtils.i("needCheckLongTouch " + needCheckLongTouch + "dddddddddddddd start: " + start
-                        + " : " + (System.currentTimeMillis() - start));
+//                LogUtils.i("needCheckLongTouch " + needCheckLongTouch + "dddddddddddddd start: " + start
+//                        + " : " + (System.currentTimeMillis() - start));
                 if ( System.currentTimeMillis() - start >= TIME_LONGTOUCH) {
                     publishProgress(0);
 
@@ -103,7 +101,7 @@ public class LongTouchButton extends AppCompatButton {
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            LogUtils.i("onProgressUpdate start");
+//            LogUtils.i("onProgressUpdate start");
             if (values[0] == 0) {
                 mListener.onLongTouchDown(LongTouchButton.this);
             }
@@ -135,7 +133,6 @@ public class LongTouchButton extends AppCompatButton {
     }
 
     public static CumTouchListener CumTouchListener() {
-        // TODO Auto-generated method stub
         return null;
     }
 }
