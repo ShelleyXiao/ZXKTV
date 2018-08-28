@@ -116,7 +116,7 @@ int VideoPlayerControl::decodeFFmpeg() {
         audioDecoder = new AudioDecoder(wlPlayStatus, javaJNICallback);
         LOGI("CHANNEL SIZE = %d", getAudioChannels());
         int size = getAudioChannels();
-        if(size > 0) {
+        if(size > 1) {
             setAudioChannel(1);
         } else {
             setAudioChannel(0);
@@ -502,8 +502,29 @@ void VideoPlayerControl::setVideoChannel(int id) {
     }
 }
 
+
+
 int VideoPlayerControl::getAudioChannels() {
     return audiochannels.size();
+}
+
+
+void VideoPlayerControl::setVolume(int percent) {
+    if(audioDecoder != NULL) {
+        audioDecoder->setVolume(percent);
+    }
+}
+
+void VideoPlayerControl::setVolMute(bool mute) {
+    if(audioDecoder != NULL) {
+        audioDecoder->setVolMute(mute);
+    }
+}
+
+void VideoPlayerControl::setChannelMute(int mute) {
+    if(audioDecoder != NULL) {
+        audioDecoder->setChannelMute(mute);
+    }
 }
 
 int VideoPlayerControl::getVideoWidth() {

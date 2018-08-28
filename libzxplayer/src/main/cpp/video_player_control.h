@@ -37,30 +37,52 @@ public:
     bool isavi = false;
     bool isOnlyMusic = false;
 
-    std::deque<AudioChannel*> audiochannels;
-    std::deque<AudioChannel*> videochannels;
+    std::deque<AudioChannel *> audiochannels;
+    std::deque<AudioChannel *> videochannels;
 
     pthread_mutex_t init_mutex;
     pthread_mutex_t seek_mutex;
 
 public:
     VideoPlayerControl(JavaJNICallback *javaCall, const char *urlpath, bool onlymusic);
+
     ~VideoPlayerControl();
+
     int preparedFFmpeg();
+
     int decodeFFmpeg();
+
     int start();
+
     int seek(int64_t sec);
+
     int getDuration();
-    int getAvCodecContext(AVCodecParameters * parameters, ZXbasePlayer *basePlayer);
+
+    int getAvCodecContext(AVCodecParameters *parameters, ZXbasePlayer *basePlayer);
+
     void release();
+
     void pause();
+
     void resume();
-    int getMimeType(const char* codecName);
+
+    int getMimeType(const char *codecName);
+
     void setAudioChannel(int id);
+
     void setVideoChannel(int id);
+
     int getAudioChannels();
+
     int getVideoWidth();
+
     int getVideoHeight();
+
+    void setVolume(int percent);
+
+    void setVolMute(bool mute);
+
+    void setChannelMute(int mute);
 };
 
 

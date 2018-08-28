@@ -164,6 +164,11 @@ SLresult AudioOutput::initSoundTrack(int channels, int accompanySampleRate,
         destroyObject(outputMixObject);
         return result;
     }
+
+    getAudioPlayerVolumInterface();
+
+    getAudioPlayerMuteInterface();
+
     LOGI("leave init");
 
 
@@ -202,6 +207,10 @@ void AudioOutput::destroyContext() {
     LOGI("after FreePlayerBuffer");
     // Destroy output mix object
     destroyObject(outputMixObject);
+
+    pcmMutePlay = NULL;
+    pcmVolumePlay = NULL;
+
     LOGI("leave AudioOutput::DestroyContext");
 }
 
@@ -267,12 +276,13 @@ SLresult AudioOutput::createAudioPlayer(int channels, int accompanySampleRate) {
     };
 
     // Interfaces that are requested
-    SLInterfaceID interfaceIds[] = {SL_IID_BUFFERQUEUE};
+    SLInterfaceID interfaceIds[] = {SL_IID_BUFFERQUEUE , SL_IID_VOLUME, SL_IID_PLAYBACKRATE,
+                                    SL_IID_MUTESOLO};
 
     // Required interfaces. If the required interfaces
     // are not available the request will fail
-    SLboolean requiredInterfaces[] = {SL_BOOLEAN_TRUE // for SL_IID_BUFFERQUEUE
-    };
+    SLboolean requiredInterfaces[] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+
 
     // Create audio player object
     return (*engineEngine)->CreateAudioPlayer(engineEngine, &audioPlayerObject, &dataSource,
@@ -302,3 +312,79 @@ SLresult AudioOutput::setAudioPlayerStatePaused() {
 SLAndroidSimpleBufferQueueItf AudioOutput::getSLQueueItf() {
     return audioPlayerBufferQueue;
 }
+
+SLresult AudioOutput::getAudioPlayerVolumInterface() {
+    SLresult lresult = (*audioPlayerObject)->GetInterface(audioPlayerObject, SL_IID_VOLUME,
+                                                          &pcmVolumePlay);
+    return lresult;
+}
+
+SLresult AudioOutput::getAudioPlayerMuteInterface() {
+    SLresult lresult = (*audioPlayerObject)->GetInterface(audioPlayerObject, SL_IID_MUTESOLO,
+                                                          &pcmMutePlay);
+    return lresult;
+}
+
+SLresult AudioOutput::setVolume(int percent) {
+    volumePercent = percent;
+    SLresult lresult = 0;
+    LOGI("setVolume percent = %d pcmVolumePlay = %p", 0, pcmVolumePlay);
+    if (pcmVolumePlay != NULL) {
+        if (percent > 30) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -20);
+        } else if (percent > 25) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -22);
+        } else if (percent > 20) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -25);
+        } else if (percent > 15) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -28);
+        } else if (percent > 10) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -30);
+        } else if (percent > 5) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -34);
+        } else if (percent > 3) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -37);
+        } else if (percent > 0) {
+            lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -40);
+        } else {
+            lresult = lresult = (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay,
+                                                                 (100 - percent) * -100);
+        }
+    }
+
+    return lresult;
+}
+
+SLresult AudioOutput::setVolMute(SLboolean mute) {
+    volMute = mute;
+    if(pcmVolumePlay != NULL) {
+        return (*pcmVolumePlay)->SetMute(pcmVolumePlay, mute);
+    }
+
+    return 0;
+}
+
+SLresult AudioOutput::setChannelMute(int mute) {
+    this->mute = mute;
+    if (pcmMutePlay != NULL) {
+        if (mute == 0)//right
+        {
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, false);
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, true);
+        } else if (mute == 1)//left
+        {
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, true);
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, false);
+        } else if (mute == 2)//center
+        {
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, false);
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, false);
+        }
+
+
+    }
+
+    return 0;
+}
+
+

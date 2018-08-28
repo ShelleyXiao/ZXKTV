@@ -1,9 +1,7 @@
-//
-// Created by ywl on 2017-12-3.
-//
+
 #pragma once
-#ifndef WLPLAYER_WLAUDIO_H
-#define WLPLAYER_WLAUDIO_H
+#ifndef ZXPLAYER_AUDIO_H
+#define ZXPLAYER_AUDIO_H
 
 
 #include "../base_player.h"
@@ -21,7 +19,7 @@ extern "C"
 #include <SLES/OpenSLES_Android.h>
 };
 
-class AudioDecoder : public ZXbasePlayer{
+class AudioDecoder : public ZXbasePlayer {
 
 public:
     WlQueue *queue = NULL;
@@ -52,22 +50,36 @@ public:
 
 public:
     AudioDecoder(WlPlayStatus *playStatus, JavaJNICallback *javaCall);
+
     ~AudioDecoder();
 
     void setVideo(bool video);
 
     void playAudio();
+
     int getPcmData(void **pcm);
+
     int initOpenSL();
+
     void pause();
+
     void resume();
+
     void realease();
+
     void setClock(int secds);
 
     //当音频播放器播放完毕一段buffer之后，会回调这个方法，这个方法要做的就是用数据将这个buffer再填充起来
 
-    AudioOutput* audioOutput;
+    AudioOutput *audioOutput;
+
     bool initAudioOutput();
+
+    void setVolume(int percent);
+
+    void setVolMute(bool mute);
+
+    void setChannelMute(int mute);
 
 };
 

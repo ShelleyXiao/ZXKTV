@@ -14,6 +14,7 @@
 
 package com.zx.zxktv.presentation;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Presentation;
@@ -27,7 +28,9 @@ import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 import android.view.Display;
@@ -45,16 +48,20 @@ import com.zx.zxktv.data.Song;
 import com.zx.zxktv.ui.MainActivity;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.LogUtils;
+import com.zxktv.ZXPlayer.TimeBean;
 import com.zxktv.ZXPlayer.ZXVideoPlayer;
+import com.zxktv.listener.OnCompleteListener;
 import com.zxktv.listener.OnErrorListener;
+import com.zxktv.listener.OnInfoListener;
 import com.zxktv.listener.OnPreparedListener;
+import com.zxktv.listener.OnStopListener;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PresentationService extends Service implements OnFrameAvailableListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+        MediaPlayer.OnErrorListener, OnCompleteListener, OnStopListener, OnInfoListener {
 
     private final static String TAG = "PresentationService";
     private final static int PROGRESS_DETAL = 2000;
@@ -85,6 +92,29 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private PowerManager.WakeLock wl;
 
     private ZXVideoPlayer mVideoPlayer;
+    private TimeBean mTimeBean;
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+//                playVideo(mCurSong);
+                if (mVideoPlayer != null) {
+                    mVideoPlayer.setDataSource(mCurSong.filePath);
+                    mVideoPlayer.prepared();
+
+                    playing = true;
+                }
+
+            } else if (msg.what == 2) {
+                mVideoPresentation.updatePlayInfo(mCurSong);
+            }
+
+        }
+    };
+
 
     @Override
     public void onCreate() {
@@ -125,9 +155,14 @@ public class PresentationService extends Service implements OnFrameAvailableList
             wl.release();
         }
 
+        if (mVideoPlayer != null) {
+            mVideoPlayer.stop(true);
+        }
+
         dismissGiftPresentation();
         dismissGiftPresentation();
         dismissMultiVideoPresentation();
+
 
         stopForeground(true);
     }
@@ -149,30 +184,21 @@ public class PresentationService extends Service implements OnFrameAvailableList
     }
 
     @Override
-    public void onPrepared(MediaPlayer mp) {
-        mTrackIndex.clear();
-        MediaPlayer.TrackInfo[] trackInfos = mp.getTrackInfo();
+    public void onInfo(TimeBean timeBean) {
 
-        if (trackInfos != null && trackInfos.length > 0) {
-            int audioNum = 0;
-            LogUtils.i("TrackInfo size =  " + trackInfos.length);
-            for (int i = 0; i < trackInfos.length; i++) {
-                if (trackInfos[i].getTrackType() == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
-                    mAudioTrack[audioNum++] = i;
-//                    trackInfoHashMap.put(i, trackInfos[i]);
-                    mTrackIndex.add(i);
-                }
-            }
-        }
-        mp.start();
     }
 
     @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.i(TAG, "---onCompletion---");
+    public void onComplete() {
+        mVideoPlayer.stop(false);
+//
+//        for(GLPlayRenderThread thread : mThreadList) {
+//            thread.suspendRendering();
+//        }
 
+        Log.i(TAG, "---onCompletion---");
         if (VideoPlayListmanager.getIntanse().getPlaySongSize() == 1) {
-            playVideo(VideoPlayListmanager.getIntanse().getTop());
+//            playVideo(VideoPlayListmanager.getIntanse().getTop());
         } else {
             VideoPlayListmanager.getIntanse().removeTop();
 
@@ -186,8 +212,16 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
             mVideoPresentation.updatePlayInfo(mCurSong);
 
+//            playVideo(song);
         }
+    }
 
+    @Override
+    public void onStop() {
+        Log.i(TAG, "---onStop---");
+        Message message = Message.obtain();
+        message.what = 1;
+        handler.sendMessage(message);
     }
 
     @Override
@@ -274,6 +308,8 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
             mSurfaceTexture.detachFromGLContext();
 
+            mVideoPlayer.setOnStopListener(this);
+            mVideoPlayer.setOnCompleteListener(this);
 
             mVideoPlayer.setOnPreparedListener(new OnPreparedListener() {
                 @Override
@@ -329,7 +365,11 @@ public class PresentationService extends Service implements OnFrameAvailableList
         playVideo(song.filePath);
         mCurrentIndex = VideoPlayListmanager.getIntanse().getSongIndex(song);
         mCurSong = song;
-        mVideoPresentation.updatePlayInfo(song);
+
+        Message message = Message.obtain();
+        message.what = 2;
+        handler.sendMessage(message);
+
     }
 
     private void playVideo(String url) {
@@ -367,54 +407,18 @@ public class PresentationService extends Service implements OnFrameAvailableList
             isPause = false;
             mVideoPlayer.resume();
         }
-
-
     }
 
 
     public void selectAudioTrack(int index) {
-//        int i = mMediaPlayer.getSelectedTrack(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
-
-//               LogUtils.i( " mAudioTrack.length = "
-//                + mAudioTrack.length + " " + trackInfoHashMap.size()
-//         + " select = " + i);
-        if (mTrackIndex == null || index > mTrackIndex.size() - 1) {
-            mMediaPlayer.selectTrack(mTrackIndex.get(0));
-            return;
-        }
-        int trackIndex = mTrackIndex.get(index);
-        mMediaPlayer.selectTrack(trackIndex);
-
-        LogUtils.i(" index: " + index + " + trackIndex: " + trackIndex);
-
-//        if (mMediaPlayer != null && mAudioTrack.length > 0 ) {
-//            if (audioTrack > 0) {
-//                audioTrack = 0;
-//            } else {
-//                audioTrack = 1;
-//            }
-//            mMediaPlayer.selectTrack(mAudioTrack[audioTrack]);
-//        }
+        mVideoPlayer.setAudioChannels(index);
     }
 
     public int getAudioTrackSize() {
 
-        return mTrackIndex != null ? mTrackIndex.size() : 0;
+        return mVideoPlayer != null ? mVideoPlayer.getAudioChannels() : 0;
     }
 
-    public int getSelectAudioTrackIndex() {
-        int index = -1;
-        if (mMediaPlayer != null) {
-            try {
-                int trackIndex = mMediaPlayer.getSelectedTrack(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
-                index = mTrackIndex.indexOf(trackIndex);
-                LogUtils.i("index = " + index);
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            }
-        }
-        return index;
-    }
 
     public void switchAccompanimentOrOriginal(boolean origianl) {
         LogUtils.i(" " + mAudioManager.getParameters("channelmask_value")
@@ -428,35 +432,34 @@ public class PresentationService extends Service implements OnFrameAvailableList
             LogUtils.i(" select_channel=right ");
             selectAudioTrack(0);
 
-
         }
     }
 
     public void silentSwitchOn() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.setVolume(1.0f, 1.0f);
+        if (mVideoPlayer != null) {
+            mVideoPlayer.setVolMute(false);
         }
     }
 
     public void silentSwitchOff() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.setVolume(0, 0);
+        if (mVideoPlayer != null) {
+            mVideoPlayer.setVolMute(true);
         }
     }
 
 
-    public void playForward() {
-        LogUtils.i(TAG, "playForward");
-        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+    public void seekForward() {
+        LogUtils.i(TAG, "seekForward");
+        if (mVideoPlayer != null && mMediaPlayer.isPlaying()) {
             int pos = mMediaPlayer.getCurrentPosition();
             pos += PROGRESS_DETAL;
             mMediaPlayer.seekTo(pos);
-            LogUtils.i(TAG, "playForward 1");
+            LogUtils.i(TAG, "seekForward 1");
         }
-
     }
 
-    public void playBack() {
+
+    public void seekBack() {
         if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
             int pos = mMediaPlayer.getCurrentPosition();
             pos -= PROGRESS_DETAL;
@@ -473,10 +476,14 @@ public class PresentationService extends Service implements OnFrameAvailableList
             return;
         }
 
-        playVideo(song);
+//
+        mVideoPlayer.stop(false);
         mCurSong = song;
 
         mVideoPresentation.updatePlayInfo(mCurSong);
+        Message message = Message.obtain();
+        message.what = 1;
+        handler.sendMessage(message);
     }
 
     public boolean isPlaying() {

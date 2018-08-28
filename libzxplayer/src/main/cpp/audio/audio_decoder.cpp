@@ -62,10 +62,10 @@ void AudioDecoder::realease() {
         free(out_buffer);
         out_buffer = NULL;
     }
-    if (buffer != NULL) {
-        free(buffer);
-        buffer = NULL;
-    }
+//    if (buffer != NULL) {
+//        free(buffer);
+//        buffer = NULL;
+//    }
     if (avCodecContext != NULL) {
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
@@ -210,8 +210,10 @@ void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
         audioDecoer->buffer = NULL;
         audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
         if (audioDecoer->buffer && audioDecoer->pcmsize > 0) {
-            audioDecoer->clock += audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
-            audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock, audioDecoer->duration);
+            audioDecoer->clock +=
+                    audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
+            audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
+                                                  audioDecoer->duration);
 //            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->buffer,
 //                                                wlAudio->pcmsize);
             SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
@@ -267,6 +269,24 @@ void AudioDecoder::setVideo(bool video) {
 void AudioDecoder::setClock(int secds) {
     now_time = secds;
     clock = secds;
+}
+
+void AudioDecoder::setVolume(int percent) {
+    if (audioOutput != NULL) {
+        audioOutput->setVolume(percent);
+    }
+}
+
+void AudioDecoder::setVolMute(bool mute) {
+    if (audioOutput != NULL) {
+        audioOutput->setVolMute(mute);
+    }
+}
+
+void AudioDecoder::setChannelMute(int mute) {
+    if (audioOutput != NULL) {
+        audioOutput->setChannelMute(mute);
+    }
 }
 
 

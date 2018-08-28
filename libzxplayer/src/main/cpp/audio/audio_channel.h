@@ -1,9 +1,6 @@
-//
-// Created by ywl on 2017-12-29.
-//
 
-#ifndef WLPLAYER_WLAUDIOCHANNEL_H
-#define WLPLAYER_WLAUDIOCHANNEL_H
+#ifndef ZXPLAYER_AUDIOCHANNEL_H
+#define ZXPLAYER_AUDIOCHANNEL_H
 
 
 extern "C"

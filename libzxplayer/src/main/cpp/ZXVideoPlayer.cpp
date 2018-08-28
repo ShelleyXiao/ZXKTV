@@ -120,6 +120,27 @@ Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeGetAudioChannels(JNIEnv *env, jobjec
     return 0;
 }
 
+JNIEXPORT void JNICALL
+Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetVolume(JNIEnv *env, jobject instance, jint percent) {
+    if (playerControl != NULL) {
+        playerControl->setVolume(percent);
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetVolMute
+        (JNIEnv *env, jobject instance, jboolean mute) {
+    if (playerControl != NULL) {
+        playerControl->setVolMute(mute);
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetChannelMute
+        (JNIEnv *env, jobject instance, jint mute) {
+    if (playerControl != NULL) {
+        playerControl->setChannelMute(mute);
+    }
+}
+
 JNIEXPORT jint JNICALL
 Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeGetVideoWidth(JNIEnv *env, jobject instance) {
     if (playerControl != NULL) {

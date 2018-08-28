@@ -106,6 +106,12 @@ public class ZXVideoPlayer {
 
     private boolean isOnlySoft = false;
 
+    private static int volumePercent = 100;
+    private static float speed = 1.0f;
+    private static float pitch = 1.0f;
+    private static boolean initmediacodec = false;
+    private static MuteEnum muteEnum = MuteEnum.MUTE_CENTER;
+
     public ZXVideoPlayer() {
         mTimeBean = new TimeBean();
     }
@@ -121,7 +127,6 @@ public class ZXVideoPlayer {
     public void setSurface(Surface surface) {
         this.surface = surface;
     }
-
 
 
     public void setZXGlSurfaceView(ZXGlSurfaceView glSurfaceView, ZXGlSurfaceView glSurfaceViewExtend) {
@@ -190,6 +195,28 @@ public class ZXVideoPlayer {
     private native void nativeSetAudioChannels(int index);
 
     /**
+     * 设置声音音量 1-100%
+     *
+     * @param percent
+     */
+    private native void nativeSetVolume(int percent);
+
+
+    /**
+     * 设置静音
+     *
+     * @param mute
+     */
+    private native void nativeSetVolMute(boolean mute);
+
+    /**
+     * 设置声道静音
+     *
+     * @param mute (mute 0: right ; mute 1: left; mute 2 : center)
+     */
+    private native void nativeSetChannelMute(int mute);
+
+    /**
      * 获取总时长
      *
      * @return
@@ -234,6 +261,29 @@ public class ZXVideoPlayer {
         nativeSetAudioChannels(index);
     }
 
+    public int getAudioChannels() {
+        return nativeGetAudioChannels();
+    }
+
+    public void setVolume(int percent) {
+        if (percent >= 0 && percent <= 100) {
+            volumePercent = percent;
+            nativeSetVolume(percent);
+        }
+    }
+
+    public int getVolumePercent() {
+        return volumePercent;
+    }
+
+    public void setVolMute(boolean mute) {
+        nativeSetVolMute(mute);
+    }
+
+    public void setChannelMute(MuteEnum mute) {
+        muteEnum = mute;
+        nativeSetChannelMute(mute.getValue());
+    }
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
         this.mOnPreparedListener = onPreparedListener;
@@ -289,7 +339,7 @@ public class ZXVideoPlayer {
             @Override
             public void run() {
                 nativeStop(exit);
-                if (mediaCodec != null) {
+                if (exit && mediaCodec != null) {
                     try {
                         mediaCodec.flush();
                         mediaCodec.stop();
@@ -364,7 +414,8 @@ public class ZXVideoPlayer {
     public void mediacodecInit(int mimetype, int width, int height, byte[] csd0, byte[] csd1) {
         LogUtils.i("mediacodecInit*********************");
         if (surface != null) {
-            try {
+            if (mediaCodec == null) {
+                try {
 //                glSurfaceView.setCodecType(1);
 //
 //                if (!isOnlySoft() && glSurfaceViewExtend != null) {
@@ -372,21 +423,29 @@ public class ZXVideoPlayer {
 //                }
 
 
-                String mtype = getMimeType(mimetype);
-                mediaFormat = MediaFormat.createVideoFormat(mtype, width, height);
-                mediaFormat.setInteger(MediaFormat.KEY_WIDTH, width);
-                mediaFormat.setInteger(MediaFormat.KEY_HEIGHT, height);
-                mediaFormat.setLong(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);
-                mediaFormat.setByteBuffer("csd-0", ByteBuffer.wrap(csd0));
-                mediaFormat.setByteBuffer("csd-1", ByteBuffer.wrap(csd1));
-                Log.d("ywl5320", mediaFormat.toString());
-                mediaCodec = MediaCodec.createDecoderByType(mtype);
-                if (surface != null) {
-                    mediaCodec.configure(mediaFormat, this.surface, null, 0);
-                    mediaCodec.start();
+                    String mtype = getMimeType(mimetype);
+                    mediaFormat = MediaFormat.createVideoFormat(mtype, width, height);
+                    mediaFormat.setInteger(MediaFormat.KEY_WIDTH, width);
+                    mediaFormat.setInteger(MediaFormat.KEY_HEIGHT, height);
+                    mediaFormat.setLong(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);
+                    mediaFormat.setByteBuffer("csd-0", ByteBuffer.wrap(csd0));
+                    mediaFormat.setByteBuffer("csd-1", ByteBuffer.wrap(csd1));
+                    Log.d("ywl5320", mediaFormat.toString());
+                    mediaCodec = MediaCodec.createDecoderByType(mtype);
+                    if (surface != null) {
+                        mediaCodec.configure(mediaFormat, this.surface, null, 0);
+                        mediaCodec.start();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } else {
+//                mediaCodec.stop();
+
+                mediaCodec.reset();
+                mediaCodec.configure(mediaFormat, this.surface, null, 0);
+                mediaCodec.start();
+
             }
         } else {
             if (mOnErrorListener != null) {
@@ -429,7 +488,7 @@ public class ZXVideoPlayer {
             return "video/mp4v-es";
         } else if (type == 4) {
             return "video/x-ms-wmv";
-        } else if(type == 5) {
+        } else if (type == 5) {
             return "video/mpeg2";
         }
         return "";
@@ -477,6 +536,12 @@ public class ZXVideoPlayer {
             setVideoInfo(nativeGetDuration(), nativeGetDuration());
             mTimeBean = null;
             mOnCompleteListener.onComplete();
+
+            if (!isOnlySoft()) {
+                if (mediaCodec != null) {
+                    mediaCodec.flush();
+                }
+            }
         }
     }
 

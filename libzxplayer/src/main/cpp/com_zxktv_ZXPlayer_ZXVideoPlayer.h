@@ -79,6 +79,14 @@ JNIEXPORT jint JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeGetDuration
 JNIEXPORT jint JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeGetAudioChannels
   (JNIEnv *, jobject);
 
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetVolume(JNIEnv *, jobject, jint);
+
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetVolMute
+        (JNIEnv *, jobject, jboolean);
+
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetChannelMute
+        (JNIEnv *, jobject, jint);
+
 /*
  * Class:     com_zxktv_ZXPlayer_ZXVideoPlayer
  * Method:    nativeGetVideoWidth
