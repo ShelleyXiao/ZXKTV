@@ -8,11 +8,18 @@ AudioDecoder::AudioDecoder(WlPlayStatus
                            JavaJNICallback *javaJNICall
 ) {
     streamIndex = -1;
-    out_buffer = (uint8_t *) malloc(sample_rate * 2 * 2 * 2 / 3);
+    out_buffer = (uint8_t *) malloc(sample_rate * 2 * 2 * 3 / 2);
     queue = new WlQueue(playStatus);
     wlPlayStatus = playStatus;
     this->javaJNICall = javaJNICall;
     dst_format = AV_SAMPLE_FMT_S16;
+
+    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(sample_rate * 2 * 2));
+    soundTouch = new SoundTouch();
+    soundTouch->setSampleRate(sample_rate);
+    soundTouch->setChannels(2);
+    soundTouch->setPitch(1.5f);
+    soundTouch->setTempo(1.0f);
 }
 
 AudioDecoder::~AudioDecoder() {
@@ -120,7 +127,7 @@ int AudioDecoder::getPcmData(void **pcm) {
         if (isReadPacketFinish) {
             isReadPacketFinish = false;
             packet = av_packet_alloc();
-            if (queue->getAvpacket(packet) != 0) {
+            if (this->queue->getAvpacket(packet) != 0) {
                 av_packet_free(&packet);
                 av_free(packet);
                 packet = NULL;
@@ -136,15 +143,15 @@ int AudioDecoder::getPcmData(void **pcm) {
                 continue;
             }
         }
-
+//        LOGD("22222222222222222222222222222222222222");
         AVFrame *frame = av_frame_alloc();
         if (avcodec_receive_frame(avCodecContext, frame) == 0) {
             // 设置通道数或channel_layout
-            if (frame->channels > 0 && frame->channel_layout == 0)
+            if (frame->channels > 0 && frame->channel_layout == 0) {
                 frame->channel_layout = av_get_default_channel_layout(frame->channels);
-            else if (frame->channels == 0 && frame->channel_layout > 0)
+            } else if (frame->channels == 0 && frame->channel_layout > 0) {
                 frame->channels = av_get_channel_layout_nb_channels(frame->channel_layout);
-
+            }
             SwrContext *swr_ctx;
             //重采样为立体声
             dst_layout = AV_CH_LAYOUT_STEREO;
@@ -153,7 +160,7 @@ int AudioDecoder::getPcmData(void **pcm) {
                                          frame->channel_layout,
                                          (enum AVSampleFormat) frame->format,
                                          frame->sample_rate, 0, NULL);
-
+//            LOGD("22222244444444444444444422222222");
             if (!swr_ctx || (ret = swr_init(swr_ctx)) < 0) {
                 av_frame_free(&frame);
                 av_free(frame);
@@ -164,14 +171,16 @@ int AudioDecoder::getPcmData(void **pcm) {
                 packet = NULL;
                 continue;
             }
+
             // 计算转换后的sample个数 a * b / c
             dst_nb_samples = (int) av_rescale_rnd(
                     swr_get_delay(swr_ctx, frame->sample_rate) + frame->nb_samples,
                     frame->sample_rate, frame->sample_rate, AV_ROUND_INF);
+            LOGD("22222244444444446666666666622222");
             // 转换，返回值为转换后的sample个数
             nb = swr_convert(swr_ctx, &out_buffer, dst_nb_samples,
                              (const uint8_t **) frame->data, frame->nb_samples);
-
+//            LOGI("444444444444444444444444444444");
             //根据布局获取声道数
             out_channels = av_get_channel_layout_nb_channels(dst_layout);
             data_size = out_channels * nb * av_get_bytes_per_sample(dst_format);
@@ -201,26 +210,54 @@ int AudioDecoder::getPcmData(void **pcm) {
     return data_size;
 }
 
+//void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
+//    AudioDecoder *audioDecoer = (AudioDecoder *) context;
+//    if (audioDecoer != NULL) {
+//        if (LOG_SHOW) {
+//            LOGE("pcm call back...");
+//        }
+//        audioDecoer->buffer = NULL;
+//        audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
+//        if (audioDecoer->buffer && audioDecoer->pcmsize > 0) {
+//            audioDecoer->clock +=
+//                    audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
+//            audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
+//                                                  audioDecoer->duration);
+////            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->buffer,
+////                                                wlAudio->pcmsize);
+//            SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
+//            if (pcmBufferQueue != NULL) {
+//                (*pcmBufferQueue)->Enqueue(pcmBufferQueue,
+//                                           audioDecoer->buffer,
+//                                           audioDecoer->pcmsize);
+//            }
+//        }
+//    }
+//}
+
 void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
     AudioDecoder *audioDecoer = (AudioDecoder *) context;
     if (audioDecoer != NULL) {
-        if (LOG_SHOW) {
-            LOGE("pcm call back...");
-        }
+//        LOGD("************* DEBUG 1");
         audioDecoer->buffer = NULL;
         audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
-        if (audioDecoer->buffer && audioDecoer->pcmsize > 0) {
-            audioDecoer->clock +=
-                    audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
+
+        int buffersize = audioDecoer->getSoundTouchData(audioDecoer->buffer, audioDecoer->pcmsize, context);
+
+        LOGD("************* DEBUG buffersize = %d", buffersize);
+//        LOGD("************* DEBUG 3");
+        if (audioDecoer->sampleBuffer && buffersize > 0) {
+
+            audioDecoer->clock += audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
+
             audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
                                                   audioDecoer->duration);
-//            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->buffer,
-//                                                wlAudio->pcmsize);
+
             SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
             if (pcmBufferQueue != NULL) {
-                (*pcmBufferQueue)->Enqueue(pcmBufferQueue,
-                                           audioDecoer->buffer,
-                                           audioDecoer->pcmsize);
+                (*pcmBufferQueue)->Enqueue((pcmBufferQueue),
+                                           audioDecoer->sampleBuffer,
+                                           buffersize * 2 * 2);
             }
         }
     }
@@ -288,6 +325,47 @@ void AudioDecoder::setChannelMute(int mute) {
         audioOutput->setChannelMute(mute);
     }
 }
+
+
+int AudioDecoder::getSoundTouchData(void *data_in, int data_size, void *context) {
+    AudioDecoder *decoder = (AudioDecoder *)context;
+    memset(decoder->sampleBuffer, 0, decoder->sample_rate * 2 * 2);
+    while (decoder->wlPlayStatus != NULL && !decoder->wlPlayStatus->exit) {
+//        out_buffer = NULL;
+//        LOGI("getSoundTouchData****************");
+        if (decoder->finished) {
+            decoder->finished = false;
+
+            uint8_t  *audioBufer = (uint8_t *) data_in;
+            LOGD("*********************** data_size = %d", data_size);
+            if (data_size > 0) {
+                for (int i = 0; i < data_size / 2 + 1; i++) {
+                    decoder->sampleBuffer[i] = (audioBufer[i * 2] | (audioBufer[i * 2 + 1]) << 8);
+                }
+                decoder->soundTouch->putSamples(decoder->sampleBuffer, decoder->nb);
+                num = decoder->soundTouch->receiveSamples(decoder->sampleBuffer, data_size / 4);
+            } else {
+                decoder->soundTouch->flush();
+            }
+        }
+        LOGD("*********************** 1");
+        if (num == 0) {
+            decoder->finished = true;
+            continue;
+        } else {
+            if (audioBufer == NULL) {
+                num = decoder->soundTouch->receiveSamples(decoder->sampleBuffer, data_size / 4);
+                if (num == 0) {
+                    decoder->finished = true;
+                    continue;
+                }
+            }
+            return num;
+        }
+    }
+    return 0;
+}
+
 
 
 

@@ -11,6 +11,10 @@
 #include "../JavaJNICallback.h"
 #include "audio_output.h"
 
+#include "SoundTouch.h"
+
+using namespace soundtouch;
+
 extern "C"
 {
 #include "libswresample/swresample.h"
@@ -47,6 +51,15 @@ public:
     bool isReadPacketFinish = true;
     AVPacket *packet;
 
+    //SoundTouch
+    SoundTouch *soundTouch = NULL;
+    SAMPLETYPE *sampleBuffer = NULL;
+    void *audioBufer;
+    bool finished = true;
+    int num = 0;
+
+    int getSoundTouchData(void *data_in, int data_size, void *context);
+
 
 public:
     AudioDecoder(WlPlayStatus *playStatus, JavaJNICallback *javaCall);
@@ -80,6 +93,7 @@ public:
     void setVolMute(bool mute);
 
     void setChannelMute(int mute);
+
 
 };
 

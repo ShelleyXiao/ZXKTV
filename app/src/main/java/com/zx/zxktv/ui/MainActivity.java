@@ -54,7 +54,9 @@ import com.zx.zxktv.ui.view.LongTouchButton;
 import com.zx.zxktv.ui.view.MagicTextView;
 import com.zx.zxktv.ui.view.OrderSangView;
 import com.zx.zxktv.ui.view.OrderSongsView;
+import com.zx.zxktv.ui.view.RepeatingButton;
 import com.zx.zxktv.ui.widget.BoxedVertical;
+import com.zx.zxktv.ui.widget.VerticalProgressBar;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridLayoutManager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridSnapHelper;
@@ -100,6 +102,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     private PopupWindow popup_Volume;
     private PopupWindow popup_Effect;
     private RadioButton rb_ordered;
+
+    private VerticalProgressBar vp_popEffect_pitch_1;
+    private VerticalProgressBar vp_popEffect_pitch_2;
 
     private RadioGroup rg_ordered;
     private TabHost tabHost_popup;
@@ -256,7 +261,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         rl_listView.setVisibility(View.INVISIBLE);
         tv_PageIndex.setText("0/0");
     }
-
 
 
     @Override
@@ -479,6 +483,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
+    public void onEffectClick() {
+        if (popup_Ordered != null && popup_Ordered.isShowing()) {
+            popup_Ordered.dismiss();
+        }
+        if (popup_Effect != null && popup_Effect.isShowing()) {
+            popup_Effect.dismiss();
+        }
+        if (popup_Volume != null && popup_Volume.isShowing()) {
+            popup_Volume.dismiss();
+            return;
+        }
+
+
+        try {
+            initPopUpWindowsEffect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void initPopUpWindowsOrdered() throws Exception {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -589,6 +613,108 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         popup_Volume.showAsDropDown(btn_volume, -5, -5);
     }
 
+    private void initPopUpWindowsEffect() throws Exception {
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View mView = inflater.inflate(R.layout.popup_control_effect, null);
+        int width = (int) (dm.widthPixels * (540.0 / 1008));
+
+        vp_popEffect_pitch_1 = (VerticalProgressBar) mView.findViewById(R.id.vp_pitch_1);
+        vp_popEffect_pitch_2 = (VerticalProgressBar) mView.findViewById(R.id.vp_pitch_2);
+        vp_popEffect_pitch_1.setCurrMode(VerticalProgressBar.MODE_BOTTOM);
+        vp_popEffect_pitch_2.setCurrMode(VerticalProgressBar.MODE_TOP);
+        vp_popEffect_pitch_1.setMax(80);
+        vp_popEffect_pitch_2.setMax(80);
+
+        RepeatingButton btn_pitch_raise = (RepeatingButton) mView.findViewById(R.id.btn_pitch_raise);
+        RepeatingButton btn_pitch_reduce = (RepeatingButton) mView.findViewById(R.id.btn_pitch_reduce);
+        Button btn_pitch_origin = (Button) mView.findViewById(R.id.btn_pitch_origin);
+
+        btn_pitch_origin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vp_popEffect_pitch_1.setProgress(0);
+                vp_popEffect_pitch_2.setProgress(0);
+            }
+        });
+
+        btn_pitch_raise.setRepeatListener(new RepeatingButton.RepeatListener() {
+            @Override
+            public void onRepeat(View v, long duration, int repeatcount) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_1 == 0 && curr_progress_2 > 0) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() - 20);
+                } else if (curr_progress_2 == 0 && curr_progress_1 < 80) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() + 20);
+                }
+            }
+        }, CONSTANT_LONG_REPEAT_TIME);
+        btn_pitch_reduce.setRepeatListener(new RepeatingButton.RepeatListener() {
+            @Override
+            public void onRepeat(View v, long duration, int repeatcount) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_2 == 0 && curr_progress_1 > 0) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() - 20);
+                } else if (curr_progress_1 == 0 && curr_progress_2 < 80) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() + 20);
+                }
+            }
+        }, CONSTANT_LONG_REPEAT_TIME);
+
+        btn_pitch_reduce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_2 == 0 && curr_progress_1 > 0) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() - 20);
+                } else if (curr_progress_1 == 0 && curr_progress_2 < 80) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() + 20);
+                }
+            }
+        });
+
+        btn_pitch_raise.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_1 == 0 && curr_progress_2 > 0) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() - 20);
+                } else if (curr_progress_2 == 0 && curr_progress_1 < 80) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() + 20);
+                }
+            }
+        });
+
+        Button btn_close = (Button) mView.findViewById(R.id.btn_close);
+        btn_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    if (popup_Effect != null && popup_Effect.isShowing()) {
+                        popup_Effect.dismiss();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+
+        popup_Effect = new PopupWindow(mView, 600, 610);
+        popup_Effect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
+        popup_Effect.showAsDropDown(btn_effect, 0, 5);
+    }
+
     private void destoryPopupWindow() {
         if (popup_Volume != null && popup_Volume.isShowing()) {
             popup_Volume.dismiss();
@@ -655,11 +781,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                 break;
             case R.id.btn_effect:
 //                mPresentationService.showGiftPresentation();
-                if (!mPresentationService.isMultiVideoShow()) {
-                    mPresentationService.showMultiVideoPresentation();
-                } else {
-                    mPresentationService.dismissMultiVideoPresentation();
-                }
+//                if (!mPresentationService.isMultiVideoShow()) {
+//                    mPresentationService.showMultiVideoPresentation();
+//                } else {
+//                    mPresentationService.dismissMultiVideoPresentation();
+//                }
+
+                onEffectClick();
                 break;
             default:
                 break;

@@ -44,7 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_marginTop="-10px"
-        android:background="@drawable/btn_request_ordersongs"
         android:visibility="invisible"/>
 
     <EditText
