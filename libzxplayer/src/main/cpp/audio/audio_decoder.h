@@ -54,9 +54,15 @@ public:
     //SoundTouch
     SoundTouch *soundTouch = NULL;
     SAMPLETYPE *sampleBuffer = NULL;
+    SAMPLETYPE  *processBuffer = NULL;
     void *audioBufer;
     bool finished = true;
     int num = 0;
+
+    int buffSize ;
+
+    float pitch = 1.9f;
+    float speed = 1.0f;
 
     int getSoundTouchData(void *data_in, int data_size, void *context);
 
@@ -94,6 +100,11 @@ public:
 
     void setChannelMute(int mute);
 
+    void setPitch(float pitch);
+
+    void setSpeed(float speed);
+
+    float getPitch();
 
 };
 

@@ -64,7 +64,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
         OnPreparedListener, OnCompleteListener, OnStopListener, OnInfoListener {
 
     private final static String TAG = "PresentationService";
-    private final static int PROGRESS_DETAL =  2;
+    private final static int PROGRESS_DETAL = 2;
     private final IBinder mBinder = new LocalBinder();
     private DisplayManager mDisplayManager;
     private GiftPresentation giftDisplay;
@@ -455,6 +455,19 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
+    public void setPitch(float pitch) {
+        if (mVideoPlayer != null) {
+            mVideoPlayer.setPitch(pitch);
+        }
+    }
+
+    public float getPicth() {
+        if (mVideoPlayer != null) {
+            return mVideoPlayer.getPitch();
+        }
+
+        return 1.0f;
+    }
 
     public void seekForward() {
         LogUtils.i("seekForward");

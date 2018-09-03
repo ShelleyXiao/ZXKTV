@@ -30,7 +30,7 @@
             android:layout_below="@+id/btn_pitch_raise"
             android:layout_marginLeft="155px"
             android:layout_marginTop="@dimen/px8"
-            android:max="80"
+            android:max="100"
             android:progress="0"
             android:progressDrawable="@drawable/pb_popup"/>
 
@@ -42,8 +42,8 @@
             android:layout_above="@+id/btn_pitch_reduce"
             android:layout_below="@+id/btn_pitch_origin"
             android:layout_marginLeft="155px"
-            android:max="80"
-            android:progress="80"
+            android:max="100"
+            android:progress="0"
             android:progressDrawable="@drawable/pb_popup"/>
 
         <com.zx.zxktv.ui.view.RepeatingButton

@@ -141,6 +141,28 @@ JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetChannelMut
     }
 }
 
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetPitch
+        (JNIEnv *env, jobject instance, jfloat picth) {
+    if (playerControl != NULL) {
+        playerControl->setPitch(picth);
+    }
+}
+
+JNIEXPORT jfloat JNICALL
+Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeGetPitch(JNIEnv *env, jobject instance) {
+    if (playerControl != NULL) {
+        return playerControl->getPitch();
+    }
+    return 1.0f;
+}
+
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetSpeed
+        (JNIEnv *env, jobject instance, jfloat speed) {
+    if (playerControl != NULL) {
+        playerControl->setSpeed(speed);
+    }
+}
+
 JNIEXPORT jint JNICALL
 Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeGetVideoWidth(JNIEnv *env, jobject instance) {
     if (playerControl != NULL) {

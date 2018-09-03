@@ -527,6 +527,25 @@ void VideoPlayerControl::setChannelMute(int mute) {
     }
 }
 
+void VideoPlayerControl::setPitch(float pitch) {
+    if(audioDecoder != NULL) {
+        audioDecoder->setPitch(pitch);
+    }
+}
+
+float VideoPlayerControl::getPitch() {
+    if(audioDecoder != NULL) {
+        return audioDecoder->getPitch();
+    }
+    return 1.0f;
+}
+
+void VideoPlayerControl::setSpeed(float speed) {
+    if(audioDecoder != NULL) {
+        audioDecoder->setSpeed(speed);
+    }
+}
+
 int VideoPlayerControl::getVideoWidth() {
     if (videoDecoder != NULL && videoDecoder->avCodecContext != NULL) {
         return videoDecoder->avCodecContext->width;

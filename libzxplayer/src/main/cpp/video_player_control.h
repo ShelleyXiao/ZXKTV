@@ -83,6 +83,12 @@ public:
     void setVolMute(bool mute);
 
     void setChannelMute(int mute);
+
+    void setPitch(float pitch);
+
+    void setSpeed(float speed);
+
+    float getPitch();
 };
 
 

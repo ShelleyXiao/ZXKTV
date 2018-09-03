@@ -112,6 +112,7 @@ public class ZXVideoPlayer {
     private static boolean initmediacodec = false;
     private static MuteEnum muteEnum = MuteEnum.MUTE_CENTER;
 
+
     public ZXVideoPlayer() {
         mTimeBean = new TimeBean();
     }
@@ -216,6 +217,10 @@ public class ZXVideoPlayer {
      */
     private native void nativeSetChannelMute(int mute);
 
+    private native void nativeSetPitch(float picth);
+
+    private native void nativeGetPitch();
+
     /**
      * 获取总时长
      *
@@ -247,7 +252,6 @@ public class ZXVideoPlayer {
     public int getDuration() {
         return nativeGetDuration();
     }
-
 
     public int getVideoWidth() {
         return getVideoWidth();
@@ -283,6 +287,16 @@ public class ZXVideoPlayer {
     public void setChannelMute(MuteEnum mute) {
         muteEnum = mute;
         nativeSetChannelMute(mute.getValue());
+    }
+
+    public void setPitch(float pitchVal) {
+        pitch = pitchVal;
+        nativeSetPitch(pitch);
+
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {

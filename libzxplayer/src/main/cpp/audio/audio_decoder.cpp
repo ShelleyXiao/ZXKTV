@@ -14,12 +14,22 @@ AudioDecoder::AudioDecoder(WlPlayStatus
     this->javaJNICall = javaJNICall;
     dst_format = AV_SAMPLE_FMT_S16;
 
-    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(sample_rate * 2 * 2));
+    buffSize = sample_rate * channels * av_get_bytes_per_sample(dst_format);
+
+    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(
+            sample_rate * channels * av_get_bytes_per_sample(dst_format)));
+    processBuffer = static_cast<SAMPLETYPE *>(malloc(
+            sample_rate * channels * av_get_bytes_per_sample(dst_format)));
     soundTouch = new SoundTouch();
     soundTouch->setSampleRate(sample_rate);
     soundTouch->setChannels(2);
-    soundTouch->setPitch(1.5f);
-    soundTouch->setTempo(1.0f);
+
+
+    soundTouch->setPitch(0.8f);
+//    soundTouch->setPitchOctaves(-0.5);
+//    soundTouch->setPitchSemiTones(8);
+    soundTouch->setTempo(this->speed);
+    soundTouch->setRate(1.0f);
 }
 
 AudioDecoder::~AudioDecoder() {
@@ -160,7 +170,6 @@ int AudioDecoder::getPcmData(void **pcm) {
                                          frame->channel_layout,
                                          (enum AVSampleFormat) frame->format,
                                          frame->sample_rate, 0, NULL);
-//            LOGD("22222244444444444444444422222222");
             if (!swr_ctx || (ret = swr_init(swr_ctx)) < 0) {
                 av_frame_free(&frame);
                 av_free(frame);
@@ -176,11 +185,10 @@ int AudioDecoder::getPcmData(void **pcm) {
             dst_nb_samples = (int) av_rescale_rnd(
                     swr_get_delay(swr_ctx, frame->sample_rate) + frame->nb_samples,
                     frame->sample_rate, frame->sample_rate, AV_ROUND_INF);
-            LOGD("22222244444444446666666666622222");
+//            LOGD("22222244444444446666666666622222");
             // 转换，返回值为转换后的sample个数
             nb = swr_convert(swr_ctx, &out_buffer, dst_nb_samples,
                              (const uint8_t **) frame->data, frame->nb_samples);
-//            LOGI("444444444444444444444444444444");
             //根据布局获取声道数
             out_channels = av_get_channel_layout_nb_channels(dst_layout);
             data_size = out_channels * nb * av_get_bytes_per_sample(dst_format);
@@ -242,22 +250,28 @@ void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
         audioDecoer->buffer = NULL;
         audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
 
-        int buffersize = audioDecoer->getSoundTouchData(audioDecoer->buffer, audioDecoer->pcmsize, context);
+        int sampleSize = audioDecoer->getSoundTouchData(audioDecoer->buffer, audioDecoer->pcmsize,
+                                                        context);
 
-        LOGD("************* DEBUG buffersize = %d", buffersize);
-//        LOGD("************* DEBUG 3");
-        if (audioDecoer->sampleBuffer && buffersize > 0) {
 
-            audioDecoer->clock += audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
+//        LOGD("************* DEBUG sampleSize = %d", sampleSize);
+
+        if (audioDecoer->processBuffer && sampleSize > 0) {
+
+            audioDecoer->clock +=
+                    (double) (sampleSize * audioDecoer->channels *
+                              av_get_bytes_per_sample(audioDecoer->dst_format) /
+                              ((double) (audioDecoer->sample_rate * audioDecoer->channels *
+                                         av_get_bytes_per_sample(audioDecoer->dst_format))));
 
             audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
                                                   audioDecoer->duration);
-
             SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
             if (pcmBufferQueue != NULL) {
                 (*pcmBufferQueue)->Enqueue((pcmBufferQueue),
-                                           audioDecoer->sampleBuffer,
-                                           buffersize * 2 * 2);
+                                           audioDecoer->processBuffer,
+                                           sampleSize * audioDecoer->channels *
+                                           av_get_bytes_per_sample(audioDecoer->dst_format));
             }
         }
     }
@@ -328,42 +342,109 @@ void AudioDecoder::setChannelMute(int mute) {
 
 
 int AudioDecoder::getSoundTouchData(void *data_in, int data_size, void *context) {
-    AudioDecoder *decoder = (AudioDecoder *)context;
-    memset(decoder->sampleBuffer, 0, decoder->sample_rate * 2 * 2);
+    AudioDecoder *decoder = (AudioDecoder *) context;
+    memset(decoder->sampleBuffer, 0, decoder->buffSize);
+    memset(decoder->processBuffer, 0, decoder->buffSize);
+    int num = 0;
     while (decoder->wlPlayStatus != NULL && !decoder->wlPlayStatus->exit) {
-//        out_buffer = NULL;
-//        LOGI("getSoundTouchData****************");
         if (decoder->finished) {
             decoder->finished = false;
 
-            uint8_t  *audioBufer = (uint8_t *) data_in;
-            LOGD("*********************** data_size = %d", data_size);
+            uint8_t *audioBufer = (uint8_t *) data_in;
+//            LOGD("*********************** data_size = %d", data_size);
             if (data_size > 0) {
                 for (int i = 0; i < data_size / 2 + 1; i++) {
                     decoder->sampleBuffer[i] = (audioBufer[i * 2] | (audioBufer[i * 2 + 1]) << 8);
                 }
                 decoder->soundTouch->putSamples(decoder->sampleBuffer, decoder->nb);
-                num = decoder->soundTouch->receiveSamples(decoder->sampleBuffer, data_size / 4);
+//
+                num = decoder->soundTouch->receiveSamples(decoder->processBuffer, data_size / 4);
             } else {
                 decoder->soundTouch->flush();
             }
         }
-        LOGD("*********************** 1");
+
         if (num == 0) {
             decoder->finished = true;
+            memset(decoder->processBuffer, 0, decoder->sample_rate * 2 * 2);
             continue;
         } else {
             if (audioBufer == NULL) {
-                num = decoder->soundTouch->receiveSamples(decoder->sampleBuffer, data_size / 4);
+                num = decoder->soundTouch->receiveSamples(decoder->processBuffer, data_size / 4);
                 if (num == 0) {
                     decoder->finished = true;
+                    memset(decoder->processBuffer, 0, decoder->sample_rate * 2 * 2);
                     continue;
                 }
             }
+
             return num;
         }
     }
     return 0;
+}
+
+//int AudioDecoder::getSoundTouchData(void *data_in, int data_size, void *context) {
+//    AudioDecoder *decoder = (AudioDecoder *) context;
+//    memset(decoder->sampleBuffer, 0, decoder->sample_rate * channels * av_get_bytes_per_sample(dst_format));
+//
+//    SAMPLETYPE pcmBufer[decoder->sample_rate * channels * av_get_bytes_per_sample(dst_format)];
+//
+//    int nb = 0;
+//    int pcmDataSize = 0, totalPcmSize = 0;
+//    while (decoder->wlPlayStatus != NULL && !decoder->wlPlayStatus->exit) {
+//        if (data_size > 0) {
+//            uint8_t *audioBufer = (uint8_t *) data_in;
+//            for (int i = 0; i < data_size / 2 + 1; i++) {
+//                decoder->sampleBuffer[i] = (audioBufer[i * 2] | (audioBufer[i * 2 + 1]) << 8);
+//            }
+//            decoder->soundTouch->putSamples(decoder->sampleBuffer, decoder->nb);
+//            do {
+//                nb = decoder->soundTouch->receiveSamples(pcmBufer, sample_rate / channels);
+//                pcmDataSize += nb * channels * av_get_bytes_per_sample(dst_format);
+//            } while (nb != 0);
+//            memcpy(decoder->sampleBuffer, pcmBufer, pcmDataSize);
+//
+//            memset(pcmBufer, 0,
+//                   decoder->sample_rate * channels * av_get_bytes_per_sample(dst_format));
+//            decoder->soundTouch->flush();
+//            totalPcmSize += pcmDataSize;
+//            pcmDataSize = 0;
+//
+//            do {
+//                nb = decoder->soundTouch->receiveSamples(pcmBufer, sample_rate / channels);
+//                pcmDataSize += nb * channels * av_get_bytes_per_sample(dst_format);
+//            } while (nb != 0);
+//            memcpy(decoder->sampleBuffer + totalPcmSize, pcmBufer, pcmDataSize);
+//            decoder->soundTouch->flush();
+//            totalPcmSize += pcmDataSize;
+//
+//        }
+//
+//        return totalPcmSize;
+//    }
+//    return 0;
+//}
+
+
+void AudioDecoder::setPitch(float pitch) {
+    this->pitch = pitch;
+    if (soundTouch != NULL) {
+        soundTouch->setPitch(pitch);
+        LOGD("setPitch pitch = %f", pitch);
+        soundTouch->setTempo(1.0f);
+    }
+}
+
+float AudioDecoder::getPitch() {
+    return this->pitch;
+}
+
+void AudioDecoder::setSpeed(float speed) {
+    this->speed = speed;
+    if (soundTouch != NULL) {
+        soundTouch->setTempo(speed);
+    }
 }
 
 
