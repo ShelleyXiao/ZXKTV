@@ -35,6 +35,7 @@ add_library(
              ${FILES_COMMON_UTILS}
              ${FILES_COMMON_OPENSL}
              ${FILES_SOUNDTOUCH}
+
              )
 
 #添加libavcodec-57.so
@@ -96,6 +97,15 @@ set_target_properties( postproc-54
                        PROPERTIES IMPORTED_LOCATION
                        ${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libpostproc-54.so)
 
+add_library( sox
+             SHARED
+             IMPORTED)
+set_target_properties( sox
+                       PROPERTIES IMPORTED_LOCATION
+                       ${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libsox.so)
+
+
+
 
 
 target_link_libraries( # Specifies the target library.
@@ -108,6 +118,7 @@ target_link_libraries( # Specifies the target library.
                        swresample-2
                        swscale-4
                        postproc-54
+                       sox
                        OpenSLES
                        android
                        log
