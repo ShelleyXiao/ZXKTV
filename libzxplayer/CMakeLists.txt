@@ -18,6 +18,12 @@ include_directories(src/main/cpp/video)
 include_directories(src/main/cpp/common)
 include_directories(src/main/cpp/soundtouch/include)
 include_directories(src/main/cpp/soundtouch/SoundTouch)
+include_directories(src/main/cpp/audio_effect)
+include_directories(src/main/cpp/libcommon)
+
+add_subdirectory(src/main/cpp/libcommon)
+add_subdirectory(src/main/cpp/audio_effect)
+
 
 add_library(
              zxplayer
@@ -122,4 +128,7 @@ target_link_libraries( # Specifies the target library.
                        OpenSLES
                        android
                        log
+                       libcommontool
+                       libaudioeffect
+
                         )

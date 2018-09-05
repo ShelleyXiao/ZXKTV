@@ -2,10 +2,10 @@
 #define PITCH_SHIFT_EFFECT_FILTER_H
 
 #include "../../audio_effect_filter/audio_effect_filter.h"
-#include "./include/SoundTouch.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <SoundTouch.h>
 
 using namespace soundtouch;
 

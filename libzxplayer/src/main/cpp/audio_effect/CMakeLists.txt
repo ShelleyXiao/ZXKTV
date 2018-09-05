@@ -5,28 +5,28 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-set(LIB_SRC_DIR "${CMAKE_SOURCE_DIR}/src/main/cpp/audio_effect")
+set(LIB_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 message("audioEffect: ${LIB_SRC_DIR}" )
 
-include_directories(${CMAKE_SOURCE_DIR}/src/main/cpp/audio_effect/libaudio_effect/audio_effect_filter_impl/pitch_shift/include
-            ${CMAKE_SOURCE_DIR}/src/main/cpp/libcommon
-            ${CMAKE_SOURCE_DIR}/src/main/cpp/3rdparty/ffmpeg/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/../libcommon
+            ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFIXED_POINT -DUSE_KISS_FFT -DEXPORT='' -UHAVE_CONFIG_H")
 
 add_library(libaudioeffect STATIC
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/AAFilter.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/BPMDetect.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/cpu_detect_x86_gcc.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/FIFOSampleBuffer.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/FIRFilter.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/mmx_optimized.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/PeakFinder.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/RateTransposer.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/SoundTouch.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/sse_optimized.cpp
-                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/TDStretch.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/AAFilter.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/BPMDetect.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/cpu_detect_x86_gcc.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/FIFOSampleBuffer.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/FIRFilter.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/mmx_optimized.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/PeakFinder.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/RateTransposer.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/SoundTouch.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/sse_optimized.cpp
+               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/SoundTouch/TDStretch.cpp
 
                 ${LIB_SRC_DIR}/libaudio_effect/audio_effect_impl/harmonic/harmonic_audio_effect.cpp
                 ${LIB_SRC_DIR}/libaudio_effect/audio_effect_impl/harmonic/harmonic_audio_effect_builder.cpp

@@ -1,3 +1,4 @@
+#include <SoundTouch.h>
 #include "./accompany_pitch_shift_effect_filter.h"
 
 #define LOG_TAG "AccompanyPitchShiftEffectFilter"
