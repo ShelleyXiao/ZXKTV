@@ -95,6 +95,7 @@ JNIEXPORT jfloat JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeGetPitch(JN
 JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetSpeed
         (JNIEnv *, jobject, jfloat);
 
+JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetAudioEffect(JNIEnv *, jobject , jobject );
 /*
  * Class:     com_zxktv_ZXPlayer_ZXVideoPlayer
  * Method:    nativeGetVideoWidth

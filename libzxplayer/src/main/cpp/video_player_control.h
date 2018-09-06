@@ -5,6 +5,7 @@
 #ifndef WLPLAYER_WLFFMPEG_H
 #define WLPLAYER_WLFFMPEG_H
 
+#include <libaudio_effect/audio_effect/audio_effect.h>
 #include "common/AndroidLog.h"
 #include "pthread.h"
 #include "base_player.h"
@@ -89,6 +90,8 @@ public:
     void setSpeed(float speed);
 
     float getPitch();
+
+    void setAudioEffect(AudioEffect* audioEffectParam);
 };
 
 

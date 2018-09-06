@@ -24,6 +24,7 @@ int PitchShiftEffectFilter::process(short* samples, int sampleSize) {
 	soundTouch->putSamples((SAMPLETYPE *) samples, sampleSize / channels);
 	//取回已经处理好的data，并且返回响应data的个数
 	int actualSampleSize = soundTouch->receiveSamples((SAMPLETYPE *) samples, sampleSize / channels);
+	LOGI("PROCESS *********** %d", actualSampleSize)
 	return actualSampleSize;
 }
 

@@ -1,4 +1,5 @@
 #include <opensl_media/opensl_es_context.h>
+#include <libaudio_effect/audio_effect_processor/audio_effect_processor_factory.h>
 #include "audio_decoder.h"
 
 #define LOG_TAG "AUDIO"
@@ -16,20 +17,18 @@ AudioDecoder::AudioDecoder(WlPlayStatus
 
     buffSize = sample_rate * channels * av_get_bytes_per_sample(dst_format);
 
-    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(
-            sample_rate * channels * av_get_bytes_per_sample(dst_format)));
-    processBuffer = static_cast<SAMPLETYPE *>(malloc(
-            sample_rate * channels * av_get_bytes_per_sample(dst_format)));
-    soundTouch = new SoundTouch();
-    soundTouch->setSampleRate(sample_rate);
-    soundTouch->setChannels(2);
-
-
-    soundTouch->setPitch(0.8f);
-//    soundTouch->setPitchOctaves(-0.5);
-//    soundTouch->setPitchSemiTones(8);
-    soundTouch->setTempo(this->speed);
-    soundTouch->setRate(1.0f);
+    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
+    processBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
+//    soundTouch = new SoundTouch();
+//    soundTouch->setSampleRate(sample_rate);
+//    soundTouch->setChannels(2);
+//
+//
+//    soundTouch->setPitch(0.8f);
+////    soundTouch->setPitchOctaves(-0.5);
+////    soundTouch->setPitchSemiTones(8);
+//    soundTouch->setTempo(this->speed);
+//    soundTouch->setRate(1.0f);
 }
 
 AudioDecoder::~AudioDecoder() {
@@ -218,6 +217,89 @@ int AudioDecoder::getPcmData(void **pcm) {
     return data_size;
 }
 
+//sox
+void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
+    AudioDecoder *audioDecoer = (AudioDecoder *) context;
+    if (audioDecoer != NULL) {
+        if (LOG_SHOW) {
+            LOGE("pcm call back...");
+        }
+        audioDecoer->buffer = NULL;
+        audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
+        short *audioBufer = (short *) audioDecoer->buffer;
+//        memset(audioDecoer->sampleBuffer, 0, audioDecoer->buffSize);
+//        if (audioDecoer->pcmsize > 0) {
+//            for (int i = 0; i < audioDecoer->pcmsize / 2 + 1; i++) {
+//                audioDecoer->sampleBuffer[i] = (audioBufer[i * 2] | (audioBufer[i * 2 + 1]) << 8);
+//            }
+//        }
+//        delete audioDecoer->buffer;
+        //*************************sox process*********************************
+        if (NULL != audioBufer) {
+            int samplePacketSize = audioDecoer->pcmsize / 2;
+            if (samplePacketSize > 0) {
+                //copy the raw data to samples
+                if (audioDecoer->audioEffectProcessor != NULL) {
+                    AudioResponse *response = audioDecoer->audioEffectProcessor->processAccompany(
+                            audioBufer, samplePacketSize, 0, 0);
+                    int *soundTouchReceiveSamples = (int *) response->get(
+                            ACCOMPANYRESPONSE_KEY_RECEIVESAMPLES_SIZE);
+                    if (soundTouchReceiveSamples != NULL) {
+                        if (*soundTouchReceiveSamples >= 0) {
+                            samplePacketSize = *soundTouchReceiveSamples;
+                        }
+                        delete soundTouchReceiveSamples;
+                    }
+
+                    //由于被PitchShift吞掉一些Sample所以这里更新AccompanyPacket的size
+//					LOGI("PitchShift吞掉一些Sample {%d--->%d}", accompanyPacket->size, samplePacketSize);
+                    //     accompanyPacket->size = samplePacketSize;
+                    int accompanyPitchShiftUnProcessSample = 0;
+                    int *lastSoundTouchUnprocessSamples = (int *) response->get(
+                            ACCOMPANYRESPONSE_KEY_PITCHSHIFT_UNPROCESS_SIZE);
+                    if (lastSoundTouchUnprocessSamples != NULL) {
+                        response->deleteKey(ACCOMPANYRESPONSE_KEY_PITCHSHIFT_UNPROCESS_SIZE);
+                        accompanyPitchShiftUnProcessSample = *lastSoundTouchUnprocessSamples;
+                        delete lastSoundTouchUnprocessSamples;
+                    }
+                    //  slientSizeArr[0] = accompanyPitchShiftUnProcessSample;
+                    if (accompanyPitchShiftUnProcessSample > 0) {
+//						LOGI("由于重新变调再也找不回来的Sample个数 {%d}", accompanyPitchShiftUnProcessSample);
+                        //重新分配Accompany Packet
+                        int reAllocatedSize = samplePacketSize + accompanyPitchShiftUnProcessSample;
+                        short *buffer = new short[reAllocatedSize];
+                        memset(buffer, 0, reAllocatedSize * sizeof(short));
+                        memcpy(buffer, audioBufer, samplePacketSize * sizeof(short));
+//                        delete accompanyPacket;
+//                        accompanyPacket = new LiveAudioPacket();
+//                        accompanyPacket->size = reAllocatedSize;
+//                        accompanyPacket->buffer = buffer;
+                    }
+                }
+                memcpy(audioDecoer->processBuffer, audioBufer, samplePacketSize * 2);
+
+            }
+            //**********************************************************
+
+
+            if (audioDecoer->processBuffer && audioDecoer->pcmsize > 0) {
+                audioDecoer->clock +=
+                        audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
+                audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
+                                                      audioDecoer->duration);
+//            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->buffer,
+//                                                wlAudio->pcmsize);
+                SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
+                if (pcmBufferQueue != NULL) {
+                    (*pcmBufferQueue)->Enqueue(pcmBufferQueue,
+                                               audioDecoer->processBuffer,
+                                               audioDecoer->pcmsize);
+                }
+            }
+        }
+    }
+}
+
 //void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
 //    AudioDecoder *audioDecoer = (AudioDecoder *) context;
 //    if (audioDecoer != NULL) {
@@ -243,39 +325,39 @@ int AudioDecoder::getPcmData(void **pcm) {
 //    }
 //}
 
-void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
-    AudioDecoder *audioDecoer = (AudioDecoder *) context;
-    if (audioDecoer != NULL) {
-//        LOGD("************* DEBUG 1");
-        audioDecoer->buffer = NULL;
-        audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
-
-        int sampleSize = audioDecoer->getSoundTouchData(audioDecoer->buffer, audioDecoer->pcmsize,
-                                                        context);
-
-
-//        LOGD("************* DEBUG sampleSize = %d", sampleSize);
-
-        if (audioDecoer->processBuffer && sampleSize > 0) {
-
-            audioDecoer->clock +=
-                    (double) (sampleSize * audioDecoer->channels *
-                              av_get_bytes_per_sample(audioDecoer->dst_format) /
-                              ((double) (audioDecoer->sample_rate * audioDecoer->channels *
-                                         av_get_bytes_per_sample(audioDecoer->dst_format))));
-
-            audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
-                                                  audioDecoer->duration);
-            SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
-            if (pcmBufferQueue != NULL) {
-                (*pcmBufferQueue)->Enqueue((pcmBufferQueue),
-                                           audioDecoer->processBuffer,
-                                           sampleSize * audioDecoer->channels *
-                                           av_get_bytes_per_sample(audioDecoer->dst_format));
-            }
-        }
-    }
-}
+//void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
+//    AudioDecoder *audioDecoer = (AudioDecoder *) context;
+//    if (audioDecoer != NULL) {
+////        LOGD("************* DEBUG 1");
+//        audioDecoer->buffer = NULL;
+//        audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
+//
+//        int sampleSize = audioDecoer->getSoundTouchData(audioDecoer->buffer, audioDecoer->pcmsize,
+//                                                        context);
+//
+//
+////        LOGD("************* DEBUG sampleSize = %d", sampleSize);
+//
+//        if (audioDecoer->processBuffer && sampleSize > 0) {
+//
+//            audioDecoer->clock +=
+//                    (double) (sampleSize * audioDecoer->channels *
+//                              av_get_bytes_per_sample(audioDecoer->dst_format) /
+//                              ((double) (audioDecoer->sample_rate * audioDecoer->channels *
+//                                         av_get_bytes_per_sample(audioDecoer->dst_format))));
+//
+//            audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
+//                                                  audioDecoer->duration);
+//            SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
+//            if (pcmBufferQueue != NULL) {
+//                (*pcmBufferQueue)->Enqueue((pcmBufferQueue),
+//                                           audioDecoer->processBuffer,
+//                                           sampleSize * audioDecoer->channels *
+//                                           av_get_bytes_per_sample(audioDecoer->dst_format));
+//            }
+//        }
+//    }
+//}
 
 
 bool AudioDecoder::initAudioOutput() {
@@ -447,7 +529,15 @@ void AudioDecoder::setSpeed(float speed) {
     }
 }
 
-
+void AudioDecoder::setAudioEffect(AudioEffect *audioEffectParam) {
+    LOGI("enter AudioDecoder::setAudioEffect()");
+    if (audioEffectProcessor == NULL) {
+        audioEffectProcessor = AudioEffectProcessorFactory::GetInstance()->buildAccompanyEffectProcessor();
+        audioEffectProcessor->init(audioEffectParam);
+        LOGI("DDDDDDDDDDDDDDDDsetAudioEffectDDDDDDDDDDDDD");
+    }
+    audioEffectProcessor->setAudioEffect(audioEffectParam);
+}
 
 
 

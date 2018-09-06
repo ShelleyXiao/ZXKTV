@@ -13,14 +13,14 @@ AudioEffect* AudioEffectBuilder::buildAudioEffect(jobject audioEffect, JNIEnv* e
 	//method in class AudioEffect
 	jmethodID audioEffect_getAccompanyVolume = env->GetMethodID(cls_AudioEffect, "getAccompanyVolume", "()F");
 	jmethodID audioEffect_getAudioVolume = env->GetMethodID(cls_AudioEffect, "getAudioVolume", "()F");
-	jmethodID audioEffect_getReverbParam = env->GetMethodID(cls_AudioEffect, "getReverbParam", "()Lcom/timeapp/shawn/recorder/pro/audioeffect/SOXReverbParam;");
-	jmethodID audioEffect_getEqualizerParam = env->GetMethodID(cls_AudioEffect, "getEqualizerParam", "()Lcom/timeapp/shawn/recorder/pro/audioeffect/SOXEqualizerParam;");
-	jmethodID audioEffect_getCompressorParam = env->GetMethodID(cls_AudioEffect, "getCompressorParam", "()Lcom/timeapp/shawn/recorder/pro/audioeffect/SOXCompressorParam;");
+	jmethodID audioEffect_getReverbParam = env->GetMethodID(cls_AudioEffect, "getReverbParam", "()Lcom/zxktv/audioeffect/SOXReverbParam;");
+	jmethodID audioEffect_getEqualizerParam = env->GetMethodID(cls_AudioEffect, "getEqualizerParam", "()Lcom/zxktv/audioeffect/SOXEqualizerParam;");
+	jmethodID audioEffect_getCompressorParam = env->GetMethodID(cls_AudioEffect, "getCompressorParam", "()Lcom/zxktv/audioeffect/SOXCompressorParam;");
 	jmethodID audioEffect_getVocalEffectFilterChain = env->GetMethodID(cls_AudioEffect, "getVocalEffectFilterChain", "()Ljava/util/ArrayList;");
 	jmethodID audioEffect_getAccompanyEffectFilterChain = env->GetMethodID(cls_AudioEffect, "getAccompanyEffectFilterChain", "()Ljava/util/ArrayList;");
 	jmethodID audioEffect_getMixPostEffectFilterChain = env->GetMethodID(cls_AudioEffect, "getMixPostEffectFilterChain", "()Ljava/util/ArrayList;");
-	jmethodID audioEffect_getAudioInfo = env->GetMethodID(cls_AudioEffect, "getAudioInfo", "()Lcom/timeapp/shawn/recorder/pro/audioeffect/AudioInfo;");
-	jmethodID audioEffect_getOutputGainParam = env->GetMethodID(cls_AudioEffect, "getOutputGainParam", "()Lcom/timeapp/shawn/recorder/pro/audioeffect/OutputGainParam;");
+	jmethodID audioEffect_getAudioInfo = env->GetMethodID(cls_AudioEffect, "getAudioInfo", "()Lcom/zxktv/audioeffect/AudioInfo;");
+	jmethodID audioEffect_getOutputGainParam = env->GetMethodID(cls_AudioEffect, "getOutputGainParam", "()Lcom/zxktv/audioeffect/OutputGainParam;");
 
 	jmethodID audioEffect_getAccompanyDefault = env->GetMethodID(cls_AudioEffect, "getAccompanyDefault", "()F");
 	jmethodID audioEffect_getAccompanyVolumeDefault = env->GetMethodID(cls_AudioEffect, "getAccompanyVolumeDefault", "()F");

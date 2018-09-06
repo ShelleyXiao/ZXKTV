@@ -50,6 +50,11 @@ import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.LogUtils;
 import com.zxktv.ZXPlayer.TimeBean;
 import com.zxktv.ZXPlayer.ZXVideoPlayer;
+import com.zxktv.audioeffect.AudioEffect;
+import com.zxktv.audioeffect.AudioEffectEQEnum;
+import com.zxktv.audioeffect.AudioEffectParamController;
+import com.zxktv.audioeffect.AudioEffectStyleEnum;
+import com.zxktv.audioeffect.AudioInfo;
 import com.zxktv.listener.OnCompleteListener;
 import com.zxktv.listener.OnErrorListener;
 import com.zxktv.listener.OnInfoListener;
@@ -94,6 +99,18 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private ZXVideoPlayer mVideoPlayer;
     private TimeBean mTimeBean;
     private int progress = 0;
+
+    private AudioEffect audioEffect;
+    private AudioInfo audioInfo;
+
+    private float accompanyVolume = 1.0f;
+    private float audioVolume = 1.0f;
+    //[-3, 3] 0代表正常不变调
+    private int pitchShiftLevel = 0;
+    private float accompanyPitch = (float) Math.pow(1.059463094359295, pitchShiftLevel);
+    private static final int ACCOMPANY_VOLUME_CHANGED = 1098703;
+    private static final int AUDIO_VOLUME_CHANGED = 1098704;
+    private static final int PITCH_LEVEL_CHANGED = 1098705;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
@@ -188,6 +205,12 @@ public class PresentationService extends Service implements OnFrameAvailableList
     public void onPrepared() {
         LogUtils.d("prepare starting......");
         mVideoPlayer.start();
+        pitchShiftLevel = -3;
+        accompanyPitch = (float) Math.pow(1.059463094359295, pitchShiftLevel);
+        audioEffect.getAudioInfo().setAccomanyPitch(accompanyPitch, pitchShiftLevel);
+
+
+        mVideoPlayer.setAudioEffect(audioEffect);
     }
 
     @Override
@@ -325,6 +348,21 @@ public class PresentationService extends Service implements OnFrameAvailableList
                 }
             });
 
+
+            audioEffect = AudioEffectParamController.getInstance().extractParam(AudioEffectStyleEnum.POPULAR,
+                    AudioEffectEQEnum.STANDARD);
+            int duration = 120 * 60 * 1000;
+            int audioSampleRate = 44100;
+            int channels = 2;
+            int recordedTimeMills = duration;
+            int totalTimeMills = 120 * 60 * 1000;
+            float accompanyAGCVolume = 1.0f;
+            float audioAGCVolume = 1.0f;
+            audioInfo = new AudioInfo(channels, audioSampleRate, recordedTimeMills, totalTimeMills,
+                    accompanyAGCVolume, audioAGCVolume, (float) accompanyPitch, "", pitchShiftLevel);
+            audioEffect.setAudioInfo(audioInfo);
+            audioEffect.setAudioVolume(audioVolume);
+
         } else {
             //mSurfaceTexture.attachToGLContext(texture);
         }
@@ -351,7 +389,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
         // The PendingIntent to launch our activity if the user selects this notification
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class), 0);
-
 
     }
 

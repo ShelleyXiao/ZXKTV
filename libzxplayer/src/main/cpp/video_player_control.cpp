@@ -116,7 +116,7 @@ int VideoPlayerControl::decodeFFmpeg() {
         audioDecoder = new AudioDecoder(wlPlayStatus, javaJNICallback);
         LOGI("CHANNEL SIZE = %d", getAudioChannels());
         int size = getAudioChannels();
-        if(size > 1) {
+        if (size > 1) {
             setAudioChannel(1);
         } else {
             setAudioChannel(0);
@@ -503,45 +503,50 @@ void VideoPlayerControl::setVideoChannel(int id) {
 }
 
 
-
 int VideoPlayerControl::getAudioChannels() {
     return audiochannels.size();
 }
 
 
 void VideoPlayerControl::setVolume(int percent) {
-    if(audioDecoder != NULL) {
+    if (audioDecoder != NULL) {
         audioDecoder->setVolume(percent);
     }
 }
 
 void VideoPlayerControl::setVolMute(bool mute) {
-    if(audioDecoder != NULL) {
+    if (audioDecoder != NULL) {
         audioDecoder->setVolMute(mute);
     }
 }
 
 void VideoPlayerControl::setChannelMute(int mute) {
-    if(audioDecoder != NULL) {
+    if (audioDecoder != NULL) {
         audioDecoder->setChannelMute(mute);
     }
 }
 
 void VideoPlayerControl::setPitch(float pitch) {
-    if(audioDecoder != NULL) {
+    if (audioDecoder != NULL) {
         audioDecoder->setPitch(pitch);
     }
 }
 
 float VideoPlayerControl::getPitch() {
-    if(audioDecoder != NULL) {
+    if (audioDecoder != NULL) {
         return audioDecoder->getPitch();
     }
     return 1.0f;
 }
 
+void VideoPlayerControl::setAudioEffect(AudioEffect *audioEffectParam) {
+    if (audioDecoder != NULL) {
+        return audioDecoder->setAudioEffect(audioEffectParam);
+    }
+}
+
 void VideoPlayerControl::setSpeed(float speed) {
-    if(audioDecoder != NULL) {
+    if (audioDecoder != NULL) {
         audioDecoder->setSpeed(speed);
     }
 }

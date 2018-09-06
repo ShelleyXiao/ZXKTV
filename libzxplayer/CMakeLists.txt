@@ -108,8 +108,7 @@ add_library( sox
              IMPORTED)
 set_target_properties( sox
                        PROPERTIES IMPORTED_LOCATION
-                       ${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libsox.so)
-
+                       ${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libsox.a)
 
 
 

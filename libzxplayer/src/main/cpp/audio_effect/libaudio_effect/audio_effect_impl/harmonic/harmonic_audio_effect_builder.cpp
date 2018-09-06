@@ -11,7 +11,7 @@ HarmonicAudioEffectBuilder::~HarmonicAudioEffectBuilder() {
 AudioEffect* HarmonicAudioEffectBuilder::generateAudioEffect(jobject audioEffect, JNIEnv* env, AudioInfo* audioInfo, std::list<int>* vocalEffectFilters, std::list<int>* accompanyEffectFilters,
 		std::list<int>* mixPostEffectFilters, float accompanyVolume, float audioVolume, SOXFilterChainParam* filterChainParam, float outputGainParam) {
 	jclass cls_AudioEffect = env->GetObjectClass(audioEffect);
-	jmethodID audioEffect_getAudioInfo = env->GetMethodID(cls_AudioEffect, "getAudioInfo", "()Lcom/timeapp/shawn/recorder/pro/audioeffect/AudioInfo;");
+	jmethodID audioEffect_getAudioInfo = env->GetMethodID(cls_AudioEffect, "getAudioInfo", "()Lcom/zxktv/audioeffect/AudioInfo;");
 	jobject audioInfoInJNI = env->CallObjectMethod(audioEffect, audioEffect_getAudioInfo);
 	jclass cls_AudioInfo = env->GetObjectClass(audioInfoInJNI);
 	jmethodID audioInfo_getMelFilePath = env->GetMethodID(cls_AudioInfo, "getMelFilePath", "()Ljava/lang/String;");

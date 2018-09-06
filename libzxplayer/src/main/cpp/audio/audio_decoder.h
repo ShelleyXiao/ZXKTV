@@ -4,6 +4,8 @@
 #define ZXPLAYER_AUDIO_H
 
 
+#include <libaudio_effect/audio_effect/audio_effect.h>
+#include <libaudio_effect/audio_effect_processor/audio_effect_processor.h>
 #include "../base_player.h"
 #include "../common/WlQueue.h"
 #include "../common/AndroidLog.h"
@@ -67,6 +69,12 @@ public:
     int getSoundTouchData(void *data_in, int data_size, void *context);
 
 
+    /** 由于可能要进行音量的变化，这个是控制音量的值 **/
+    float volume;
+    float accompanyMax;
+
+    AudioEffectProcessor* audioEffectProcessor;
+
 public:
     AudioDecoder(WlPlayStatus *playStatus, JavaJNICallback *javaCall);
 
@@ -105,6 +113,8 @@ public:
     void setSpeed(float speed);
 
     float getPitch();
+
+    void setAudioEffect(AudioEffect* audioEffectParam);
 
 };
 

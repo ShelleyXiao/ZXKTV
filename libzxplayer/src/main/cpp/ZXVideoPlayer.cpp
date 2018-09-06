@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <stddef.h>
+#include <libaudio_effect/audio_effect/audio_effect_adapter.h>
 #include "common/AndroidLog.h"
 #include "JavaJNICallback.h"
 #include "video_player_control.h"
@@ -160,6 +161,16 @@ JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetSpeed
         (JNIEnv *env, jobject instance, jfloat speed) {
     if (playerControl != NULL) {
         playerControl->setSpeed(speed);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeSetAudioEffect(JNIEnv *env, jobject obj,
+                                                           jobject audioEffectParam) {
+    if (playerControl != NULL) {
+        AudioEffect *cbAudioEffect = AudioEffectAdapter::GetInstance()->buildAudioEffect(
+                audioEffectParam, env);
+        playerControl->setAudioEffect(cbAudioEffect);
     }
 }
 

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
+import com.zxktv.audioeffect.AudioEffect;
 import com.zxktv.listener.OnCompleteListener;
 import com.zxktv.listener.OnErrorListener;
 import com.zxktv.listener.OnGlSurfaceViewOncreateListener;
@@ -221,6 +222,8 @@ public class ZXVideoPlayer {
 
     private native void nativeGetPitch();
 
+    private native void nativeSetAudioEffect(AudioEffect effectParam);
+
     /**
      * 获取总时长
      *
@@ -293,6 +296,10 @@ public class ZXVideoPlayer {
         pitch = pitchVal;
         nativeSetPitch(pitch);
 
+    }
+
+    public void setAudioEffect(AudioEffect effect) {
+        nativeSetAudioEffect(effect);
     }
 
     public float getPitch() {
