@@ -610,6 +610,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //        popup_Volume = new PopupWindow(mView, width, (int) (width * (360.0 / 370.0)));
         popup_Volume = new PopupWindow(mView, width, width);
         popup_Volume.setAnimationStyle(R.style.PopUpWindowVolumeAnimation);
+        popup_Effect.setOutsideTouchable(true);
         popup_Volume.showAsDropDown(btn_volume, -5, -5);
     }
 
@@ -627,15 +628,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         vp_popEffect_pitch_1.setMax(100);
         vp_popEffect_pitch_2.setMax(100);
 
-        float pitch = mPresentationService.getPicth();
-        if (pitch > 1.0f) {
-            int val = (int) (pitch - 1.0f) * 100;
 
+        float pitch = mPresentationService.getPicth();
+        LogUtils.i("pitch = " + pitch);
+        if (pitch > 1.0f) {
+            int val = (int) ((pitch - 1.0f) * 100f);
+            LogUtils.i("val = " + val);
             vp_popEffect_pitch_1.setProgress(val);
             vp_popEffect_pitch_2.setProgress(0);
         } else if (pitch < 1.0f) {
-            int val = (int) (1.0f - pitch) * 100;
-
+            int val = (int) ((1.0f - pitch) * 100f);
+            LogUtils.i("val = " + val);
             vp_popEffect_pitch_1.setProgress(0);
             vp_popEffect_pitch_2.setProgress(val);
         } else {
@@ -778,6 +781,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         popup_Effect = new PopupWindow(mView, 600, 610);
         popup_Effect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
+        popup_Effect.setOutsideTouchable(true);
         popup_Effect.showAsDropDown(btn_effect, 0, 5);
     }
 

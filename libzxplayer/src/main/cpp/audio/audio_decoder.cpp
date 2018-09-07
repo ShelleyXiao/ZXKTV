@@ -27,7 +27,7 @@ AudioDecoder::AudioDecoder(WlPlayStatus
     soundTouch->setSetting(SETTING_OVERLAP_MS, 8);
     soundTouch->setSetting(SETTING_USE_QUICKSEEK, 1);
 
-    soundTouch->setPitch(0.8f);
+    soundTouch->setPitch(this->pitch);
     soundTouch->setTempo(this->speed);
     soundTouch->setRate(1.0f);
 }

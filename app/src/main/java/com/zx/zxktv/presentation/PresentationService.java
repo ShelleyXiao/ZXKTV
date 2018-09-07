@@ -188,6 +188,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
     public void onPrepared() {
         LogUtils.d("prepare starting......");
         mVideoPlayer.start();
+        setPitch(1.0f);
     }
 
     @Override
