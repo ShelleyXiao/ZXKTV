@@ -201,16 +201,19 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
+    public void setPitch(int pitchShiftLevel) {
+        accompanyPitch = (float) Math.pow(1.059463094359295, pitchShiftLevel);
+        audioEffect.getAudioInfo().setAccomanyPitch(accompanyPitch, pitchShiftLevel);
+
+        mVideoPlayer.setAudioEffect(audioEffect);
+    }
+
     @Override
     public void onPrepared() {
         LogUtils.d("prepare starting......");
         mVideoPlayer.start();
-        pitchShiftLevel = -3;
-        accompanyPitch = (float) Math.pow(1.059463094359295, pitchShiftLevel);
-        audioEffect.getAudioInfo().setAccomanyPitch(accompanyPitch, pitchShiftLevel);
 
-
-        mVideoPlayer.setAudioEffect(audioEffect);
+        setPitch(0);
     }
 
     @Override
