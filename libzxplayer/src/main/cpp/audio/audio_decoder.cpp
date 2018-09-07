@@ -16,18 +16,18 @@ AudioDecoder::AudioDecoder(WlPlayStatus
 
     buffSize = sample_rate * channels * av_get_bytes_per_sample(dst_format);
 
-    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(
-            sample_rate * channels * av_get_bytes_per_sample(dst_format)));
-    processBuffer = static_cast<SAMPLETYPE *>(malloc(
-            sample_rate * channels * av_get_bytes_per_sample(dst_format)));
+    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
+    processBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
     soundTouch = new SoundTouch();
     soundTouch->setSampleRate(sample_rate);
     soundTouch->setChannels(2);
 
+    soundTouch->setSetting(SETTING_SEEKWINDOW_MS, 0);
+    soundTouch->setSetting(SETTING_SEQUENCE_MS, 0);
+    soundTouch->setSetting(SETTING_OVERLAP_MS, 8);
+    soundTouch->setSetting(SETTING_USE_QUICKSEEK, 1);
 
     soundTouch->setPitch(0.8f);
-//    soundTouch->setPitchOctaves(-0.5);
-//    soundTouch->setPitchSemiTones(8);
     soundTouch->setTempo(this->speed);
     soundTouch->setRate(1.0f);
 }
@@ -250,19 +250,15 @@ void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
         audioDecoer->buffer = NULL;
         audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
 
-        int sampleSize = audioDecoer->getSoundTouchData(audioDecoer->buffer, audioDecoer->pcmsize,
+        int sampleSize = audioDecoer->getSoundTouchData(audioDecoer->buffer, audioDecoer->pcmsize / 2,
                                                         context);
 
 
 //        LOGD("************* DEBUG sampleSize = %d", sampleSize);
 
         if (audioDecoer->processBuffer && sampleSize > 0) {
-
             audioDecoer->clock +=
-                    (double) (sampleSize * audioDecoer->channels *
-                              av_get_bytes_per_sample(audioDecoer->dst_format) /
-                              ((double) (audioDecoer->sample_rate * audioDecoer->channels *
-                                         av_get_bytes_per_sample(audioDecoer->dst_format))));
+                    audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
 
             audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
                                                   audioDecoer->duration);
@@ -270,8 +266,7 @@ void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
             if (pcmBufferQueue != NULL) {
                 (*pcmBufferQueue)->Enqueue((pcmBufferQueue),
                                            audioDecoer->processBuffer,
-                                           sampleSize * audioDecoer->channels *
-                                           av_get_bytes_per_sample(audioDecoer->dst_format));
+                                           audioDecoer->pcmsize);
             }
         }
     }
@@ -346,19 +341,16 @@ int AudioDecoder::getSoundTouchData(void *data_in, int data_size, void *context)
     memset(decoder->sampleBuffer, 0, decoder->buffSize);
     memset(decoder->processBuffer, 0, decoder->buffSize);
     int num = 0;
+    short *audioBufer = (short *) data_in;
+
     while (decoder->wlPlayStatus != NULL && !decoder->wlPlayStatus->exit) {
         if (decoder->finished) {
             decoder->finished = false;
 
-            uint8_t *audioBufer = (uint8_t *) data_in;
-//            LOGD("*********************** data_size = %d", data_size);
             if (data_size > 0) {
-                for (int i = 0; i < data_size / 2 + 1; i++) {
-                    decoder->sampleBuffer[i] = (audioBufer[i * 2] | (audioBufer[i * 2 + 1]) << 8);
-                }
-                decoder->soundTouch->putSamples(decoder->sampleBuffer, decoder->nb);
-//
-                num = decoder->soundTouch->receiveSamples(decoder->processBuffer, data_size / 4);
+                decoder->soundTouch->putSamples(audioBufer, data_size / 2);
+                num = decoder->soundTouch->receiveSamples(audioBufer, data_size / 2);
+                memcpy(decoder->processBuffer, audioBufer, data_size * 2);
             } else {
                 decoder->soundTouch->flush();
             }
@@ -370,7 +362,8 @@ int AudioDecoder::getSoundTouchData(void *data_in, int data_size, void *context)
             continue;
         } else {
             if (audioBufer == NULL) {
-                num = decoder->soundTouch->receiveSamples(decoder->processBuffer, data_size / 4);
+                num = decoder->soundTouch->receiveSamples(audioBufer, data_size / 2);
+                memcpy(decoder->processBuffer, audioBufer, data_size * 2);
                 if (num == 0) {
                     decoder->finished = true;
                     memset(decoder->processBuffer, 0, decoder->sample_rate * 2 * 2);
@@ -378,7 +371,7 @@ int AudioDecoder::getSoundTouchData(void *data_in, int data_size, void *context)
                 }
             }
 
-            return num;
+            return num * 2;
         }
     }
     return 0;

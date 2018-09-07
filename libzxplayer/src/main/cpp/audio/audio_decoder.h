@@ -61,7 +61,7 @@ public:
 
     int buffSize ;
 
-    float pitch = 1.9f;
+    float pitch = 1.0f;
     float speed = 1.0f;
 
     int getSoundTouchData(void *data_in, int data_size, void *context);
