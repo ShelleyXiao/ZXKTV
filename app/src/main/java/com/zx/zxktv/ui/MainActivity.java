@@ -39,7 +39,6 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.SeekBar;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,9 +54,9 @@ import com.zx.zxktv.ui.view.LongTouchButton;
 import com.zx.zxktv.ui.view.MagicTextView;
 import com.zx.zxktv.ui.view.OrderSangView;
 import com.zx.zxktv.ui.view.OrderSongsView;
+import com.zx.zxktv.ui.view.RepeatingButton;
 import com.zx.zxktv.ui.widget.BoxedVertical;
 import com.zx.zxktv.ui.widget.VerticalProgressBar;
-import com.zx.zxktv.ui.widget.VerticalSeekBar;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridLayoutManager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridSnapHelper;
@@ -594,11 +593,181 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             }
         });
 
-        //btn_popVolume_microRaise=mView.findViewById(R.id.)
-//        popup_Volume = new PopupWindow(mView, width, (int) (width * (360.0 / 370.0)));
         popup_Volume = new PopupWindow(mView, width, width);
         popup_Volume.setAnimationStyle(R.style.PopUpWindowVolumeAnimation);
+        popup_Volume.setOutsideTouchable(true);
         popup_Volume.showAsDropDown(btn_volume, -5, -5);
+    }
+
+    private void initPopUpWindowsEffect() throws Exception {
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View mView = inflater.inflate(R.layout.popup_control_effect, null);
+        int width = (int) (dm.widthPixels * (540.0 / 1008));
+
+        vp_popEffect_pitch_1 = (VerticalProgressBar) mView.findViewById(R.id.vp_pitch_1);
+        vp_popEffect_pitch_2 = (VerticalProgressBar) mView.findViewById(R.id.vp_pitch_2);
+        vp_popEffect_pitch_1.setCurrMode(VerticalProgressBar.MODE_BOTTOM);
+        vp_popEffect_pitch_2.setCurrMode(VerticalProgressBar.MODE_TOP);
+        vp_popEffect_pitch_1.setMax(100);
+        vp_popEffect_pitch_2.setMax(100);
+
+
+        float pitch = mPresentationService.getPitchShiftLevel();
+        LogUtils.i("pitch = " + pitch);
+        if (pitch > 0) {
+            int val = (int) ((pitch / 3) * 100);
+            LogUtils.i("val = " + val);
+            vp_popEffect_pitch_1.setProgress(val);
+            vp_popEffect_pitch_2.setProgress(0);
+        } else if (pitch < 0) {
+            int val = (int) ((-pitch / 3) * 100f);
+            LogUtils.i("val = " + val);
+            vp_popEffect_pitch_1.setProgress(0);
+            vp_popEffect_pitch_2.setProgress(val);
+        } else {
+            vp_popEffect_pitch_1.setProgress(0);
+            vp_popEffect_pitch_2.setProgress(0);
+        }
+
+        RepeatingButton btn_pitch_raise = (RepeatingButton) mView.findViewById(R.id.btn_pitch_raise);
+        RepeatingButton btn_pitch_reduce = (RepeatingButton) mView.findViewById(R.id.btn_pitch_reduce);
+        Button btn_pitch_origin = (Button) mView.findViewById(R.id.btn_pitch_origin);
+
+        btn_pitch_origin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vp_popEffect_pitch_1.setProgress(0);
+                vp_popEffect_pitch_2.setProgress(0);
+                
+                mPresentationService.setPitch(0);
+
+            }
+        });
+
+        btn_pitch_raise.setRepeatListener(new RepeatingButton.RepeatListener() {
+            @Override
+            public void onRepeat(View v, long duration, int repeatcount) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_1 == 0 && curr_progress_2 > 0) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() - 10);
+
+                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f * (-3);
+                    mPresentationService.setPitch(val);
+                } else if (curr_progress_2 == 0 && curr_progress_1 <= 90) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() + 10);
+
+                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f * 3;
+                    mPresentationService.setPitch(val);
+                }
+
+            }
+        }, CONSTANT_LONG_REPEAT_TIME);
+
+        btn_pitch_reduce.setRepeatListener(new RepeatingButton.RepeatListener() {
+            @Override
+            public void onRepeat(View v, long duration, int repeatcount) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_2 == 0 && curr_progress_1 > 0) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() - 10);
+
+                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f * 3;
+                    mPresentationService.setPitch(val);
+
+                } else if (curr_progress_1 == 0 && curr_progress_2 <= 90) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() + 10);
+
+                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f * (-3);
+                    mPresentationService.setPitch(val);
+                }
+            }
+        }, CONSTANT_LONG_REPEAT_TIME);
+
+        btn_pitch_reduce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_2 == 0 && curr_progress_1 > 0) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() - 10);
+                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f * 3;
+                    mPresentationService.setPitch(val);
+
+                } else if (curr_progress_1 == 0 && curr_progress_2 <= 90) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() + 10);
+
+                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f * (-3);
+                    mPresentationService.setPitch(val);
+                }
+            }
+        });
+
+        btn_pitch_raise.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
+                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+
+                if (curr_progress_1 == 0 && curr_progress_2 > 0) {
+                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() - 10);
+
+                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f * (-3);
+                    mPresentationService.setPitch(val);
+
+                } else if (curr_progress_2 == 0 && curr_progress_1 <= 90) {
+                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() + 10);
+
+                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f * 3;
+                    mPresentationService.setPitch(val);
+                }
+            }
+        });
+
+        Button btn_close = (Button) mView.findViewById(R.id.btn_close);
+        btn_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    if (popup_Effect != null && popup_Effect.isShowing()) {
+                        popup_Effect.dismiss();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Button btn_gift = (Button) mView.findViewById(R.id.btn_gift);
+        btn_gift.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPresentationService.showGiftPresentation();
+            }
+        });
+
+        Button btn_multi = (Button) mView.findViewById(R.id.btn_multi_video);
+        btn_multi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!mPresentationService.isMultiVideoShow()) {
+                    mPresentationService.showMultiVideoPresentation();
+                } else {
+                    mPresentationService.dismissMultiVideoPresentation();
+                }
+            }
+        });
+
+
+        popup_Effect = new PopupWindow(mView, 600, 610);
+        popup_Effect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
+        popup_Effect.setOutsideTouchable(true);
+        popup_Effect.showAsDropDown(btn_effect, 0, 5);
     }
 
 //    private void initPopUpWindowsEffect() throws Exception {
@@ -608,122 +777,31 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //        View mView = inflater.inflate(R.layout.popup_control_effect, null);
 //        int width = (int) (dm.widthPixels * (540.0 / 1008));
 //
-//        vp_popEffect_pitch_1 = (VerticalProgressBar) mView.findViewById(R.id.vp_pitch_1);
-//        vp_popEffect_pitch_2 = (VerticalProgressBar) mView.findViewById(R.id.vp_pitch_2);
-//        vp_popEffect_pitch_1.setCurrMode(VerticalProgressBar.MODE_BOTTOM);
-//        vp_popEffect_pitch_2.setCurrMode(VerticalProgressBar.MODE_TOP);
-//        vp_popEffect_pitch_1.setMax(100);
-//        vp_popEffect_pitch_2.setMax(100);
+//        VerticalSeekBar sb_pitchShift = (VerticalSeekBar) mView.findViewById(R.id.pitch_levelseek_bar);
 //
-//        float pitch = mPresentationService.getPicth();
-//        if (pitch > 1.0f) {
-//            int val = (int) (pitch - 1.0f) * 100;
+//        int pitchShiftLevel = mPresentationService.getPitchShiftLevel();
 //
-//            vp_popEffect_pitch_1.setProgress(val);
-//            vp_popEffect_pitch_2.setProgress(0);
-//        } else if (pitch < 1.0f) {
-//            int val = (int) (1.0f - pitch) * 100;
+//        int val = pitchShiftLevel / 3 / 2 * sb_pitchShift.getMax() + 50;
+//        sb_pitchShift.setProgress(val);
 //
-//            vp_popEffect_pitch_1.setProgress(0);
-//            vp_popEffect_pitch_2.setProgress(val);
-//        } else {
-//            vp_popEffect_pitch_1.setProgress(0);
-//            vp_popEffect_pitch_2.setProgress(0);
-//        }
-//
-//        RepeatingButton btn_pitch_raise = (RepeatingButton) mView.findViewById(R.id.btn_pitch_raise);
-//        RepeatingButton btn_pitch_reduce = (RepeatingButton) mView.findViewById(R.id.btn_pitch_reduce);
-//        Button btn_pitch_origin = (Button) mView.findViewById(R.id.btn_pitch_origin);
-//
-//        btn_pitch_origin.setOnClickListener(new View.OnClickListener() {
+//        sb_pitchShift.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 //            @Override
-//            public void onClick(View view) {
-//                vp_popEffect_pitch_1.setProgress(0);
-//                vp_popEffect_pitch_2.setProgress(0);
-//
-//                mPresentationService.setPitch(1.0f);
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                float pro = seekBar.getProgress();
+//                float num = seekBar.getMax();
+//                float result = ((pro - 50) / num) * 2;
+//                int pitchShiftLevel = (int) (result * 3);
+//                mPresentationService.setPitch(pitchShiftLevel);
 //            }
-//        });
 //
-//        btn_pitch_raise.setRepeatListener(new RepeatingButton.RepeatListener() {
 //            @Override
-//            public void onRepeat(View v, long duration, int repeatcount) {
-//                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
-//                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
-//
-//                if (curr_progress_1 == 0 && curr_progress_2 > 0) {
-//                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() - 10);
-//                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f - val);
-//                } else if (curr_progress_2 == 0 && curr_progress_1 < 80) {
-//                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() + 10);
-//
-//                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f + val);
-//                }
+//            public void onStartTrackingTouch(SeekBar seekBar) {
 //
 //            }
-//        }, CONSTANT_LONG_REPEAT_TIME);
 //
-//        btn_pitch_reduce.setRepeatListener(new RepeatingButton.RepeatListener() {
 //            @Override
-//            public void onRepeat(View v, long duration, int repeatcount) {
-//                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
-//                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
+//            public void onStopTrackingTouch(SeekBar seekBar) {
 //
-//                if (curr_progress_2 == 0 && curr_progress_1 > 0) {
-//                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() - 10);
-//
-//                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f + val);
-//
-//                } else if (curr_progress_1 == 0 && curr_progress_2 < 80) {
-//                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() + 10);
-//
-//                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f - val);
-//                }
-//            }
-//        }, CONSTANT_LONG_REPEAT_TIME);
-//
-//        btn_pitch_reduce.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
-//                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
-//
-//                if (curr_progress_2 == 0 && curr_progress_1 > 0) {
-//                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() - 10);
-//                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f + val);
-//
-//                } else if (curr_progress_1 == 0 && curr_progress_2 < 80) {
-//                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() + 10);
-//
-//                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f - val);
-//                }
-//            }
-//        });
-//
-//        btn_pitch_raise.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int curr_progress_1 = vp_popEffect_pitch_1.getProgress();
-//                int curr_progress_2 = vp_popEffect_pitch_2.getProgress();
-//
-//                if (curr_progress_1 == 0 && curr_progress_2 > 0) {
-//                    vp_popEffect_pitch_2.setProgress(vp_popEffect_pitch_2.getProgress() - 10);
-//
-//                    float val = vp_popEffect_pitch_2.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f - val);
-//
-//                } else if (curr_progress_2 == 0 && curr_progress_1 < 80) {
-//                    vp_popEffect_pitch_1.setProgress(vp_popEffect_pitch_1.getProgress() + 10);
-//
-//                    float val = vp_popEffect_pitch_1.getProgress() * 0.01f;
-//                    mPresentationService.setPitch(1.0f + val);
-//                }
 //            }
 //        });
 //
@@ -766,82 +844,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //
 //        popup_Effect = new PopupWindow(mView, 600, 610);
 //        popup_Effect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
+//        popup_Effect.setOutsideTouchable(true);
 //        popup_Effect.showAsDropDown(btn_effect, 0, 5);
 //    }
-
-    private void initPopUpWindowsEffect() throws Exception {
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View mView = inflater.inflate(R.layout.popup_control_effect, null);
-        int width = (int) (dm.widthPixels * (540.0 / 1008));
-
-        VerticalSeekBar sb_pitchShift = (VerticalSeekBar) mView.findViewById(R.id.pitch_levelseek_bar);
-        sb_pitchShift.setProgress(50);
-
-        sb_pitchShift.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float pro = seekBar.getProgress();
-                float num = seekBar.getMax();
-                float result = ((pro - 50) / num) * 2;
-                int pitchShiftLevel = (int) (result * 3);
-                LogUtils.i("pitchShiftLevel -= " + pitchShiftLevel);
-                mPresentationService.setPitch(pitchShiftLevel);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        Button btn_close = (Button) mView.findViewById(R.id.btn_close);
-        btn_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    if (popup_Effect != null && popup_Effect.isShowing()) {
-                        popup_Effect.dismiss();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        Button btn_gift = (Button) mView.findViewById(R.id.btn_gift);
-        btn_gift.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mPresentationService.showGiftPresentation();
-
-
-            }
-        });
-
-        Button btn_multi = (Button) mView.findViewById(R.id.btn_multi_video);
-        btn_multi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!mPresentationService.isMultiVideoShow()) {
-                    mPresentationService.showMultiVideoPresentation();
-                } else {
-                    mPresentationService.dismissMultiVideoPresentation();
-                }
-            }
-        });
-
-
-        popup_Effect = new PopupWindow(mView, 600, 610);
-        popup_Effect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
-        popup_Effect.showAsDropDown(btn_effect, 0, 5);
-    }
 
     private void destoryPopupWindow() {
         if (popup_Volume != null && popup_Volume.isShowing()) {

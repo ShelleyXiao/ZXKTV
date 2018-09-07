@@ -108,11 +108,6 @@ public:
 
     void setChannelMute(int mute);
 
-    void setPitch(float pitch);
-
-    void setSpeed(float speed);
-
-    float getPitch();
 
     void setAudioEffect(AudioEffect* audioEffectParam);
 

@@ -15,7 +15,6 @@ void AccompanyEffectProcessor::init(AudioEffect *audioEffect) {
 	isAudioEffectChanged = false;
 	accompanyEffectFilterChain = new AudioEffectFilterChain();
 	this->initFilterChains();
-	LOGI("DDDDDDDDDDDDDDDDinitDDDDDDDDDDDDD");
 }
 
 AudioResponse* AccompanyEffectProcessor::processAccompany(short *accompanyBuffer, int accompanyBufferSize, float position, long frameNum) {

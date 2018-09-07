@@ -112,7 +112,7 @@ AudioInfo* AudioEffectBuilder::getAudioInfo(jobject audioInfo, JNIEnv* env) {
 	jmethodID audioInfo_getRecordedTimeMills = env->GetMethodID(cls_AudioInfo, "getRecordedTimeMills", "()I");
 	jmethodID audioInfo_getAudioSampleRate = env->GetMethodID(cls_AudioInfo, "getAudioSampleRate", "()I");
 	jmethodID audioInfo_getChannels = env->GetMethodID(cls_AudioInfo, "getChannels", "()I");
-	jmethodID audioInfo_getPitchShiftLevel = env->GetMethodID(cls_AudioInfo, "getPitchShiftLevel", "()I");
+	jmethodID audioInfo_getPitchShiftLevel = env->GetMethodID(cls_AudioInfo, "getPitchShiftLevel", "()F");
 
 	jfloat accompanyAGCVolume = env->CallFloatMethod(audioInfo, audioInfo_getAccompanyAGCVolume);
 	jfloat audioAGCVolume = env->CallFloatMethod(audioInfo, audioInfo_getAudioAGCVolume);
@@ -121,7 +121,7 @@ AudioInfo* AudioEffectBuilder::getAudioInfo(jobject audioInfo, JNIEnv* env) {
 	jint recordedTimeMills = env->CallIntMethod(audioInfo, audioInfo_getRecordedTimeMills);
 	jint audioSampleRate = env->CallIntMethod(audioInfo, audioInfo_getAudioSampleRate);
 	jint channels = env->CallIntMethod(audioInfo, audioInfo_getChannels);
-	jint pitchShiftLevel = env->CallIntMethod(audioInfo, audioInfo_getPitchShiftLevel);
+	jint pitchShiftLevel = env->CallFloatMethod(audioInfo, audioInfo_getPitchShiftLevel);
 	return new AudioInfo(channels, audioSampleRate, recordedTimeMills, totalTimeMills, accompanyAGCVolume, audioAGCVolume, accompanyPitch, pitchShiftLevel);
 }
 

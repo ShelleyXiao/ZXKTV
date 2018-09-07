@@ -106,7 +106,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private float accompanyVolume = 1.0f;
     private float audioVolume = 1.0f;
     //[-3, 3] 0代表正常不变调
-    private int pitchShiftLevel = 0;
+    private float pitchShiftLevel = 0;
     private float accompanyPitch = (float) Math.pow(1.059463094359295, pitchShiftLevel);
     private static final int ACCOMPANY_VOLUME_CHANGED = 1098703;
     private static final int AUDIO_VOLUME_CHANGED = 1098704;
@@ -201,11 +201,17 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
-    public void setPitch(int pitchShiftLevel) {
+    public void setPitch(float pitchShiftLevel) {
+        LogUtils.i("************** pitchShiftLevel = " + pitchShiftLevel);
+        this.pitchShiftLevel = pitchShiftLevel;
         accompanyPitch = (float) Math.pow(1.059463094359295, pitchShiftLevel);
         audioEffect.getAudioInfo().setAccomanyPitch(accompanyPitch, pitchShiftLevel);
 
         mVideoPlayer.setAudioEffect(audioEffect);
+    }
+
+    public float getPitchShiftLevel() {
+        return this.pitchShiftLevel;
     }
 
     @Override
@@ -245,9 +251,10 @@ public class PresentationService extends Service implements OnFrameAvailableList
             Song song = VideoPlayListmanager.getIntanse().getTop();
             mCurSong = song;
 
-            mVideoPresentation.updatePlayInfo(mCurSong);
-
-//            playVideo(song);
+            Message message = Message.obtain();
+            message.what = 2;
+            handler.sendMessage(message);
+//            mVideoPresentation.updatePlayInfo(mCurSong);
         }
     }
 
@@ -495,19 +502,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
-    public void setPitch(float pitch) {
-        if (mVideoPlayer != null) {
-            mVideoPlayer.setPitch(pitch);
-        }
-    }
-
-    public float getPicth() {
-        if (mVideoPlayer != null) {
-            return mVideoPlayer.getPitch();
-        }
-
-        return 1.0f;
-    }
 
     public void seekForward() {
         LogUtils.i("seekForward");

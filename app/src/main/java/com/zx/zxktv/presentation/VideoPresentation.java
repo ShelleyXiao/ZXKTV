@@ -17,6 +17,8 @@ package com.zx.zxktv.presentation;
 import android.app.Presentation;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Display;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -36,6 +38,18 @@ public class VideoPresentation extends Presentation {
     private MarqueeTextView mtv_SongPlayInfo;
     private TextView tv_playingBottom;
     private VideoBean mCurVideo;
+
+    private Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 0x123) {
+
+            }
+
+        }
+    };
 
     public VideoPresentation(Context outerContext, Display display) {
         super(outerContext, display);
@@ -58,6 +72,7 @@ public class VideoPresentation extends Presentation {
     }
 
     public void updatePlayInfo(Song videoBean) {
+
         String baseInfo = getResources().getString(R.string.video_play_info);
         int index = VideoPlayListmanager.getIntanse().getSongIndex(videoBean);
         LogUtils.i(" index = " + index);
@@ -72,15 +87,7 @@ public class VideoPresentation extends Presentation {
         mtv_SongPlayInfo.setText(info);
     }
 
-    public void updatePlayInfo(Song song, Song nextSong) {
-        String baseInfo = getResources().getString(R.string.video_play_info);
-        String nextVideoInfo = getResources().getString(R.string.video_play_complete);
-        if (nextSong != null) {
-            nextVideoInfo = nextSong.name;
-        }
-        String info = String.format(baseInfo, song.name, nextVideoInfo);
-        mtv_SongPlayInfo.setText(info);
-    }
+
 
     public void showPlaylistbottom(boolean show) {
         tv_playingBottom.setVisibility(show ? View.VISIBLE : View.GONE);

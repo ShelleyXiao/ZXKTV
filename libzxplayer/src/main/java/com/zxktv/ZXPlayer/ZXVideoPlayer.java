@@ -218,9 +218,6 @@ public class ZXVideoPlayer {
      */
     private native void nativeSetChannelMute(int mute);
 
-    private native void nativeSetPitch(float picth);
-
-    private native void nativeGetPitch();
 
     private native void nativeSetAudioEffect(AudioEffect effectParam);
 
@@ -292,11 +289,6 @@ public class ZXVideoPlayer {
         nativeSetChannelMute(mute.getValue());
     }
 
-    public void setPitch(float pitchVal) {
-        pitch = pitchVal;
-        nativeSetPitch(pitch);
-
-    }
 
     public void setAudioEffect(AudioEffect effect) {
         nativeSetAudioEffect(effect);

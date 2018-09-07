@@ -19,16 +19,7 @@ AudioDecoder::AudioDecoder(WlPlayStatus
 
     sampleBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
     processBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
-//    soundTouch = new SoundTouch();
-//    soundTouch->setSampleRate(sample_rate);
-//    soundTouch->setChannels(2);
-//
-//
-//    soundTouch->setPitch(0.8f);
-////    soundTouch->setPitchOctaves(-0.5);
-////    soundTouch->setPitchSemiTones(8);
-//    soundTouch->setTempo(this->speed);
-//    soundTouch->setRate(1.0f);
+
 }
 
 AudioDecoder::~AudioDecoder() {
@@ -39,8 +30,8 @@ AudioDecoder::~AudioDecoder() {
 
 void AudioDecoder::realease() {
     if (LOG_SHOW) {
-        LOGE("开始释放 audio...");
     }
+    LOGE("开始释放 audio...");
     pause();
     if (queue != NULL) {
         queue->noticeThread();
@@ -73,6 +64,17 @@ void AudioDecoder::realease() {
         LOGE("释放 opensl es end");
     }
 
+    if (audioEffectProcessor != NULL) {
+        audioEffectProcessor->destroy();
+    }
+
+    if (processBuffer != NULL) {
+        free(processBuffer);
+    }
+
+    if (sampleBuffer != NULL) {
+        free(sampleBuffer);
+    }
 
     if (out_buffer != NULL) {
         free(out_buffer);
@@ -509,29 +511,11 @@ int AudioDecoder::getSoundTouchData(void *data_in, int data_size, void *context)
 //}
 
 
-void AudioDecoder::setPitch(float pitch) {
-    this->pitch = pitch;
-    if (soundTouch != NULL) {
-        soundTouch->setPitch(pitch);
-        LOGD("setPitch pitch = %f", pitch);
-        soundTouch->setTempo(1.0f);
-    }
-}
-
-float AudioDecoder::getPitch() {
-    return this->pitch;
-}
-
-void AudioDecoder::setSpeed(float speed) {
-    this->speed = speed;
-    if (soundTouch != NULL) {
-        soundTouch->setTempo(speed);
-    }
-}
 
 void AudioDecoder::setAudioEffect(AudioEffect *audioEffectParam) {
     LOGI("enter AudioDecoder::setAudioEffect()");
     if (audioEffectProcessor == NULL) {
+        LOGI("11111111enter AudioDecoder::setAudioEffect()");
         audioEffectProcessor = AudioEffectProcessorFactory::GetInstance()->buildAccompanyEffectProcessor();
         audioEffectProcessor->init(audioEffectParam);
         LOGI("DDDDDDDDDDDDDDDDsetAudioEffectDDDDDDDDDDDDD");
