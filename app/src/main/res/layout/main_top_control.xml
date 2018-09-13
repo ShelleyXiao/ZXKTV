@@ -38,13 +38,7 @@
         />
 
 
-    <Button
-        android:id="@+id/btn_order"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="-10px"
-        android:visibility="invisible"/>
+
 
     <EditText
         android:id="@+id/et_search"
@@ -52,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="30px"
         android:layout_marginTop="20px"
-        android:layout_toLeftOf="@id/btn_order"
+        android:layout_toLeftOf="@id/btn_close_search"
         android:background="@drawable/search_normal"
         android:gravity="center_vertical"
         android:hint="@string/search_edit_hint"
@@ -77,6 +71,18 @@
         android:lines="1"
         android:textColor="#fff"
         android:textColorHint="#f00"
+        android:visibility="invisible"/>
+
+
+    <Button
+        android:id="@+id/btn_close_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20px"
+        android:text="@string/btn_close_search"
+        android:background="@color/checkCircle_backgroundColor"
+        android:textSize="18sp"
         android:visibility="invisible"/>
 
 

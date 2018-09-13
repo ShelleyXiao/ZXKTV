@@ -8,7 +8,7 @@
 
     <com.zx.zxktv.ui.view.MagicTextView
         android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/px400"
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:textColor="#fff"

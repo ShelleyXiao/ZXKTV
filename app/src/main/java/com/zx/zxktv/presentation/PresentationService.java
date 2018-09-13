@@ -366,9 +366,9 @@ public class PresentationService extends Service implements OnFrameAvailableList
         mCurrentIndex = VideoPlayListmanager.getIntanse().getSongIndex(song);
         mCurSong = song;
 
-        Message message = Message.obtain();
-        message.what = 2;
-        handler.sendMessage(message);
+;
+
+        mVideoPresentation.updatePlayInfo(mCurSong);
 
     }
 

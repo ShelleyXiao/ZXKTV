@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -25,8 +24,6 @@ import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -39,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,6 +72,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     private final static int MUSICE_VOL_STEP = 5;
     private final static int PROGRESS_DETAL = 12000;
 
+    private final int INTERVAL = 300; //输入时间间隔为300毫秒
+
     private RecyclerView rv_SongList;
     private TextView tv_PageIndex;
     private ImageView iv_PagePre;
@@ -88,12 +88,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     private MagicTextView mtv_tips;
     private MagicTextView mtv_num;
 
+    private Button btn_search_close;
+
     private LongTouchButton btn_back;
     private LongTouchButton btn_forward;
 
     private Button btn_nextVideo;
     private CheckBox cb_play;
-
 
     private View v_ll_poporder_bg;
     private FrameLayout fl_SongsBg;
@@ -114,6 +115,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private EditText mSearchEdit;
 
+    private RelativeLayout rl_videoControl;
+    private FrameLayout fl_videoViewSmall;
+    private FrameLayout fl_videoViewPrimary;
+
     private View rl_listView;
     private TextView tv_ErrorInfo;
 
@@ -127,9 +132,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     private int mPageSum;
     private int mCurrentPageIndex;
 
-    private MediaPlayer mPreMediaPlayer;
-    private SurfaceView mSurfaceView;
-    private SurfaceHolder mSurfaceHolder;
 
     private LoadVideoModelPresenterImpl mVideoModelPresenter;
 
@@ -140,8 +142,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private boolean mSearchMode = false;
 
-    private FrameLayout mFrameLayout;
     private PresentationService mPresentationService;
+
+    private Cursor mSongCursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,7 +175,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPresentationService = ((PresentationService.LocalBinder) service).getService();
-            mPresentationService.attachFrameLayout(mFrameLayout);
+            mPresentationService.attachFrameLayout(fl_videoViewSmall);
+            mPresentationService.attachFrameLayout(fl_videoViewPrimary);
         }
 
         @Override
@@ -226,6 +230,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        mVideoModelPresenter.destroy();
     }
 
     @Override
@@ -240,14 +246,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onFinish(Cursor cursor) {
-        if (cursor != null && !mSearchMode) {
-
+        LogUtils.i("cursor " + cursor);
+        if (cursor != null /*&& !mSearchMode*/) {
+            mSongCursor = cursor;
             mAdapter.swapCursor(cursor);
-            VideoPlayListmanager.getIntanse().clearList();
+            if (!mSearchMode) {
+                VideoPlayListmanager.getIntanse().clearList();
+            }
             final Song song = mAdapter.getItem(0);
-//            mVideoView.setDataUri(song.uri);
-//            mVideoView.start();
-//            playSyncVideo(song);
+
         }
         tv_ErrorInfo.setVisibility(View.INVISIBLE);
         rl_listView.setVisibility(View.VISIBLE);
@@ -287,10 +294,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
 
     private void initView() {
+        rl_videoControl = (RelativeLayout) findViewById(R.id.video_control);
         rl_listView = findViewById(R.id.list);
         tv_ErrorInfo = (TextView) findViewById(R.id.empty_data);
 
-        mFrameLayout = (FrameLayout) findViewById(R.id.videoView_container);
+        fl_videoViewSmall = (FrameLayout) findViewById(R.id.videoView_container);
+        fl_videoViewPrimary = (FrameLayout) findViewById(R.id.primary_video_view);
 
         rv_SongList = (RecyclerView) findViewById(R.id.song_list);
         tv_PageIndex = (TextView) findViewById(R.id.page_index);
@@ -314,6 +323,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         btn_restart.setOnClickListener(this);
         btn_effect.setOnClickListener(this);
 
+        fl_videoViewSmall.setOnClickListener(this);
+        fl_videoViewPrimary.setOnClickListener(this);
+
         btn_ordered = findViewById(R.id.rl_ordered);
         mtv_num = (MagicTextView) findViewById(R.id.tv_order_num);
         mtv_tips = (MagicTextView) findViewById(R.id.tv_order_tips);
@@ -333,6 +345,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         mSearchEdit = (EditText) findViewById(R.id.et_search);
         mSearchEdit.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+        btn_search_close = (Button) findViewById(R.id.btn_close_search);
+        btn_search_close.setOnClickListener(this);
 
         mLayoutManager = new PagerGridLayoutManager(mRows, mColumns, PagerGridLayoutManager
                 .HORIZONTAL);
@@ -364,21 +378,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         mAdapter.setListNotifyListener(this);
         rv_SongList.setAdapter(mAdapter);
+        rv_SongList.setItemAnimator(null);
+        rv_SongList.setHasFixedSize(true);
 
-
-//        btn_back.setTouchListener(new LongTouchButton.LongTouchListener() {
-//            @Override
-//            public void onLongTouch() {
-//                mPresentationService.playBack();
-//            }
-//        });
-//
-//        btn_forward.setTouchListener(new LongTouchButton.LongTouchListener() {
-//            @Override
-//            public void onLongTouch() {
-//                mPresentationService.playForward();
-//            }
-//        });
 
         cb_silent.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -437,11 +439,53 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                                 .getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                         mSearchMode = true;
+                        btn_search_close.setVisibility(View.VISIBLE);
                     }
                 }
                 return false;
             }
         });
+
+//        RxTextView.textChanges(mSearchEdit)
+//                .debounce(600, TimeUnit.MILLISECONDS)
+//                .map(new Function<CharSequence, String>() {
+//                    @Override
+//                    public String apply(CharSequence charSequence) throws Exception {
+//                        String key = charSequence.toString();
+//                        return key;
+//                    }
+//                })
+//                .observeOn(Schedulers.io())
+//                .map(new Function<String, List<Song>>() {
+//                    @Override
+//                    public List<Song> apply(String s) throws Exception {
+//                        return null;
+//                    }
+//                })
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Observer<List<Song>>() {
+//                    @Override
+//                    public void onNext(List<Song> songs) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//
+//                    }
+//                });
+
+
     }
 
 
@@ -529,6 +573,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         mOrderSangView.setVisibility(View.GONE);
 
+        mOrderSongsView.setOnDeleteSongListener(new OrderSongsView.IOnDeleteSongListener() {
+
+            @Override
+            public void deleteSong(Song song) {
+
+                LogUtils.i(" " + rv_SongList.hasFixedSize()
+                        + rv_SongList.isAttachedToWindow());
+                mAdapter.updateItem(song);
+            }
+        });
+
         int width = (int) (dm.widthPixels * (360.0 / 1008));
         popup_Ordered = new PopupWindow(mView, width, (int) (width * (460.0f / 360.0f)));
         popup_Ordered.setAnimationStyle(R.style.PopUpWindowAnimation);
@@ -559,8 +614,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         VideoPlayListmanager.getIntanse().addNotifyListen(new VideoPlayListmanager.INotifyPropertyChanged() {
             @Override
-            public void update(int size) {
-                mtv_num.setText(size);
+            public void update(final int size) {
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mtv_num.setText(size + "");
+                    }
+                });
             }
         });
     }
@@ -858,6 +919,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //                }
 
                 onEffectClick();
+                break;
+            case R.id.btn_close_search:
+                mVideoModelPresenter.getData(false);
+                mSearchMode = false;
+                mSearchEdit.setText("");
+                btn_search_close.setVisibility(View.INVISIBLE);
+                rl_listView.setVisibility(View.VISIBLE);
+                break;
+
+            case R.id.videoView_container:
+                fl_videoViewPrimary.setVisibility(View.VISIBLE);
+                rl_videoControl.setVisibility(View.GONE);
+                break;
+            case R.id.primary_video_view:
+                fl_videoViewPrimary.setVisibility(View.GONE);
+                rl_videoControl.setVisibility(View.VISIBLE);
+                fl_videoViewSmall.setVisibility(View.VISIBLE);
                 break;
             default:
                 break;

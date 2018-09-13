@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -18,8 +19,10 @@ import android.widget.TextView;
 
 import com.zx.zxktv.R;
 import com.zx.zxktv.data.Song;
+import com.zx.zxktv.ui.view.AlwaysMarqueeTextView;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.FileSystemUtil;
+import com.zx.zxktv.utils.LogUtils;
 import com.zx.zxktv.utils.ViewUtils;
 
 import java.util.ArrayList;
@@ -62,9 +65,9 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
         holder.tv_SongName.setText(FileSystemUtil.getFileName(title));
 
         int index = VideoPlayListmanager.getIntanse().getSongIndex(item);
-        if(index != -1) {
+        if (index != -1) {
             index++;
-            holder.tv_position.setText("(约" + index  + ")");
+            holder.tv_position.setText("(约" + index + ")");
         }
 
         holder.cb_preview.setOnClickListener(new View.OnClickListener() {
@@ -72,35 +75,23 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             public void onClick(View v) {
 //                Toast.makeText(v.getContext(), "item" + title + " 被点击了", Toast.LENGTH_SHORT).show();
 
-                if(mPreivewListener != null) {
+                if (mPreivewListener != null) {
                     mPreivewListener.onPreView(item);
                 }
             }
         });
 
-//        holder.cb_info.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if(isChecked) {
-//                    VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
-//                    playListmanager.addSong(item);
-//                    if(mListNotifyListener != null) {
-//                        mListNotifyListener.updateList();
-//                    }
-//                }
-//            }
-//        });
 
         holder.cb_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
-                if(VideoPlayListmanager.getIntanse().getSongIndex(item) < 0) {
+                if (VideoPlayListmanager.getIntanse().getSongIndex(item) < 0) {
                     playListmanager.addSong(item);
                     int index = VideoPlayListmanager.getIntanse().getSongIndex(item);
                     index++;
                     holder.tv_position.setText("(约" + index + ")");
-                    if(mListNotifyListener != null) {
+                    if (mListNotifyListener != null) {
                         mListNotifyListener.updateList();
                     }
                 }
@@ -124,7 +115,6 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
 
 
 
-
     public Song getItem(int position) {
         if (!isDataValid(mCursor)) {
             throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
@@ -135,6 +125,23 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
                     + " when trying to bind view holder");
         }
         return Song.valueOf(mCursor);
+    }
+
+    public void updateItem(Song song) {
+        long id = song.id;
+        mCursor.moveToPosition(0);
+        int i = 0;
+        int pos = 0;
+        while (i < mCursor.getCount()) {
+            mCursor.moveToPosition(i);
+            if (id == mCursor.getLong(mCursor.getColumnIndex(MediaStore.Files.FileColumns._ID))) {
+                pos = i;
+                break;
+            }
+            i++;
+        }
+        LogUtils.i("index: " + pos + "song: " + song + " ");
+        notifyItemChanged(pos, "1");
     }
 
     public interface OnSongPreivewListener {
@@ -149,9 +156,9 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
         ImageView iv_avatar_bg;
         ImageView iv_avatar;
 
-        TextView tv_SongName;
+        AlwaysMarqueeTextView tv_SongName;
         TextView tv_position;
-//        TextView tv_position;
+        //        TextView tv_position;
         CheckBox cb_preview;
         CheckBox cb_info;
 
@@ -203,7 +210,7 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             cb_info = new CheckBox(mContext);
             tv_position = new TextView(mContext);
             tv_position = new TextView(mContext);
-            tv_SongName = new TextView(mContext);
+            tv_SongName = new AlwaysMarqueeTextView(mContext);
             cb_preview = new CheckBox(mContext);
             cb_preview.setButtonDrawable(R.drawable.blank_button);
 
@@ -281,7 +288,6 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             cb_preview.setLayoutParams(al_params);
 
 
-
             ab_infomation.addView(cb_info);
             ab_infomation.addView(tv_SongName);
 //            ab_infomation.addView(tv_position);
@@ -292,8 +298,8 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             ((AbsoluteLayout) mainView).addView(iv_avatar);
             ((AbsoluteLayout) mainView).addView(ab_infomation);
 
-            ((FrameLayout)itemView).addView(mainView);
-            
+            ((FrameLayout) itemView).addView(mainView);
+
         }
     }
 }
