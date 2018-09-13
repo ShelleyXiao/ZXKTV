@@ -21,8 +21,6 @@ import android.support.v7.widget.RecyclerView;
 
 import com.zx.zxktv.utils.LogUtils;
 
-import java.util.List;
-
 public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHolder> extends
         RecyclerView.Adapter<VH> {
 
@@ -38,43 +36,43 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
-//        if (!isDataValid(mCursor)) {
-//            throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
-//        }
-//        if (!mCursor.moveToPosition(position)) {
-//            throw new IllegalStateException("Could not move cursor to position " + position
-//                    + " when trying to bind view holder");
-//        }
-//
-//        onBindViewHolder(holder, mCursor);
-    }
-
-    @Override
-    public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
-//        LogUtils.i("dddddddddddddddddd");
-        if (payloads.isEmpty()) {
-
-            // payloads 为 空，说明是更新整个 ViewHolder
-//            onBindViewHolder(holder, position);
-
-            if (!isDataValid(mCursor)) {
-                throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
-            }
-            if (!mCursor.moveToPosition(position)) {
-                throw new IllegalStateException("Could not move cursor to position " + position
-                        + " when trying to bind view holder");
-            }
-
-            onBindViewHolder(holder, mCursor);
-        } else {
-            // payloads 不为空，这只更新需要更新的 View 即可。
-//            holder.mBadgeView.setVisibility(((Item)payloads.get(0)).disabled ? View.VISIBLE : View.INVISIBLE);
-
-            LogUtils.i("deeeeeeeeeeeee");
+        if (!isDataValid(mCursor)) {
+            throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
+        }
+        if (!mCursor.moveToPosition(position)) {
+            throw new IllegalStateException("Could not move cursor to position " + position
+                    + " when trying to bind view holder");
         }
 
-
+        onBindViewHolder(holder, mCursor);
     }
+
+//    @Override
+//    public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
+////        LogUtils.i("dddddddddddddddddd");
+//        if (payloads.isEmpty()) {
+//
+//            // payloads 为 空，说明是更新整个 ViewHolder
+////            onBindViewHolder(holder, position);
+//
+//            if (!isDataValid(mCursor)) {
+//                throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
+//            }
+//            if (!mCursor.moveToPosition(position)) {
+//                throw new IllegalStateException("Could not move cursor to position " + position
+//                        + " when trying to bind view holder");
+//            }
+//
+//            onBindViewHolder(holder, mCursor);
+//        } else {
+//            // payloads 不为空，这只更新需要更新的 View 即可。
+////            holder.mBadgeView.setVisibility(((Item)payloads.get(0)).disabled ? View.VISIBLE : View.INVISIBLE);
+//
+//            LogUtils.i("deeeeeeeeeeeee");
+//        }
+//
+//
+//    }
 
     @Override
     public int getItemViewType(int position) {

@@ -141,7 +141,8 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             i++;
         }
         LogUtils.i("index: " + pos + "song: " + song + " ");
-        notifyItemChanged(pos, "1");
+//        notifyItemChanged(pos, "1");
+        notifyDataSetChanged();
     }
 
     public interface OnSongPreivewListener {

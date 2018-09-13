@@ -28,6 +28,7 @@ import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -48,6 +49,9 @@ import com.zx.zxktv.data.Song;
 import com.zx.zxktv.ui.MainActivity;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.LogUtils;
+import com.zx.zxktv.utils.SharePrefUtil;
+import com.zx.zxktv.utils.rxbus.RxBus;
+import com.zx.zxktv.utils.rxbus.RxConstants;
 import com.zxktv.ZXPlayer.TimeBean;
 import com.zxktv.ZXPlayer.ZXVideoPlayer;
 import com.zxktv.listener.OnCompleteListener;
@@ -109,10 +113,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
                     playing = true;
                 }
 
-            } else if (msg.what == 2) {
-                mVideoPresentation.updatePlayInfo(mCurSong);
             }
-
         }
     };
 
@@ -160,7 +161,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
             mVideoPlayer.stop(true);
         }
 
-        dismissGiftPresentation();
+        dismissKTVPresentation();
         dismissGiftPresentation();
         dismissMultiVideoPresentation();
 
@@ -189,7 +190,28 @@ public class PresentationService extends Service implements OnFrameAvailableList
         LogUtils.d("prepare starting......");
         mVideoPlayer.start();
         setPitch(1.0f);
+
+        int channelSize = mVideoPlayer.getAudioChannels();
+        int channelIndex = 0;
+        if (channelSize > 1) {
+            channelIndex = SharePrefUtil.getInt(getApplicationContext(), "channelIndex", 1);
+            selectAudioChannels(channelIndex);
+        }
+
+        String param = SharePrefUtil.getString(getApplicationContext(), "channelmask", "channelmask_value=1");
+        mAudioManager.setParameters(param);
+        Bundle extra = new Bundle();
+        if (channelIndex == 1 || param.equals("channelmask_value=1")) {
+            //原唱
+            extra.putBoolean("check", true);
+
+        } else {
+            extra.putBoolean("check", false);
+        }
+
+        RxBus.getDefault().postWithCode(RxConstants.SYNC_ORIGINAL_UI_CODE, extra);
     }
+
 
     @Override
     public void onInfo(TimeBean timeBean) {
@@ -206,7 +228,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
 //            thread.suspendRendering();
 //        }
 
-        Log.i(TAG, "---onCompletion---");
+        LogUtils.i("---onCompletion---");
         if (VideoPlayListmanager.getIntanse().getPlaySongSize() == 1) {
 //            playVideo(VideoPlayListmanager.getIntanse().getTop());
         } else {
@@ -224,6 +246,8 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
 //            playVideo(song);
         }
+
+        RxBus.getDefault().postWithCode(RxConstants.UPDATE_SELECT_SONG_CODE, RxConstants.EXTRA_KEY_UPDATE_SELECT);
     }
 
     @Override
@@ -236,7 +260,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
 
     public void attachFrameLayout(FrameLayout fl) {
-        Log.i(TAG, "attachFrameLayout");
         if (USE_TEXTURE_VIEW) {
 
             TextureView texture = new TextureView(fl.getContext());
@@ -366,7 +389,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
         mCurrentIndex = VideoPlayListmanager.getIntanse().getSongIndex(song);
         mCurSong = song;
 
-;
+        ;
 
         mVideoPresentation.updatePlayInfo(mCurSong);
 
@@ -419,11 +442,11 @@ public class PresentationService extends Service implements OnFrameAvailableList
     }
 
 
-    public void selectAudioTrack(int index) {
+    public void selectAudioChannels(int index) {
         mVideoPlayer.setAudioChannels(index);
     }
 
-    public int getAudioTrackSize() {
+    public int getAudioChannelSize() {
 
         return mVideoPlayer != null ? mVideoPlayer.getAudioChannels() : 0;
     }
@@ -435,11 +458,20 @@ public class PresentationService extends Service implements OnFrameAvailableList
         if (origianl) {
             mAudioManager.setParameters("channelmask_value=1");
             LogUtils.i(" select_channel=all ");
-            selectAudioTrack(1);
+            selectAudioChannels(1);
+            SharePrefUtil.saveInt(getApplicationContext(), "channelIndex", 0);
+            SharePrefUtil.saveString(getApplicationContext(), "channelmask",
+                    "channelmask_value=2");
+
         } else {
+            //伴唱
             mAudioManager.setParameters("channelmask_value=2");
             LogUtils.i(" select_channel=right ");
-            selectAudioTrack(0);
+            selectAudioChannels(0);
+
+            SharePrefUtil.saveInt(getApplicationContext(), "channelIndex", 1);
+            SharePrefUtil.saveString(getApplicationContext(), "channelmask",
+                    "channelmask_value=1");
 
         }
     }
@@ -575,17 +607,17 @@ public class PresentationService extends Service implements OnFrameAvailableList
             new DisplayManager.DisplayListener() {
                 @Override
                 public void onDisplayAdded(int displayId) {
-                    Log.d(TAG, "Display #" + displayId + " added.");
+                    LogUtils.i("Display #" + displayId + " added.");
                 }
 
                 @Override
                 public void onDisplayChanged(int displayId) {
-                    Log.d(TAG, "Display #" + displayId + " changed.");
+                    LogUtils.i("Display #" + displayId + " changed.");
                 }
 
                 @Override
                 public void onDisplayRemoved(int displayId) {
-                    Log.d(TAG, "Display #" + displayId + " removed.");
+                    LogUtils.i("Display #" + displayId + " removed.");
                 }
             };
 
@@ -595,7 +627,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
                 public void onDismiss(DialogInterface dialog) {
                     Presentation presentation = (Presentation) dialog;
                     int displayId = presentation.getDisplay().getDisplayId();
-                    Log.d(TAG, "Presentation on display #" + displayId + " was dismissed.");
+                    LogUtils.i("Presentation on display #" + displayId + " was dismissed.");
                 }
             };
 

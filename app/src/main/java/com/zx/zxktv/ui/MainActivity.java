@@ -60,6 +60,12 @@ import com.zx.zxktv.ui.widget.pagelayout.PagerGridLayoutManager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridSnapHelper;
 import com.zx.zxktv.utils.AudioMngHelper;
 import com.zx.zxktv.utils.LogUtils;
+import com.zx.zxktv.utils.rxbus.RxBus;
+import com.zx.zxktv.utils.rxbus.RxConstants;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 
 public class MainActivity extends BaseActivity implements View.OnClickListener
@@ -146,6 +152,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private Cursor mSongCursor;
 
+    private Disposable mDisposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,7 +175,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         MainActivity.this.startService(it);
         bindService(it, mServiceConnection, Context.BIND_AUTO_CREATE);
 
-
+        subscribeEvent();
     }
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -231,6 +239,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     public void onDestroy() {
         super.onDestroy();
 
+        if (mDisposable != null && !mDisposable.isDisposed()) {
+            mDisposable.dispose();
+        }
         mVideoModelPresenter.destroy();
     }
 
@@ -312,8 +323,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         cb_orignal = (CheckBox) findViewById(R.id.cb_origin);
         cb_silent = (CheckBox) findViewById(R.id.cb_quite);
-        cb_orignal.setChecked(true);
-        cb_silent.setChecked(true);
+//        cb_orignal.setChecked(true);
+//        cb_silent.setChecked(true);
 
         cb_play = (CheckBox) findViewById(R.id.cb_play);
 
@@ -488,6 +499,76 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     }
 
+    private void subscribeEvent() {
+        if (mDisposable != null) {
+            mDisposable.dispose();
+        }
+        RxBus.getDefault()
+                .toObservableWithCode(RxConstants.UPDATE_SELECT_SONG_CODE, String.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        mDisposable = d;
+                    }
+
+                    @Override
+                    public void onNext(String value) {
+                        if (value.equals(RxConstants.EXTRA_KEY_UPDATE_SELECT)) {
+                            int size = VideoPlayListmanager.getIntanse().getPlaySongSize();
+                            mtv_num.setText(String.valueOf(size));
+
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        subscribeEvent();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+        RxBus.getDefault()
+                .toObservableWithCode(RxConstants.SYNC_ORIGINAL_UI_CODE, Bundle.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<Bundle>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        mDisposable = d;
+                    }
+
+                    @Override
+                    public void onNext(Bundle value) {
+                        if (value != null) {
+                            final boolean check = value.getBoolean("check");
+                            if (check) {
+                                //伴唱
+                                cb_orignal.setChecked(false);
+                                LogUtils.i("update cb " + check);
+                            } else {
+                                cb_orignal.setChecked(true);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        subscribeEvent();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
 
     public void onOrderedClick(View v) {
         if (popup_Volume != null && popup_Volume.isShowing()) {
@@ -671,7 +752,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //        popup_Volume = new PopupWindow(mView, width, (int) (width * (360.0 / 370.0)));
         popup_Volume = new PopupWindow(mView, width, width);
         popup_Volume.setAnimationStyle(R.style.PopUpWindowVolumeAnimation);
-        popup_Effect.setOutsideTouchable(true);
+        popup_Volume.setOutsideTouchable(true);
         popup_Volume.showAsDropDown(btn_volume, -5, -5);
     }
 
@@ -822,8 +903,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void onClick(View view) {
                 mPresentationService.showGiftPresentation();
-
-
             }
         });
 
@@ -931,6 +1010,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             case R.id.videoView_container:
                 fl_videoViewPrimary.setVisibility(View.VISIBLE);
                 rl_videoControl.setVisibility(View.GONE);
+                fl_videoViewSmall.setVisibility(View.GONE);
                 break;
             case R.id.primary_video_view:
                 fl_videoViewPrimary.setVisibility(View.GONE);
@@ -1010,11 +1090,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                     v_ll_poporder_bg.setBackgroundResource(R.drawable.song_bg);
                     mOrderSangView.setVisibility(View.GONE);
                     mOrderSongsView.setVisibility(View.VISIBLE);
-//                    tabHost_popup.setCurrentTabByTag(CONSTANT_TAB_ORDERED_SING);
                     break;
                 case R.id.rb_rank:
                     v_ll_poporder_bg.setBackgroundResource(R.drawable.sing_bg);
-//                    tabHost_popup.setCurrentTabByTag(CONSTANT_TAB_ORDERED_SANG);
                     mOrderSangView.setVisibility(View.VISIBLE);
                     mOrderSongsView.setVisibility(View.GONE);
                     break;

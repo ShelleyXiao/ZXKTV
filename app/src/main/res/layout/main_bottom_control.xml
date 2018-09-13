@@ -22,6 +22,7 @@
             style="@style/bottomMenuNormalButton"
             android:layout_toRightOf="@id/btn_volume"
             android:background="@drawable/cb_bottom_accompany"
+            android:checked="true"
             android:button="@null"/>
 
         <Button
@@ -96,6 +97,7 @@
             style="@style/bottomMenuNormalButton"
             android:layout_toRightOf="@id/btn_forward"
             android:background="@drawable/cb_bottom_voice_ctrl"
+            android:checked="true"
             android:button="@null"/>
 
         <Button
