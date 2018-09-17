@@ -10,98 +10,41 @@
         android:layout_height="match_parent"
         android:layout_marginRight="50px"
         android:layout_marginTop="52px"
-        android:paddingTop="60dp"
         android:background="@drawable/effect_bg">
 
-        <!--<TextView-->
-            <!--android:id="@+id/accompany_pitch_shift_tip"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginLeft="120px"-->
-            <!--android:layout_marginTop="@dimen/px88"-->
-            <!--android:text="升调"-->
-            <!--android:textColor="@color/white"-->
-            <!--android:textSize="24sp"/>-->
-
-        <!--<com.zx.zxktv.ui.widget.VerticalSeekBar-->
-            <!--android:id="@+id/pitch_levelseek_bar"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:layout_marginStart="120px"-->
-            <!--android:layout_below="@+id/accompany_pitch_shift_tip"-->
-            <!--android:layout_above="@+id/accompany_pitch_shift_tip_"-->
-            <!--android:max="100"-->
-            <!--android:maxHeight="12dp"-->
-            <!--android:minHeight="12dp"-->
-            <!--android:paddingLeft="5dp"-->
-            <!--android:paddingRight="5dp"-->
-            <!--android:paddingTop="5dp"-->
-            <!--android:progress="50"-->
-            <!--android:progressDrawable="@drawable/play_back_player_progress_style"-->
-            <!--android:thumb="@drawable/playback_player_control_button"/>-->
-
-
-        <!--<TextView android:id="@+id/accompany_pitch_shift_tip_"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_gravity="bottom"-->
-            <!--android:layout_marginBottom="@dimen/px60"-->
-            <!--android:layout_marginLeft="120px"-->
-            <!--android:text="升调"-->
-            <!--android:textColor="@color/white"-->
-            <!--android:textSize="24sp"/>-->
 
         <com.zx.zxktv.ui.view.RepeatingButton
             android:id="@+id/btn_pitch_raise"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="120px"
+            android:layout_marginTop="@dimen/px88"
             android:background="@drawable/btn_pop_raise_volume"/>
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
+        <com.zx.zxktv.ui.widget.VerticalProgressBar
+            android:id="@+id/vp_pitch_1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="12px"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/btn_pitch_origin"
+            android:layout_below="@+id/btn_pitch_raise"
+            android:layout_marginLeft="155px"
+            android:layout_marginTop="@dimen/px8"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/pb_popup"/>
+
+        <com.zx.zxktv.ui.widget.VerticalProgressBar
+            android:id="@+id/vp_pitch_2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="12px"
             android:layout_height="match_parent"
             android:layout_above="@+id/btn_pitch_reduce"
-            android:layout_below="@+id/btn_pitch_raise"
-            >
-
-
-            <com.zx.zxktv.ui.widget.VerticalProgressBar
-                android:id="@+id/vp_pitch_1"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="12px"
-                android:layout_height="match_parent"
-                android:layout_above="@+id/btn_pitch_origin"
-                android:layout_marginLeft="155px"
-                android:layout_marginTop="@dimen/px8"
-                android:max="100"
-                android:progress="0"
-                android:progressDrawable="@drawable/pb_popup"/>
-
-            <com.zx.zxktv.ui.widget.VerticalProgressBar
-                android:id="@+id/vp_pitch_2"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="12px"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/btn_pitch_origin"
-                android:layout_marginLeft="155px"
-                android:max="100"
-                android:progress="0"
-                android:progressDrawable="@drawable/pb_popup"/>
-
-
-            <Button
-                android:id="@+id/btn_pitch_origin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="90px"
-                android:background="@drawable/btn_pop_original_volume"/>
-
-
-        </RelativeLayout>
+            android:layout_below="@+id/btn_pitch_origin"
+            android:layout_marginLeft="155px"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/pb_popup"/>
 
         <com.zx.zxktv.ui.view.RepeatingButton
             android:id="@+id/btn_pitch_reduce"
@@ -113,6 +56,13 @@
             android:layout_marginLeft="120px"
             android:background="@drawable/btn_pop_reduce_volume"/>
 
+        <Button
+            android:id="@+id/btn_pitch_origin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="90px"
+            android:background="@drawable/btn_pop_original_volume"/>
 
 
         <Button
@@ -136,7 +86,69 @@
             android:text="@string/btn_multi_video"
             android:textSize="22sp"/>
 
+        <!--<CheckBox-->
+        <!--android:id="@+id/cb_light"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:button="@null"-->
+        <!--android:background="@drawable/btn_pop_light"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginTop="65px"-->
+        <!--android:layout_marginRight="260px"-->
+        <!--/>-->
+        <!--<CheckBox-->
+        <!--android:id="@+id/cb_smooth"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:button="@null"-->
+        <!--android:background="@drawable/btn_pop_smooth"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginTop="65px"-->
+        <!--android:layout_marginRight="50px"-->
+        <!--/>-->
 
+        <!--<CheckBox-->
+        <!--android:id="@+id/cb_romantic"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:button="@null"-->
+        <!--android:background="@drawable/btn_pop_romantic"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginTop="220px"-->
+        <!--android:layout_marginRight="240px"-->
+        <!--/>-->
+
+        <!--<CheckBox-->
+        <!--android:id="@+id/cb_power"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:button="@null"-->
+        <!--android:background="@drawable/btn_pop_power"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginTop="225px"-->
+        <!--android:layout_marginRight="50px"-->
+        <!--/>-->
+        <!--<CheckBox-->
+        <!--android:id="@+id/cb_meeting"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:button="@null"-->
+        <!--android:background="@drawable/btn_pop_meeting"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginTop="400px"-->
+        <!--android:layout_marginRight="240px"-->
+        <!--/>-->
+
+        <!--<CheckBox-->
+        <!--android:id="@+id/cb_switch"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:button="@null"-->
+        <!--android:background="@drawable/btn_pop_switch_light"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginTop="405px"-->
+        <!--android:layout_marginRight="50px"-->
+        <!--/>-->
     </RelativeLayout>
 
     <Button

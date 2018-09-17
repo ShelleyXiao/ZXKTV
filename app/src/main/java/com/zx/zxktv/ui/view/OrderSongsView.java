@@ -20,14 +20,9 @@ import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridLayoutManager;
 import com.zx.zxktv.utils.LogUtils;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -62,6 +57,8 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
     private List<Song> list_curr_data = new ArrayList<>();
     private int pageIndex = 0;
     private int pageNum = 0;
+
+    private IOnDeleteSongListener mOnDeleteSongListener;
 
 
     public OrderSongsView(@NonNull Context context) {
@@ -103,14 +100,13 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        EventBus.getDefault().register(this);
 
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        EventBus.getDefault().unregister(this);
+        mOnDeleteSongListener = null;
     }
 
     @Override
@@ -140,7 +136,7 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
     public void loadDataByIndex(int i) {
         pageNum = list_data.size() % PAGE_NUM == 0 ?
                 list_data.size() / PAGE_NUM : list_data.size() / PAGE_NUM + 1;
-        if (i > pageNum) {
+        if (i >= pageNum) {
             bt_PageNext.setClickable(false);
             return;
         } else {
@@ -202,12 +198,11 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
         VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
         playListmanager.setTop(song);
 
-        Map<String, Object> extraMaps = new HashMap<>();
-        extraMaps.put(MsgEvent.EXTRA_KEY_UPDATE_LIST, "next_song");
-        MsgEvent event = new MsgEvent(null, song.name, MsgEvent.Type.UPDATELIST);
-        event.setExtraMap(extraMaps);
 
-        EventBus.getDefault().post(event);
+    }
+
+    public void setOnDeleteSongListener(IOnDeleteSongListener onDeleteSongListener) {
+        mOnDeleteSongListener = onDeleteSongListener;
     }
 
     @Override
@@ -216,6 +211,9 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
         loadDataByIndex(pageIndex);
         VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
         playListmanager.removeSong(song);
+        if (mOnDeleteSongListener != null) {
+            mOnDeleteSongListener.deleteSong(song);
+        }
     }
 
     @Override
@@ -232,7 +230,6 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
         }
     }
 
-    @Subscribe
     public void onEvent(MsgEvent event) {
 //        if (event.eventType == MsgEvent.Type.SYNC_VIDEO) {
 //            list_data.clear();
@@ -252,5 +249,8 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
 
     }
 
+    public interface IOnDeleteSongListener {
+        void deleteSong(Song song);
+    }
 
 }

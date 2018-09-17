@@ -2,7 +2,8 @@ package com.zx.zxktv.ui.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
@@ -63,6 +64,8 @@ public class MarqueeTextView extends AppCompatTextView {
      */
     private int mFirstScrollDelay;
 
+    private Paint mPaint1;
+
     public MarqueeTextView(Context context) {
         this(context, null);
     }
@@ -85,7 +88,13 @@ public class MarqueeTextView extends AppCompatTextView {
         setSingleLine();
         setEllipsize(null);
 
-        setBackgroundColor(Color.argb(255, 0, 0, 0));
+        //直接设置不起效果，全黑
+//        setBackgroundColor(Color.argb(255, 0, 0, 0));
+
+        mPaint1 = new Paint();
+        mPaint1.setColor(getResources().getColor(android.R.color.transparent));
+        mPaint1.setStyle(Paint.Style.FILL);
+
 
     }
 
@@ -201,6 +210,20 @@ public class MarqueeTextView extends AppCompatTextView {
             this.resumeScroll();
         }
     }
+
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        //绘制外层矩形
+        canvas.drawRect(0, 0, getMeasuredWidth(), getMeasuredHeight(), mPaint1);
+        canvas.save();
+        //绘制文字前平移10像素
+        canvas.translate(10, 0);
+        //父类完成的方法，即绘制文本
+        super.onDraw(canvas);
+        canvas.restore();
+    }
+
 
     /**
      * 获取滚动一次的时间

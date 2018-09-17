@@ -18,7 +18,6 @@ import android.app.Presentation;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.view.Display;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -39,17 +38,7 @@ public class VideoPresentation extends Presentation {
     private TextView tv_playingBottom;
     private VideoBean mCurVideo;
 
-    private Handler mHandler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if(msg.what == 0x123) {
-
-            }
-
-        }
-    };
+    private Handler mHandler = new Handler();
 
     public VideoPresentation(Context outerContext, Display display) {
         super(outerContext, display);
@@ -71,8 +60,17 @@ public class VideoPresentation extends Presentation {
         mtv_SongPlayInfo.setText(info);
     }
 
-    public void updatePlayInfo(Song videoBean) {
+    public void updatePlayInfo(final Song videoBean) {
 
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                onUpdatePlayInfo(videoBean);
+            }
+        });
+    }
+
+    private void onUpdatePlayInfo(Song videoBean) {
         String baseInfo = getResources().getString(R.string.video_play_info);
         int index = VideoPlayListmanager.getIntanse().getSongIndex(videoBean);
         LogUtils.i(" index = " + index);
@@ -87,9 +85,17 @@ public class VideoPresentation extends Presentation {
         mtv_SongPlayInfo.setText(info);
     }
 
+    public void showPlaylistbottom(final boolean show) {
 
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                onShowPlaylistbottom(show);
+            }
+        });
+    }
 
-    public void showPlaylistbottom(boolean show) {
+    private void onShowPlaylistbottom(boolean show) {
         tv_playingBottom.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 

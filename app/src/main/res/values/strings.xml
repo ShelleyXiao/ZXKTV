@@ -25,5 +25,6 @@
     <string name="empty_data">没有数据</string>
 
     <string  name="btn_gift">礼物</string>
-    <string  name="btn_multi_video">旋屏</string>
+    <string  name="btn_multi_video">炫屏</string>
+    <string  name="btn_close_search">关闭搜索</string>
 </resources>

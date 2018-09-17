@@ -45,6 +45,7 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
         onBindViewHolder(holder, mCursor);
     }
 
+
     @Override
     public int getItemViewType(int position) {
         if (!mCursor.moveToPosition(position)) {

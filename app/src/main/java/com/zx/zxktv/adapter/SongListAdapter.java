@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -18,8 +19,10 @@ import android.widget.TextView;
 
 import com.zx.zxktv.R;
 import com.zx.zxktv.data.Song;
+import com.zx.zxktv.ui.view.AlwaysMarqueeTextView;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.FileSystemUtil;
+import com.zx.zxktv.utils.LogUtils;
 import com.zx.zxktv.utils.ViewUtils;
 
 import java.util.ArrayList;
@@ -137,6 +140,24 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
         return Song.valueOf(mCursor);
     }
 
+    public void updateItem(Song song) {
+        long id = song.id;
+        mCursor.moveToPosition(0);
+        int i = 0;
+        int pos = 0;
+        while (i < mCursor.getCount()) {
+            mCursor.moveToPosition(i);
+            if (id == mCursor.getLong(mCursor.getColumnIndex(MediaStore.Files.FileColumns._ID))) {
+                pos = i;
+                break;
+            }
+            i++;
+        }
+        LogUtils.i("index: " + pos + "song: " + song + " ");
+//        notifyItemChanged(pos, "1");
+        notifyDataSetChanged();
+    }
+
     public interface OnSongPreivewListener {
         void onPreView(Song song);
     }
@@ -149,7 +170,7 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
         ImageView iv_avatar_bg;
         ImageView iv_avatar;
 
-        TextView tv_SongName;
+        AlwaysMarqueeTextView tv_SongName;
         TextView tv_position;
 //        TextView tv_position;
         CheckBox cb_preview;
@@ -203,7 +224,7 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             cb_info = new CheckBox(mContext);
             tv_position = new TextView(mContext);
             tv_position = new TextView(mContext);
-            tv_SongName = new TextView(mContext);
+            tv_SongName = new AlwaysMarqueeTextView(mContext);
             cb_preview = new CheckBox(mContext);
             cb_preview.setButtonDrawable(R.drawable.blank_button);
 

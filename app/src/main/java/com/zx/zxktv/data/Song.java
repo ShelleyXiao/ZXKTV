@@ -33,7 +33,7 @@ public class Song implements Parcelable {
     public final String filePath;
 
     private Song(long id, String mimeType, long size, long duration,
-                 String name , String filePaht) {
+                 String name, String filePath) {
         this.id = id;
         this.mimeType = mimeType;
         Uri contentUri;
@@ -47,7 +47,7 @@ public class Song implements Parcelable {
         this.size = size;
         this.duration = duration;
         this.name = name;
-        this.filePath = filePaht;
+        this.filePath = filePath;
     }
 
     private Song(Parcel source) {
@@ -78,6 +78,7 @@ public class Song implements Parcelable {
                 ", uri=" + uri +
                 ", size=" + size +
                 ", duration=" + duration +
+                ", filepath = " + filePath +
                 '}';
     }
 

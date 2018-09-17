@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.zx.zxktv.data.interfaces.VideoModelContract;
+import com.zx.zxktv.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
 
@@ -39,17 +40,17 @@ public class VideoModelImpl implements VideoModelContract.Model,
 
     @Override
     public void getData(boolean init) {
-        if(init) {
+        if (init) {
             mLoaderManager.initLoader(LOADER_ID, null, this);
         } else {
-            mLoaderManager.restartLoader(LOADER_ID, null,this);
+            mLoaderManager.restartLoader(LOADER_ID, null, this);
         }
     }
 
     @Override
     public void search(String key) {
         keySearch = key;
-        mLoaderManager.restartLoader(LOADER_ID, null,this);
+        mLoaderManager.restartLoader(LOADER_ID, null, this);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class VideoModelImpl implements VideoModelContract.Model,
         }
 
         if (!TextUtils.isEmpty(keySearch)) {
-
+            LogUtils.i("keySearch " + keySearch);
             return MediaLoader.newInstance(context, keySearch);
         } else {
 
@@ -89,7 +90,8 @@ public class VideoModelImpl implements VideoModelContract.Model,
         mCallbacks.onVideoReset();
     }
 
-    public void onDestroy() {
+    @Override
+    public void destroy() {
         mLoaderManager.destroyLoader(LOADER_ID);
         mCallbacks = null;
     }

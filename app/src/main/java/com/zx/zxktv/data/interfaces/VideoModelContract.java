@@ -17,6 +17,8 @@ public interface VideoModelContract {
     interface Model {
         void getData(boolean init);
         void search(String key);
+
+        void destroy();
     }
 
     interface View {
@@ -26,6 +28,8 @@ public interface VideoModelContract {
     interface Presenter {
         void getData(boolean init);
         void search(String key);
+
+        void destroy();
     }
 
     /**

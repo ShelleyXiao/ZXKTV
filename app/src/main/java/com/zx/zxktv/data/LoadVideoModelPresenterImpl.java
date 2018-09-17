@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Handler;
 
 import com.zx.zxktv.data.interfaces.VideoModelContract;
+import com.zx.zxktv.utils.LogUtils;
 
 /**
  * User: ShaudXiao
@@ -96,9 +97,10 @@ public class LoadVideoModelPresenterImpl implements VideoModelContract.Presenter
             @Override
             public void run() {
                 if (null != cursor && cursor.getCount() != 0) {
+                    LogUtils.i("" + cursor.getCount());
                     view.onFinish(cursor);
                 } else {
-                    if(errorCallBack != null) {
+                    if (errorCallBack != null) {
                         errorCallBack.dealError("empty");
                     }
                 }
@@ -121,4 +123,13 @@ public class LoadVideoModelPresenterImpl implements VideoModelContract.Presenter
             }
         });
     }
+
+    @Override
+    public void destroy() {
+        model.destroy();
+        loadingCallBack = null;
+        errorCallBack = null;
+        model = null;
+    }
+
 }

@@ -17,8 +17,6 @@ import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.ui.widget.pagelayout.PagerGridLayoutManager;
 import com.zx.zxktv.utils.LogUtils;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,13 +67,11 @@ public class OrderSangView extends FrameLayout implements PagerGridLayoutManager
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -156,7 +152,7 @@ public class OrderSangView extends FrameLayout implements PagerGridLayoutManager
             MsgEvent event = new MsgEvent(null, null, MsgEvent.Type.UPDATELIST);
             event.setExtraMap(extraMaps);
 
-            EventBus.getDefault().post(event);
+//            EventBus.getDefault().post(event);
 
 
             list_data.remove(song);
@@ -166,7 +162,7 @@ public class OrderSangView extends FrameLayout implements PagerGridLayoutManager
 
     public void loadDataByIndex(int i) {
         pageNum = list_data.size() % PAGE_NUM == 0 ? list_data.size() / PAGE_NUM : list_data.size() / PAGE_NUM + 1;
-        if (i > pageNum) {
+        if (i >= pageNum) {
             bt_PageNext.setClickable(false);
             return;
         } else {
@@ -207,8 +203,4 @@ public class OrderSangView extends FrameLayout implements PagerGridLayoutManager
     }
 
 
-    @Subscribe
-    public void onEvent(MsgEvent event) {
-
-    }
 }

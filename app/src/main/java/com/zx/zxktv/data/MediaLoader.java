@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import com.zx.zxktv.utils.LogUtils;
+
 public class MediaLoader extends CursorLoader {
     private static String FILEPATH_FILTER_KEY = "/storage/emulated/0/media/";
 
@@ -47,14 +49,19 @@ public class MediaLoader extends CursorLoader {
     }
 
     private static final String SELECTION_ALL_FOR_MEDIA_TYPE_AND_NAME =
-            MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
-                    + " AND " + MediaStore.Files.FileColumns.DISPLAY_NAME + " LIKE ?"
+            MediaStore.Files.FileColumns.MEDIA_TYPE + "=" + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
+                    + " AND " + MediaStore.Audio.Media.DISPLAY_NAME + " LIKE ?"
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0"
                     + " AND " + MediaStore.MediaColumns.DATA + " LIKE '%" + FILEPATH_FILTER_KEY + "%'";
 
     private static String[] getSelectionArgsForMediaTypeAndName(int mediaType, String name) {
-        return new String[]{String.valueOf(mediaType),
-                "'%" + String.valueOf(name) + "%'"};
+//        return new String[]{
+//                String.valueOf(mediaType),
+//                "'%" + String.valueOf(name) + "%'"};
+
+        return new String[]{
+                String.valueOf("%" + name + "%")
+        };
     }
     // =========================================================
 
@@ -82,7 +89,8 @@ public class MediaLoader extends CursorLoader {
                     + " bucket_id=?"
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0";
 
-    private static String[] getSelectionAlbumArgsForSingleMediaType(int mediaType, String albumId) {
+    private static String[] getSelectionAlbumArgsForSingleMediaType(int mediaType, String
+            albumId) {
         return new String[]{String.valueOf(mediaType), albumId};
     }
     // ===============================================================
@@ -103,6 +111,7 @@ public class MediaLoader extends CursorLoader {
 
             return new MediaLoader(context, selection, selectionArgs);
         } else {
+            LogUtils.i("search");
             selection = SELECTION_ALL_FOR_MEDIA_TYPE_AND_NAME;
             selectionArgs = getSelectionArgsForMediaTypeAndName(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, key);
             return new MediaLoader(context, selection, selectionArgs);
