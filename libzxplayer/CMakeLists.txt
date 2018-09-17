@@ -10,14 +10,12 @@ file(GLOB FILES_AUDIO ${PATH_TO_NATIVE}/audio/*.cpp)
 file(GLOB FILES_VIDEO ${PATH_TO_NATIVE}/video/*.cpp)
 file(GLOB FILES_COMMON_UTILS ${PATH_TO_NATIVE}/common/*.cpp)
 file(GLOB FILES_COMMON_OPENSL ${PATH_TO_NATIVE}/common/opensl_media/*.cpp)
-file(GLOB FILES_SOUNDTOUCH ${PATH_TO_NATIVE}/soundtouch/SoundTouch/*.cpp)
+
 
 include_directories(src/main/cpp/include)
 include_directories(src/main/cpp/audio)
 include_directories(src/main/cpp/video)
 include_directories(src/main/cpp/common)
-include_directories(src/main/cpp/soundtouch/include)
-include_directories(src/main/cpp/soundtouch/SoundTouch)
 include_directories(src/main/cpp/audio_effect)
 include_directories(src/main/cpp/libcommon)
 
@@ -40,7 +38,6 @@ add_library(
              ${FILES_VIDEO}
              ${FILES_COMMON_UTILS}
              ${FILES_COMMON_OPENSL}
-             ${FILES_SOUNDTOUCH}
 
              )
 
