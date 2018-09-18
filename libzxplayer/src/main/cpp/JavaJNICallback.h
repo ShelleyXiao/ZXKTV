@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <stdint.h>
 #include "WlStataus.h"
+#include "AndroidLog.h"
 
 
 class JavaJNICallback {

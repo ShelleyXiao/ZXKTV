@@ -58,6 +58,8 @@ void AudioDecoder::realease() {
 
     if (audioOutput != NULL) {
         audioOutput->destroyContext();
+        delete audioOutput;
+        audioOutput = NULL;
     }
 
     if (LOG_SHOW) {
@@ -66,14 +68,18 @@ void AudioDecoder::realease() {
 
     if (audioEffectProcessor != NULL) {
         audioEffectProcessor->destroy();
+        delete audioEffectProcessor;
+        audioEffectProcessor = NULL;
     }
 
     if (processBuffer != NULL) {
         free(processBuffer);
+        processBuffer = NULL;
     }
 
     if (sampleBuffer != NULL) {
         free(sampleBuffer);
+        sampleBuffer = NULL;
     }
 
     if (out_buffer != NULL) {
@@ -223,9 +229,6 @@ int AudioDecoder::getPcmData(void **pcm) {
 void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
     AudioDecoder *audioDecoer = (AudioDecoder *) context;
     if (audioDecoer != NULL) {
-        if (LOG_SHOW) {
-            LOGE("pcm call back...");
-        }
         audioDecoer->buffer = NULL;
         audioDecoer->pcmsize = audioDecoer->getPcmData(&audioDecoer->buffer);
         short *audioBufer = (short *) audioDecoer->buffer;
@@ -410,8 +413,17 @@ void AudioDecoder::setAudioEffect(AudioEffect *audioEffectParam) {
     LOGI("enter AudioDecoder::setAudioEffect()");
     if (audioEffectProcessor == NULL) {
         LOGI("11111111enter AudioDecoder::setAudioEffect()");
-        audioEffectProcessor = AudioEffectProcessorFactory::GetInstance()->buildAccompanyEffectProcessor();
-        audioEffectProcessor->init(audioEffectParam);
+//        audioEffectProcessor = AudioEffectProcessorFactory::GetInstance()->buildAccompanyEffectProcessor();
+//        audioEffectProcessor->init(audioEffectParam);
+
+        AudioEffectProcessorFactory* audioEffectFilterFactory = AudioEffectProcessorFactory::GetInstance();
+        if(audioEffectFilterFactory == NULL) {
+            LOGI("AudioEffectProcessorFactory ************** IS NULL");
+        } else {
+            audioEffectProcessor = audioEffectFilterFactory->buildAccompanyEffectProcessor();
+            audioEffectProcessor->init(audioEffectParam);
+        }
+
         LOGI("DDDDDDDDDDDDDDDDsetAudioEffectDDDDDDDDDDDDD");
     }
     audioEffectProcessor->setAudioEffect(audioEffectParam);

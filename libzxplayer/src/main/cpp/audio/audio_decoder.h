@@ -7,15 +7,12 @@
 #include <libaudio_effect/audio_effect/audio_effect.h>
 #include <libaudio_effect/audio_effect_processor/audio_effect_processor.h>
 #include "../base_player.h"
-#include "../common/WlQueue.h"
-#include "../common/AndroidLog.h"
+#include "WlQueue.h"
+#include "AndroidLog.h"
 #include "../WlPlayStatus.h"
 #include "../JavaJNICallback.h"
 #include "audio_output.h"
 
-#include "SoundTouch.h"
-
-using namespace soundtouch;
 
 extern "C"
 {

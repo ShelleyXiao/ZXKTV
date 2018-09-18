@@ -1,6 +1,6 @@
 #include <libavutil/mem.h>
 #include "JavaJNICallback.h"
-#include "common/AndroidLog.h"
+
 
 #define LOG_TAG "jnicall"
 

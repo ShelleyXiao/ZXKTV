@@ -52,6 +52,7 @@ void AccompanyEffectProcessor::setAudioEffect(AudioEffect *audioEffect) {
 }
 
 void AccompanyEffectProcessor::destroy() {
+	LOGD("AccompanyEffectProcessor::destroy()")
 	response->clear();
 	this->destroyFilterChains();
 	if(NULL != accompanyEffectFilterChain){

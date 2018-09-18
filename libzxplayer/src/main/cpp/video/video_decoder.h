@@ -1,15 +1,13 @@
-//
-// Created by ywl on 2017-12-17.
-//
+
 
 #ifndef WLPLAYER_WLVIDEO_H
 #define WLPLAYER_WLVIDEO_H
 
 
 #include "../base_player.h"
-#include "../common/WlQueue.h"
+#include "WlQueue.h"
 #include "../JavaJNICallback.h"
-#include "../common/AndroidLog.h"
+#include "AndroidLog.h"
 #include "audio_decoder.h"
 
 extern "C"

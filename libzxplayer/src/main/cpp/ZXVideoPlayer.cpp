@@ -1,7 +1,7 @@
 #include <jni.h>
 #include <stddef.h>
 #include <libaudio_effect/audio_effect/audio_effect_adapter.h>
-#include "common/AndroidLog.h"
+#include "AndroidLog.h"
 #include "JavaJNICallback.h"
 #include "video_player_control.h"
 #include "com_zxktv_ZXPlayer_ZXVideoPlayer.h"
@@ -48,7 +48,6 @@ Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeStart(JNIEnv *env, jobject instance)
     if (playerControl != NULL) {
         playerControl->start();
     }
-
 }
 
 JNIEXPORT void JNICALL Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativeStop

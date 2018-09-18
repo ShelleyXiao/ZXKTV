@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <SoundTouch.h>
+#include "./soundtouch/include/SoundTouch.h"
 
 using namespace soundtouch;
 

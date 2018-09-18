@@ -171,10 +171,10 @@ void VideoDecoder::decodVideo() {
             }
             double time = packet->pts * av_q2d(time_base);
 
-            if (LOG_SHOW) {
-                LOGE("video clock is %f", time);
-                LOGE("audio clock is %f", audioDecoder->clock);
-            }
+//            if (LOG_SHOW) {
+//                LOGE("video clock is %f", time);
+//                LOGE("audio clock is %f", audioDecoder->clock);
+//            }
             if (time < 0) {
                 time = packet->dts * av_q2d(time_base);
             }
@@ -210,9 +210,9 @@ void VideoDecoder::decodVideo() {
             }
 
             delayTime = getDelayTime(diff);
-            if (LOG_SHOW) {
-                LOGE("delay time %f diff is %f", delayTime, diff);
-            }
+//            if (LOG_SHOW) {
+//                LOGE("delay time %f diff is %f", delayTime, diff);
+//            }
 
             av_usleep(delayTime * 1000);
             javaJNICall->onVideoInfo(WL_THREAD_CHILD, clock, duration);
@@ -309,9 +309,9 @@ double VideoDecoder::synchronize(AVFrame *srcFrame, double pts) {
 
 double VideoDecoder::getDelayTime(double diff) {
 
-    if (LOG_SHOW) {
-        LOGD("audio video diff is %f", diff);
-    }
+//    if (LOG_SHOW) {
+//        LOGD("audio video diff is %f", diff);
+//    }
 
     if (diff > 0.003) {
         delayTime = delayTime / 3 * 2;

@@ -35,9 +35,6 @@ int avformat_interrupt_cb(void *ctx) {
         }
         return AVERROR_EOF;
     }
-    if (LOG_SHOW) {
-        LOGE("avformat_interrupt_cb return 0")
-    }
     return 0;
 }
 
@@ -289,9 +286,6 @@ int VideoPlayerControl::start() {
         if (ret == 0) {
             if (audioDecoder != NULL && packet->stream_index == audioDecoder->streamIndex) {
                 count++;
-                if (LOG_SHOW) {
-                    LOGE("解码第 %d 帧", count);
-                }
                 audioDecoder->queue->putAvpacket(packet);
             } else if (videoDecoder != NULL && packet->stream_index == videoDecoder->streamIndex) {
                 if (mimType != NULL && !isavi) {

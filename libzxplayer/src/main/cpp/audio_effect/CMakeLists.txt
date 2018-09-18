@@ -7,26 +7,27 @@ cmake_minimum_required(VERSION 3.4.1)
 
 set(LIB_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-message("audioEffect: ${LIB_SRC_DIR}" )
+#message("audioEffect: ${LIB_SRC_DIR}" )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/include
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/audio_effect/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/include
             ${CMAKE_CURRENT_SOURCE_DIR}/../libcommon
             ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFIXED_POINT -DUSE_KISS_FFT -DEXPORT='' -UHAVE_CONFIG_H")
 
 add_library(libaudioeffect STATIC
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/AAFilter.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/BPMDetect.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/cpu_detect_x86_gcc.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/FIFOSampleBuffer.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/FIRFilter.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/mmx_optimized.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/PeakFinder.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/RateTransposer.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/SoundTouch.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/sse_optimized.cpp
-               # ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/TDStretch.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/AAFilter.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/cpu_detect_x86.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/FIFOSampleBuffer.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/FIRFilter.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/InterpolateCubic.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/InterpolateShannon.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/InterpolateLinear.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/PeakFinder.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/RateTransposer.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/SoundTouch.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/sse_optimized.cpp
+                ${LIB_SRC_DIR}/libaudio_effect/audio_effect_filter_impl/pitch_shift/soundtouch/SoundTouch/TDStretch.cpp
 
                 ${LIB_SRC_DIR}/libaudio_effect/audio_effect_impl/harmonic/harmonic_audio_effect.cpp
                 ${LIB_SRC_DIR}/libaudio_effect/audio_effect_impl/harmonic/harmonic_audio_effect_builder.cpp
@@ -98,7 +99,6 @@ add_library(libaudioeffect STATIC
                 ${LIB_SRC_DIR}/libaudio_effect/audio_effect_processor/audio_request.cpp
                 ${LIB_SRC_DIR}/libaudio_effect/audio_effect_processor/audio_response.cpp
                 ${LIB_SRC_DIR}/libaudio_effect/audio_effect_processor/audio_effect_context.cpp
-
 
                  )
 

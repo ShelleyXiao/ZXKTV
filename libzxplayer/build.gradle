@@ -11,11 +11,21 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+//        externalNativeBuild {
+//            cmake {
+//                cppFlags "-frtti -fexceptions"
+//                abiFilters 'armeabi'
+//            }
+//        }
+
         externalNativeBuild {
             cmake {
-                cppFlags "-frtti -fexceptions"
-                abiFilters 'armeabi'
+                cppFlags ""
             }
+        }
+
+        ndk {
+            abiFilters 'armeabi'
         }
 
         sourceSets {
@@ -27,7 +37,6 @@ android {
     }
 
     buildTypes {
-
         debug {
 
             debuggable true
@@ -42,8 +51,6 @@ android {
                     // 编译优化，设置函式是否能被 inline 的伪指令长度
                     cppFlags '-O3', '-fexceptions', '-fsigned-char',
                             "-frtti -std=c++11", '-Wformat', '-D__STDC_LIMIT_MACROS'
-
-
                 }
             }
         }
