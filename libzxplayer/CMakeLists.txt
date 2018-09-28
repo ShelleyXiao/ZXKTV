@@ -30,7 +30,7 @@ add_library(
              src/main/cpp/base_player.cpp
              src/main/cpp/video_player_control.cpp
              src/main/cpp/JavaJNICallback.cpp
-             src/main/cpp/WlPlayStatus.cpp
+             src/main/cpp/PlayStatus.cpp
 
              ${FILES_AUDIO}
              ${FILES_VIDEO}

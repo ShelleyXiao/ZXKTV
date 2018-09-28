@@ -4,7 +4,7 @@
 #define LOG_TAG "VideoDecoder"
 
 VideoDecoder::VideoDecoder(JavaJNICallback *javaJNICall, AudioDecoder *audio,
-                           WlPlayStatus *playStatus) {
+                           PlayStatus *playStatus) {
     streamIndex = -1;
     clock = 0;
     this->javaJNICall = javaJNICall;
@@ -80,13 +80,13 @@ void *codecFrame(void *data) {
             if (wlVideo->queue->getAvPacketSize() == 0)//加载
             {
                 if (!wlVideo->wlPlayStatus->load) {
-                    wlVideo->javaJNICall->onLoad(WL_THREAD_CHILD, true);
+                    wlVideo->javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, true);
                     wlVideo->wlPlayStatus->load = true;
                 }
                 continue;
             } else {
                 if (wlVideo->wlPlayStatus->load) {
-                    wlVideo->javaJNICall->onLoad(WL_THREAD_CHILD, false);
+                    wlVideo->javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, false);
                     wlVideo->wlPlayStatus->load = false;
                 }
             }
@@ -143,20 +143,20 @@ void VideoDecoder::decodVideo() {
             continue;
         }
         if (wlPlayStatus->seek) {
-            javaJNICall->onLoad(WL_THREAD_CHILD, true);
+            javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, true);
             wlPlayStatus->load = true;
             continue;
         }
         if (queue->getAvPacketSize() == 0)//加载
         {
             if (!wlPlayStatus->load) {
-                javaJNICall->onLoad(WL_THREAD_CHILD, true);
+                javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, true);
                 wlPlayStatus->load = true;
             }
             continue;
         } else {
             if (wlPlayStatus->load) {
-                javaJNICall->onLoad(WL_THREAD_CHILD, false);
+                javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, false);
                 wlPlayStatus->load = false;
             }
         }
@@ -215,8 +215,8 @@ void VideoDecoder::decodVideo() {
 //            }
 
             av_usleep(delayTime * 1000);
-            javaJNICall->onVideoInfo(WL_THREAD_CHILD, clock, duration);
-            javaJNICall->onDecMediacodec(WL_THREAD_CHILD, packet->size, packet->data, 0);
+            javaJNICall->onVideoInfo(ZXPLAYER_THREAD_CHILD, clock, duration);
+            javaJNICall->onDecMediacodec(ZXPLAYER_THREAD_CHILD, packet->size, packet->data, 0);
             av_free(packet->data);
             av_free(packet->buf);
             av_free(packet->side_data);
@@ -273,8 +273,8 @@ void VideoDecoder::decodVideo() {
             }
 
             av_usleep(delayTime * 1000);
-            javaJNICall->onVideoInfo(WL_THREAD_CHILD, clock, duration);
-            javaJNICall->onGlRenderYuv(WL_THREAD_CHILD, frame->linesize[0], frame->height,
+            javaJNICall->onVideoInfo(ZXPLAYER_THREAD_CHILD, clock, duration);
+            javaJNICall->onGlRenderYuv(ZXPLAYER_THREAD_CHILD, frame->linesize[0], frame->height,
                                        frame->data[0], frame->data[1], frame->data[2]);
             av_frame_free(&frame);
             av_free(frame);

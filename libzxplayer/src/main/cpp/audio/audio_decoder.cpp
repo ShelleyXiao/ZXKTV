@@ -4,10 +4,10 @@
 
 #define LOG_TAG "AUDIO"
 
-AudioDecoder::AudioDecoder(WlPlayStatus
+AudioDecoder::AudioDecoder(PlayStatus
                            *playStatus,
                            JavaJNICallback *javaJNICall
-) {
+) : audioEffectProcessor(NULL){
     streamIndex = -1;
     out_buffer = (uint8_t *) malloc(sample_rate * 2 * 2 * 3 / 2);
     queue = new WlQueue(playStatus);
@@ -19,6 +19,7 @@ AudioDecoder::AudioDecoder(WlPlayStatus
 
     sampleBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
     processBuffer = static_cast<SAMPLETYPE *>(malloc(buffSize));
+
 
 }
 
@@ -71,6 +72,9 @@ void AudioDecoder::realease() {
         delete audioEffectProcessor;
         audioEffectProcessor = NULL;
     }
+    if (LOG_SHOW) {
+        LOGE("释放 AudioEffectProcessor es end");
+    }
 
     if (processBuffer != NULL) {
         free(processBuffer);
@@ -121,7 +125,7 @@ int AudioDecoder::getPcmData(void **pcm) {
             continue;
         }
         if (wlPlayStatus->seek) {
-            javaJNICall->onLoad(WL_THREAD_CHILD, true);
+            javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, true);
             wlPlayStatus->load = true;
             isReadPacketFinish = true;
             continue;
@@ -130,13 +134,13 @@ int AudioDecoder::getPcmData(void **pcm) {
             if (queue->getAvPacketSize() == 0)//加载
             {
                 if (!wlPlayStatus->load) {
-                    javaJNICall->onLoad(WL_THREAD_CHILD, true);
+                    javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, true);
                     wlPlayStatus->load = true;
                 }
                 continue;
             } else {
                 if (wlPlayStatus->load) {
-                    javaJNICall->onLoad(WL_THREAD_CHILD, false);
+                    javaJNICall->onLoad(ZXPLAYER_THREAD_CHILD, false);
                     wlPlayStatus->load = false;
                 }
             }
@@ -273,7 +277,7 @@ void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
             if (audioDecoer->processBuffer && audioDecoer->pcmsize > 0) {
                 audioDecoer->clock +=
                         audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
-                audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
+                audioDecoer->javaJNICall->onVideoInfo(ZXPLAYER_THREAD_CHILD, audioDecoer->clock,
                                                       audioDecoer->duration);
 
                 SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
@@ -298,7 +302,7 @@ void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
 //        if (audioDecoer->buffer && audioDecoer->pcmsize > 0) {
 //            audioDecoer->clock +=
 //                    audioDecoer->pcmsize / ((double) (audioDecoer->sample_rate * 2 * 2));
-//            audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
+//            audioDecoer->javaJNICall->onVideoInfo(ZXPLAYER_THREAD_CHILD, audioDecoer->clock,
 //                                                  audioDecoer->duration);
 ////            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->buffer,
 ////                                                wlAudio->pcmsize);
@@ -333,7 +337,7 @@ void pcmBufferCallBack_sl(SLAndroidSimpleBufferQueueItf bf, void *context) {
 //                              ((double) (audioDecoer->sample_rate * audioDecoer->channels *
 //                                         av_get_bytes_per_sample(audioDecoer->dst_format))));
 //
-//            audioDecoer->javaJNICall->onVideoInfo(WL_THREAD_CHILD, audioDecoer->clock,
+//            audioDecoer->javaJNICall->onVideoInfo(ZXPLAYER_THREAD_CHILD, audioDecoer->clock,
 //                                                  audioDecoer->duration);
 //            SLAndroidSimpleBufferQueueItf pcmBufferQueue = audioDecoer->audioOutput->getSLQueueItf();
 //            if (pcmBufferQueue != NULL) {
@@ -410,23 +414,28 @@ void AudioDecoder::setChannelMute(int mute) {
 }
 
 void AudioDecoder::setAudioEffect(AudioEffect *audioEffectParam) {
-    LOGI("enter AudioDecoder::setAudioEffect()");
+    LOGI("enter AudioDecoder::setAudioEffect() audioEffectProcessor = %p", audioEffectProcessor);
     if (audioEffectProcessor == NULL) {
-        LOGI("11111111enter AudioDecoder::setAudioEffect()");
 //        audioEffectProcessor = AudioEffectProcessorFactory::GetInstance()->buildAccompanyEffectProcessor();
 //        audioEffectProcessor->init(audioEffectParam);
 
-        AudioEffectProcessorFactory* audioEffectFilterFactory = AudioEffectProcessorFactory::GetInstance();
-        if(audioEffectFilterFactory == NULL) {
-            LOGI("AudioEffectProcessorFactory ************** IS NULL");
-        } else {
+        AudioEffectProcessorFactory *audioEffectFilterFactory = AudioEffectProcessorFactory::GetInstance();
+        if (audioEffectFilterFactory != NULL) {
+            LOGI("enter AudioDecoder audioEffectFilterFactory new now");
             audioEffectProcessor = audioEffectFilterFactory->buildAccompanyEffectProcessor();
-            audioEffectProcessor->init(audioEffectParam);
+            LOGI("audioEffectProcessor = %p", audioEffectProcessor);
+            if (audioEffectParam != NULL) {
+                audioEffectProcessor->init(audioEffectParam);
+            }
         }
 
-        LOGI("DDDDDDDDDDDDDDDDsetAudioEffectDDDDDDDDDDDDD");
+    } else {
+        if (audioEffectParam != NULL) {
+            audioEffectProcessor->setAudioEffect(audioEffectParam);
+            LOGI("setAudioEffect ing");
+        }
     }
-    audioEffectProcessor->setAudioEffect(audioEffectParam);
+
 }
 
 

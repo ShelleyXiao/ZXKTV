@@ -1,9 +1,7 @@
-//
-// Created by ywl on 2017-11-12.
-//
+
 #pragma once
-#ifndef WLPLAYER_ANDROIDLOG_H
-#define WLPLAYER_ANDROIDLOG_H
+#ifndef PLAYER_ANDROIDLOG_H
+#define PLAYER_ANDROIDLOG_H
 
 #include <android/log.h>
 
@@ -17,7 +15,7 @@
 
 #define LOG_DEBUG(MSG) do {    \
             if(DEBUG)    \
-            LOGD(MSG) ;               \
+            LOGD(MSG) ;  \
     }while(0);\
 
-#endif //WLPLAYER_ANDROIDLOG_H
+#endif //PLAYER_ANDROIDLOG_H

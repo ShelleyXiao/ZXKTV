@@ -23,12 +23,14 @@ import com.zx.zxktv.presentation.GiftPresentation;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.LogUtils;
 import com.zx.zxktv.utils.ViewUtils;
+import com.zx.zxktv.utils.rxbus.RxBus;
+import com.zx.zxktv.utils.rxbus.RxConstants;
 
 import java.io.IOException;
 
 
 /**
- * User: ShaudXiao
+ * User: zx
  * Date: 2018-06-22
  * Time: 10:50
  * Company: zx
@@ -179,6 +181,7 @@ public class SongPreviewWin extends DialogFragment implements View.OnClickListen
                 break;
             case R.id.btn_order:
                 VideoPlayListmanager.getIntanse().addSong(mCurrentSong);
+                RxBus.getDefault().postWithCode(RxConstants.UPDATE_SELECT_SONG_CODE, RxConstants.EXTRA_KEY_UPDATE_SELECT);
                 break;
             default:
                 break;

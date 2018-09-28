@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -22,14 +21,13 @@ import com.zx.zxktv.data.Song;
 import com.zx.zxktv.ui.view.AlwaysMarqueeTextView;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.FileSystemUtil;
-import com.zx.zxktv.utils.LogUtils;
 import com.zx.zxktv.utils.ViewUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User: ShaudXiao
+ * User: zx
  * Date: 2018-06-21
  * Time: 13:52
  * Company: zx
@@ -65,9 +63,12 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
         holder.tv_SongName.setText(FileSystemUtil.getFileName(title));
 
         int index = VideoPlayListmanager.getIntanse().getSongIndex(item);
-        if(index != -1) {
+        if (index != -1) {
             index++;
-            holder.tv_position.setText("(约" + index  + ")");
+            holder.tv_position.setText("(约" + index + ")");
+            holder.tv_position.setVisibility(View.VISIBLE);
+        } else {
+            holder.tv_position.setVisibility(View.INVISIBLE);
         }
 
         holder.cb_preview.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +76,7 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             public void onClick(View v) {
 //                Toast.makeText(v.getContext(), "item" + title + " 被点击了", Toast.LENGTH_SHORT).show();
 
-                if(mPreivewListener != null) {
+                if (mPreivewListener != null) {
                     mPreivewListener.onPreView(item);
                 }
             }
@@ -98,13 +99,15 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             @Override
             public void onClick(View v) {
                 VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
-                if(VideoPlayListmanager.getIntanse().getSongIndex(item) < 0) {
+                if (VideoPlayListmanager.getIntanse().getSongIndex(item) < 0) {
                     playListmanager.addSong(item);
                     int index = VideoPlayListmanager.getIntanse().getSongIndex(item);
                     index++;
                     holder.tv_position.setText("(约" + index + ")");
-                    if(mListNotifyListener != null) {
+                    holder.tv_position.setVisibility(View.VISIBLE);
+                    if (mListNotifyListener != null) {
                         mListNotifyListener.updateList();
+                        notifyDataSetChanged();
                     }
                 }
             }
@@ -126,8 +129,6 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
     }
 
 
-
-
     public Song getItem(int position) {
         if (!isDataValid(mCursor)) {
             throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
@@ -141,20 +142,21 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
     }
 
     public void updateItem(Song song) {
-        long id = song.id;
-        mCursor.moveToPosition(0);
-        int i = 0;
-        int pos = 0;
-        while (i < mCursor.getCount()) {
-            mCursor.moveToPosition(i);
-            if (id == mCursor.getLong(mCursor.getColumnIndex(MediaStore.Files.FileColumns._ID))) {
-                pos = i;
-                break;
-            }
-            i++;
-        }
-        LogUtils.i("index: " + pos + "song: " + song + " ");
+//        long id = song.id;
+//        mCursor.moveToPosition(0);
+//        int i = 0;
+//        int pos = 0;
+//        while (i < mCursor.getCount()) {
+//            mCursor.moveToPosition(i);
+//            if (id == mCursor.getLong(mCursor.getColumnIndex(MediaStore.Files.FileColumns._ID))) {
+//                pos = i;
+//                break;
+//            }
+//            i++;
+//        }
+//        LogUtils.i("index: " + pos + "song: " + song + " ");
 //        notifyItemChanged(pos, "1");
+        //notifyItemChanged 无效 ，先采用notifyDataSetChanged
         notifyDataSetChanged();
     }
 
@@ -172,7 +174,7 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
 
         AlwaysMarqueeTextView tv_SongName;
         TextView tv_position;
-//        TextView tv_position;
+        //        TextView tv_position;
         CheckBox cb_preview;
         CheckBox cb_info;
 
@@ -302,19 +304,20 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             cb_preview.setLayoutParams(al_params);
 
 
-
             ab_infomation.addView(cb_info);
             ab_infomation.addView(tv_SongName);
 //            ab_infomation.addView(tv_position);
             ab_infomation.addView(tv_position);
             ab_infomation.addView(cb_preview);
 
+            tv_position.setVisibility(View.VISIBLE);
+
             ((AbsoluteLayout) mainView).addView(iv_avatar_bg);
             ((AbsoluteLayout) mainView).addView(iv_avatar);
             ((AbsoluteLayout) mainView).addView(ab_infomation);
 
-            ((FrameLayout)itemView).addView(mainView);
-            
+            ((FrameLayout) itemView).addView(mainView);
+
         }
     }
 }

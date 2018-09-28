@@ -5,9 +5,9 @@
 #define LOG_TAG "VideoPlayerControl"
 
 void *decodeThread(void *data) {
-    VideoPlayerControl *wlFFmpeg = (VideoPlayerControl *) data;
-    wlFFmpeg->decodeFFmpeg();
-    pthread_exit(&wlFFmpeg->decodThread);
+    VideoPlayerControl *playerControl = (VideoPlayerControl *) data;
+    playerControl->decodeFFmpeg();
+    pthread_exit(&playerControl->decodThread);
 }
 
 
@@ -24,12 +24,12 @@ VideoPlayerControl::VideoPlayerControl(JavaJNICallback *javaJNICall, const char 
     isOnlyMusic = false;
     javaJNICallback = javaJNICall;
     urlpath = url;
-    wlPlayStatus = new WlPlayStatus();
+    playStatus = new PlayStatus();
 }
 
 int avformat_interrupt_cb(void *ctx) {
     VideoPlayerControl *playerControl = (VideoPlayerControl *) ctx;
-    if (playerControl->wlPlayStatus->exit) {
+    if (playerControl->playStatus->exit) {
         if (LOG_SHOW) {
             LOGE("avformat_interrupt_cb return 1")
         }
@@ -50,7 +50,7 @@ int VideoPlayerControl::decodeFFmpeg() {
             LOGE("can not open url:%s", urlpath);
         }
         if (javaJNICallback != NULL) {
-            javaJNICallback->onError(WL_THREAD_CHILD, WL_FFMPEG_CAN_NOT_OPEN_URL,
+            javaJNICallback->onError(ZXPLAYER_THREAD_CHILD, FFMPEG_CAN_NOT_OPEN_URL,
                                      "can not open url");
         }
         exit = true;
@@ -65,7 +65,7 @@ int VideoPlayerControl::decodeFFmpeg() {
             LOGE("can not find streams from %s", urlpath);
         }
         if (javaJNICallback != NULL) {
-            javaJNICallback->onError(WL_THREAD_CHILD, WL_FFMPEG_CAN_NOT_FIND_STREAMS,
+            javaJNICallback->onError(ZXPLAYER_THREAD_CHILD, FFMPEG_CAN_NOT_FIND_STREAMS,
                                      "can not find streams from url");
         }
         exit = true;
@@ -89,7 +89,7 @@ int VideoPlayerControl::decodeFFmpeg() {
             if (LOG_SHOW) {
                 LOGE("音频");
             }
-            AudioChannel *wl = new AudioChannel(i, pFormatCtx->streams[i]->time_base);
+            Channel *wl = new Channel(i, pFormatCtx->streams[i]->time_base);
             audiochannels.push_front(wl);
         } else if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             if (!isOnlyMusic) {
@@ -101,7 +101,7 @@ int VideoPlayerControl::decodeFFmpeg() {
                 if (num != 0 && den != 0) {
                     int fps = pFormatCtx->streams[i]->avg_frame_rate.num /
                               pFormatCtx->streams[i]->avg_frame_rate.den;
-                    AudioChannel *wl = new AudioChannel(i, pFormatCtx->streams[i]->time_base,
+                    Channel *wl = new Channel(i, pFormatCtx->streams[i]->time_base,
                                                         fps);
                     videochannels.push_front(wl);
                 }
@@ -110,14 +110,16 @@ int VideoPlayerControl::decodeFFmpeg() {
     }
 
     if (audiochannels.size() > 0) {
-        audioDecoder = new AudioDecoder(wlPlayStatus, javaJNICallback);
-        LOGI("CHANNEL SIZE = %d", getAudioChannels());
+        audioDecoder = new AudioDecoder(playStatus, javaJNICallback);
+//        LOGI("CHANNEL SIZE = %d", getAudioChannels());
         int size = getAudioChannels();
         if (size > 1) {
             setAudioChannel(1);
         } else {
             setAudioChannel(0);
         }
+
+//        setAudioChannel(0);
         if (audioDecoder->streamIndex >= 0 && audioDecoder->streamIndex < pFormatCtx->nb_streams) {
             if (getAvCodecContext(pFormatCtx->streams[audioDecoder->streamIndex]->codecpar,
                                   audioDecoder) !=
@@ -131,7 +133,7 @@ int VideoPlayerControl::decodeFFmpeg() {
 
     }
     if (videochannels.size() > 0) {
-        videoDecoder = new VideoDecoder(javaJNICallback, audioDecoder, wlPlayStatus);
+        videoDecoder = new VideoDecoder(javaJNICallback, audioDecoder, playStatus);
         setVideoChannel(0);
         if (videoDecoder->streamIndex >= 0 && videoDecoder->streamIndex < pFormatCtx->nb_streams) {
             if (getAvCodecContext(pFormatCtx->streams[videoDecoder->streamIndex]->codecpar,
@@ -161,29 +163,39 @@ int VideoPlayerControl::decodeFFmpeg() {
             LOGE("codec name is %s", videoDecoder->avCodecContext->codec->name);
             LOGE("codec long name is %s", videoDecoder->avCodecContext->codec->long_name);
         }
-        bool isSoft = javaJNICallback->isOnlySoft(WL_THREAD_CHILD);
-        LOGI("decodec type %d", isSoft);
+        bool isSoft = javaJNICallback->isOnlySoft(ZXPLAYER_THREAD_CHILD);
         if (!isSoft) {
             mimeType = getMimeType(videoDecoder->avCodecContext->codec->name);
         } else {
             mimeType = -1;
         }
-        LOGI("***************** mimeType = %d", mimeType);
         if (mimeType != -1) {
-            javaJNICallback->onInitMediacodec(WL_THREAD_CHILD, mimeType,
+            LOGI("***************** mimeType = %d", mimeType);
+            javaJNICallback->onInitMediacodec(ZXPLAYER_THREAD_CHILD, mimeType,
                                               videoDecoder->avCodecContext->width,
                                               videoDecoder->avCodecContext->height,
                                               videoDecoder->avCodecContext->extradata_size,
                                               videoDecoder->avCodecContext->extradata_size,
                                               videoDecoder->avCodecContext->extradata,
                                               videoDecoder->avCodecContext->extradata);
+        } else {
+//            if (javaJNICallback != NULL) {
+//                javaJNICallback->onError(ZXPLAYER_THREAD_CHILD, ZXPLAYER_CODEC_FAILD,
+//                                         "mediacodec init faild!!!");
+//            }
+//            exit = true;
+//            pthread_mutex_unlock(&init_mutex);
+//
+//            release();
+//
+//            return -1;
         }
         videoDecoder->duration = pFormatCtx->duration / 1000000;
     }
     if (LOG_SHOW) {
         LOGE("准备ing");
     }
-    javaJNICallback->onParpared(WL_THREAD_CHILD);
+    javaJNICallback->onParpared(ZXPLAYER_THREAD_CHILD);
     if (LOG_SHOW) {
         LOGE("准备end");
     }
@@ -196,23 +208,23 @@ int VideoPlayerControl::getAvCodecContext(AVCodecParameters *parameters, ZXbaseP
 
     AVCodec *dec = avcodec_find_decoder(parameters->codec_id);
     if (!dec) {
-        javaJNICallback->onError(WL_THREAD_CHILD, 3, "get avcodec fail");
+        javaJNICallback->onError(ZXPLAYER_THREAD_CHILD, 3, "get avcodec fail");
         exit = true;
         return 1;
     }
     basePlayer->avCodecContext = avcodec_alloc_context3(dec);
     if (!basePlayer->avCodecContext) {
-        javaJNICallback->onError(WL_THREAD_CHILD, 4, "alloc avcodecctx fail");
+        javaJNICallback->onError(ZXPLAYER_THREAD_CHILD, 4, "alloc avcodecctx fail");
         exit = true;
         return 1;
     }
     if (avcodec_parameters_to_context(basePlayer->avCodecContext, parameters) != 0) {
-        javaJNICallback->onError(WL_THREAD_CHILD, 5, "copy avcodecctx fail");
+        javaJNICallback->onError(ZXPLAYER_THREAD_CHILD, 5, "copy avcodecctx fail");
         exit = true;
         return 1;
     }
     if (avcodec_open2(basePlayer->avCodecContext, dec, 0) != 0) {
-        javaJNICallback->onError(WL_THREAD_CHILD, 6, "open avcodecctx fail");
+        javaJNICallback->onError(ZXPLAYER_THREAD_CHILD, 6, "open avcodecctx fail");
         exit = true;
         return 1;
     }
@@ -223,7 +235,7 @@ int VideoPlayerControl::getAvCodecContext(AVCodecParameters *parameters, ZXbaseP
 VideoPlayerControl::~VideoPlayerControl() {
     pthread_mutex_destroy(&init_mutex);
     if (LOG_SHOW) {
-        LOGE("video_player_controlayer_control() 释放了");
+        LOGE("video_player_controlayer_control() release");
     }
 }
 
@@ -259,9 +271,9 @@ int VideoPlayerControl::start() {
         mimType = av_bitstream_filter_init("h264_mp4toannexb");
     }
 
-    while (!wlPlayStatus->exit) {
+    while (!playStatus->exit) {
         exit = false;
-        if (wlPlayStatus->pause) {//暂停
+        if (playStatus->pause) {//暂停
 
             av_usleep(1000 * 100);
             continue;
@@ -278,7 +290,7 @@ int VideoPlayerControl::start() {
         pthread_mutex_lock(&seek_mutex);
         ret = av_read_frame(pFormatCtx, packet);
         pthread_mutex_unlock(&seek_mutex);
-        if (wlPlayStatus->seek) {
+        if (playStatus->seek) {
             av_packet_free(&packet);
             av_free(packet);
             continue;
@@ -313,7 +325,7 @@ int VideoPlayerControl::start() {
             packet = NULL;
             if ((videoDecoder != NULL && videoDecoder->queue->getAvFrameSize() == 0) ||
                 (audioDecoder != NULL && audioDecoder->queue->getAvPacketSize() == 0)) {
-                wlPlayStatus->exit = true;
+                playStatus->exit = true;
                 break;
             }
         }
@@ -322,14 +334,14 @@ int VideoPlayerControl::start() {
         av_bitstream_filter_close(mimType);
     }
     if (!exitByUser && javaJNICallback != NULL) {
-        javaJNICallback->onComplete(WL_THREAD_CHILD);
+        javaJNICallback->onComplete(ZXPLAYER_THREAD_CHILD);
     }
     exit = true;
     return 0;
 }
 
 void VideoPlayerControl::release() {
-    wlPlayStatus->exit = true;
+    playStatus->exit = true;
     pthread_mutex_lock(&init_mutex);
     if (LOG_SHOW) {
         LOGE("开始释放 wlffmpeg");
@@ -393,8 +405,8 @@ void VideoPlayerControl::release() {
 }
 
 void VideoPlayerControl::pause() {
-    if (wlPlayStatus != NULL) {
-        wlPlayStatus->pause = true;
+    if (playStatus != NULL) {
+        playStatus->pause = true;
         if (audioDecoder != NULL) {
             audioDecoder->pause();
         }
@@ -402,8 +414,8 @@ void VideoPlayerControl::pause() {
 }
 
 void VideoPlayerControl::resume() {
-    if (wlPlayStatus != NULL) {
-        wlPlayStatus->pause = false;
+    if (playStatus != NULL) {
+        playStatus->pause = false;
         if (audioDecoder != NULL) {
             audioDecoder->resume();
         }
@@ -432,6 +444,11 @@ int VideoPlayerControl::getMimeType(const char *codecName) {
         return 5;
     }
 
+    if (strcmp(codecName, "mpeg1video") == 0) {
+        isavi = true;
+        return 6;
+    }
+
     return -1;
 }
 
@@ -439,11 +456,11 @@ int VideoPlayerControl::seek(int64_t sec) {
     if (sec >= duration) {
         return -1;
     }
-    if (wlPlayStatus->load) {
+    if (playStatus->load) {
         return -1;
     }
     if (pFormatCtx != NULL) {
-        wlPlayStatus->seek = true;
+        playStatus->seek = true;
         pthread_mutex_lock(&seek_mutex);
         int64_t rel = sec * AV_TIME_BASE;
         int ret = avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
@@ -461,7 +478,7 @@ int VideoPlayerControl::seek(int64_t sec) {
         audioDecoder->clock = 0;
         audioDecoder->now_time = 0;
         pthread_mutex_unlock(&seek_mutex);
-        wlPlayStatus->seek = false;
+        playStatus->seek = false;
     }
     return 0;
 }

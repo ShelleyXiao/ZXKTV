@@ -66,7 +66,7 @@ AudioEffect* AudioEffectBuilder::buildAudioEffect(jobject audioEffect, JNIEnv* e
 	//从配置文件中获取人声和伴奏自己的FilterChain的参数
 	std::list<int>* vocalEffectFilters = new std::list<int>();
 	jint len = env->CallIntMethod(vocalEffectFilterChain, arraylist_size);
-	LOGI("************* vocalEffectFilters len is %d ***********", len);
+//	LOGI("************* vocalEffectFilters len is %d ***********", len);
 	for (int i = 0; i < len; i++) {
 		jobject obj_vocalEffectFilterType = env->CallObjectMethod(vocalEffectFilterChain, arraylist_get, i);
 		jclass cls_Integer = env->GetObjectClass(obj_vocalEffectFilterType);
@@ -78,13 +78,13 @@ AudioEffect* AudioEffectBuilder::buildAudioEffect(jobject audioEffect, JNIEnv* e
 	std::list<int>* accompanyEffectFilters = new std::list<int>();
 	jobject accompanyEffectFilterChain = env->CallObjectMethod(audioEffect, audioEffect_getAccompanyEffectFilterChain);
 	len = env->CallIntMethod(accompanyEffectFilterChain, arraylist_size);
-	LOGI("************* accompanyEffectFilters len is %d ***********", len);
+//	LOGI("************* accompanyEffectFilters len is %d ***********", len);
 	for (int i = 0; i < len; i++) {
 		jobject obj_vocalEffectFilterType = env->CallObjectMethod(accompanyEffectFilterChain, arraylist_get, i);
 		jclass cls_Integer = env->GetObjectClass(obj_vocalEffectFilterType);
 		jmethodID int_value = env->GetMethodID(cls_Integer, "intValue", "()I");
 		jint vocalEffectFilterType = env->CallIntMethod(obj_vocalEffectFilterType, int_value);
-		LOGI("[%d]", vocalEffectFilterType);
+//		LOGI("[%d]", vocalEffectFilterType);
 		accompanyEffectFilters->push_back(vocalEffectFilterType);
 	}
 	std::list<int>* mixPostEffectFilters = new std::list<int>();

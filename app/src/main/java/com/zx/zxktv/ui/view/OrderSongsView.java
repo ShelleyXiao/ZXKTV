@@ -82,14 +82,8 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
         mLayoutManager = new PagerGridLayoutManager(mRows, mColumns, PagerGridLayoutManager
                 .VERTICAL);
 
-
-        // 系统带的 RecyclerView，无需自定义
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
-        // 水平分页布局管理器
-//        mLayoutManager.setPageListener(this);    // 设置页面变化监听器
         mRecyclerView.setLayoutManager(mLayoutManager);
-
 
         VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
         list_data.addAll(playListmanager.getPlaySongList());

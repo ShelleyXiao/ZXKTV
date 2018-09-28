@@ -12,7 +12,7 @@
 #include "JavaJNICallback.h"
 #include "audio_decoder.h"
 #include "video_decoder.h"
-#include "WlPlayStatus.h"
+#include "PlayStatus.h"
 #include "audio_channel.h"
 
 extern "C"
@@ -27,19 +27,19 @@ public:
     const char *urlpath = NULL;
     JavaJNICallback *javaJNICallback = NULL;
     pthread_t decodThread;
-    AVFormatContext *pFormatCtx = NULL;//封装格式上下文
+    AVFormatContext *pFormatCtx = NULL;
     int duration = 0;
     AudioDecoder *audioDecoder = NULL;
     VideoDecoder *videoDecoder = NULL;
-    WlPlayStatus *wlPlayStatus = NULL;
+    PlayStatus *playStatus = NULL;
     bool exit = false;
     bool exitByUser = false;
     int mimeType = 1;
     bool isavi = false;
     bool isOnlyMusic = false;
 
-    std::deque<AudioChannel *> audiochannels;
-    std::deque<AudioChannel *> videochannels;
+    std::deque<Channel *> audiochannels;
+    std::deque<Channel *> videochannels;
 
     pthread_mutex_t init_mutex;
     pthread_mutex_t seek_mutex;

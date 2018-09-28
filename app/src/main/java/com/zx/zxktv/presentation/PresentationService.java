@@ -69,8 +69,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.reactivex.disposables.Disposable;
+
 public class PresentationService extends Service implements OnFrameAvailableListener,
-        OnPreparedListener, OnCompleteListener, OnStopListener, OnInfoListener {
+        OnPreparedListener, OnCompleteListener, OnStopListener, OnInfoListener, OnErrorListener {
 
     private final static String TAG = "PresentationService";
     private final static int PROGRESS_DETAL = 2;
@@ -115,6 +117,8 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private static final int ACCOMPANY_VOLUME_CHANGED = 1098703;
     private static final int AUDIO_VOLUME_CHANGED = 1098704;
     private static final int PITCH_LEVEL_CHANGED = 1098705;
+
+    private Disposable mDisposable;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
@@ -164,7 +168,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
                 TAG);
         wl.acquire();
 
-        setServiceForeground();
+//        setServiceForeground();
     }
 
     @Override
@@ -178,11 +182,14 @@ public class PresentationService extends Service implements OnFrameAvailableList
             mVideoPlayer.stop(true);
         }
 
+        if (mDisposable != null) {
+            mDisposable.dispose();
+        }
+
         dismissKTVPresentation();
         dismissGiftPresentation();
         dismissMultiVideoPresentation();
 
-        stopForeground(true);
     }
 
     @Override
@@ -245,7 +252,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
     @Override
     public void onInfo(TimeBean timeBean) {
         mTimeBean = timeBean;
-
         progress = timeBean.getCurrt_secds() * 100 / timeBean.getTotal_secds();
     }
 
@@ -284,9 +290,15 @@ public class PresentationService extends Service implements OnFrameAvailableList
         Log.i(TAG, "---onStop---");
         Message message = Message.obtain();
         message.what = 1;
-        handler.sendMessage(message);
+//        handler.sendMessage(message);
+        handler.sendMessageAtTime(message, 500);
     }
 
+    @Override
+    public void onError(int code, String msg) {
+        LogUtils.i("Error: restart play!!!!!!!!!!!");
+        nextVideo();
+    }
 
     public void attachFrameLayout(FrameLayout fl) {
         if (USE_TEXTURE_VIEW) {
@@ -308,6 +320,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
         }
     }
+
 
     //=======================
     class SurfaceCallback implements SurfaceHolder.Callback {
@@ -350,14 +363,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
             mSurfaceTexture = new SurfaceTexture(texture);
             mSurfaceTexture.setOnFrameAvailableListener(this);
-//            mMediaPlayer = new MediaPlayer();
-//            mMediaPlayer.setOnErrorListener(this);
-//            mMediaPlayer.setOnPreparedListener(this);
-//            mMediaPlayer.setOnCompletionListener(this);
-//
-//            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//            Surface mSurface = new Surface(mSurfaceTexture);
-//            mMediaPlayer.setSurface(mSurface);
 
             mVideoPlayer = new ZXVideoPlayer();
             mVideoPlayer.setOnlyMusic(false);
@@ -371,12 +376,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
             mVideoPlayer.setOnInfoListener(this);
             mVideoPlayer.setOnPreparedListener(this);
 
-            mVideoPlayer.setOnErrorListener(new OnErrorListener() {
-                @Override
-                public void onError(int code, String msg) {
-                    LogUtils.e("Error: " + msg);
-                }
-            });
+            mVideoPlayer.setOnErrorListener(this);
 
 
             audioEffect = AudioEffectParamController.getInstance().extractParam(AudioEffectStyleEnum.POPULAR,
@@ -432,8 +432,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
         mCurrentIndex = VideoPlayListmanager.getIntanse().getSongIndex(song);
         mCurSong = song;
 
-        ;
-
         mVideoPresentation.updatePlayInfo(mCurSong);
 
     }
@@ -441,20 +439,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private void playVideo(String url) {
         LogUtils.i("url = " + url);
         mPath = url;
-//        mMediaPlayer.reset();
-//
-//        try {
-//            mMediaPlayer.setDataSource(mPath);
-//        } catch (IllegalArgumentException e) {
-//            e.printStackTrace();
-//        } catch (SecurityException e) {
-//            e.printStackTrace();
-//        } catch (IllegalStateException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        mMediaPlayer.prepareAsync();
 
         if (mVideoPlayer != null) {
             mVideoPlayer.setDataSource(mPath);
@@ -568,7 +552,17 @@ public class PresentationService extends Service implements OnFrameAvailableList
         mVideoPresentation.updatePlayInfo(mCurSong);
         Message message = Message.obtain();
         message.what = 1;
-        handler.sendMessage(message);
+//        handler.sendMessage(message);
+        handler.sendMessageAtTime(message, 500);
+    }
+
+    public void updateDisplayInfo() {
+        Song song = VideoPlayListmanager.getIntanse().getTop();
+        if (null == song) {
+            return;
+        }
+
+        mVideoPresentation.updatePlayInfo(mCurSong);
     }
 
     public boolean isPlaying() {

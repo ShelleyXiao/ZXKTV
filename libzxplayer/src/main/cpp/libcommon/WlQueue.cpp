@@ -7,7 +7,7 @@
 
 #define LOG_TAG "zxQueue"
 
-WlQueue::WlQueue(WlPlayStatus *playStatus) {
+WlQueue::WlQueue(PlayStatus *playStatus) {
     wlPlayStatus = playStatus;
     pthread_mutex_init(&mutexPacket, NULL);
     pthread_cond_init(&condPacket, NULL);

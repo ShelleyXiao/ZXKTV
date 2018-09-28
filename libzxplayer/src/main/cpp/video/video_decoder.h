@@ -20,7 +20,7 @@ class VideoDecoder : public ZXbasePlayer{
 public:
     WlQueue *queue = NULL;
     AudioDecoder *audioDecoder = NULL;
-    WlPlayStatus *wlPlayStatus = NULL;
+    PlayStatus *wlPlayStatus = NULL;
     pthread_t videoThread;
     pthread_t decFrame;
     JavaJNICallback *javaJNICall = NULL;
@@ -36,7 +36,7 @@ public:
     int playcount = -1;
 
 public:
-    VideoDecoder(JavaJNICallback *javaCall, AudioDecoder *audio, WlPlayStatus *playStatus);
+    VideoDecoder(JavaJNICallback *javaCall, AudioDecoder *audio, PlayStatus *playStatus);
     ~VideoDecoder();
 
     void playVideo(int codecType);

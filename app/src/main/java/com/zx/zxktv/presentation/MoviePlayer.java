@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
  */
 public class MoviePlayer {
     private static final String TAG = MoviePlayer.class.getSimpleName();
-    private static final boolean VERBOSE = false;
+    private static final boolean VERBOSE = true;
 
     // Declare this here to reduce allocations.
     private MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();

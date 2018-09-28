@@ -10,16 +10,16 @@ extern "C"
 
 
 
-class AudioChannel {
+class Channel {
 public:
     int channelId = -1;
     AVRational time_base;
     int fps;
 
 public:
-    AudioChannel(int id, AVRational base);
+    Channel(int id, AVRational base);
 
-    AudioChannel(int id, AVRational base, int fps);
+    Channel(int id, AVRational base, int fps);
 };
 
 

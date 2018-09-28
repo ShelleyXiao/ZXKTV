@@ -1,7 +1,7 @@
 package com.zx.zxktv.ui.widget;
 
 /**
- * User: ShaudXiao
+ * User: ZX
  * Date: 2018-06-21
  * Time: 16:56
  * Company: zx

@@ -28,7 +28,6 @@ import com.zx.zxktv.data.Song;
 import com.zx.zxktv.ui.view.MarqueeTextView;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.FileSystemUtil;
-import com.zx.zxktv.utils.LogUtils;
 
 public class VideoPresentation extends Presentation {
 
@@ -73,12 +72,11 @@ public class VideoPresentation extends Presentation {
     private void onUpdatePlayInfo(Song videoBean) {
         String baseInfo = getResources().getString(R.string.video_play_info);
         int index = VideoPlayListmanager.getIntanse().getSongIndex(videoBean);
-        LogUtils.i(" index = " + index);
         String nextVideoInfo = getResources().getString(R.string.video_play_complete);
         if (index >= 0 && VideoPlayListmanager.getIntanse().getPlaySongSize() >= 2) {
             Song nextSong = VideoPlayListmanager.getIntanse().getSongByIndex(index + 1);
             nextVideoInfo = FileSystemUtil.getFileName(nextSong.name);
-            LogUtils.i(" " + nextVideoInfo);
+//            LogUtils.i(" " + nextVideoInfo);
         }
         String info = String.format(baseInfo, FileSystemUtil.getFileName(videoBean.name),
                 nextVideoInfo);

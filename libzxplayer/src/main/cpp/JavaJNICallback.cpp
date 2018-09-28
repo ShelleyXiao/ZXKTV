@@ -30,7 +30,7 @@ JavaJNICallback::~JavaJNICallback() {
 }
 
 void JavaJNICallback::onError(int type, int code, const char *msg) {
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
 //            LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -57,7 +57,7 @@ void JavaJNICallback::release() {
 }
 
 void JavaJNICallback::onLoad(int type, bool load) {
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
 //            LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -71,7 +71,7 @@ void JavaJNICallback::onLoad(int type, bool load) {
 }
 
 void JavaJNICallback::onParpared(int type) {
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
 //            LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -87,7 +87,7 @@ void JavaJNICallback::onParpared(int type) {
 void JavaJNICallback::onInitMediacodec(int type, int mimetype, int width, int height, int csd_0_size,
                                   int csd_1_size, uint8_t *csd_0, uint8_t *csd_1) {
 
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
             LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -118,7 +118,7 @@ void JavaJNICallback::onInitMediacodec(int type, int mimetype, int width, int he
 }
 
 void JavaJNICallback::onDecMediacodec(int type, int size, uint8_t *packet_data, int pts) {
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
 //            LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -139,7 +139,7 @@ void JavaJNICallback::onDecMediacodec(int type, int size, uint8_t *packet_data, 
 
 void
 JavaJNICallback::onGlRenderYuv(int type, int width, int height, uint8_t *fy, uint8_t *fu, uint8_t *fv) {
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
 //            LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -179,7 +179,7 @@ JavaJNICallback::onGlRenderYuv(int type, int width, int height, uint8_t *fy, uin
 }
 
 void JavaJNICallback::onVideoInfo(int type, int currt_secd, int total_secd) {
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
 //            LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -193,7 +193,7 @@ void JavaJNICallback::onVideoInfo(int type, int currt_secd, int total_secd) {
 }
 
 void JavaJNICallback::onComplete(int type) {
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
 //            LOGE("%s: AttachCurrentThread() failed", __FUNCTION__);
@@ -208,7 +208,7 @@ void JavaJNICallback::onComplete(int type) {
 
 bool JavaJNICallback::isOnlySoft(int type) {
     bool soft = false;
-    if (type == WL_THREAD_CHILD) {
+    if (type == ZXPLAYER_THREAD_CHILD) {
         JNIEnv *jniEnv;
         if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
         }

@@ -9,7 +9,7 @@
 #include "../base_player.h"
 #include "WlQueue.h"
 #include "AndroidLog.h"
-#include "../WlPlayStatus.h"
+#include "../PlayStatus.h"
 #include "../JavaJNICallback.h"
 #include "audio_output.h"
 
@@ -26,7 +26,7 @@ class AudioDecoder : public ZXbasePlayer {
 
 public:
     WlQueue *queue = NULL;
-    WlPlayStatus *wlPlayStatus = NULL;
+    PlayStatus *wlPlayStatus = NULL;
     JavaJNICallback *javaJNICall = NULL;
     pthread_t audioThread;
 
@@ -60,10 +60,10 @@ public:
 
     int buffSize ;
 
-    float pitch = 1.9f;
+    float pitch = 1.0f;
     float speed = 1.0f;
 
-    int getSoundTouchData(void *data_in, int data_size, void *context);
+//    int getSoundTouchData(void *data_in, int data_size, void *context);
 
 
     /** 由于可能要进行音量的变化，这个是控制音量的值 **/
@@ -73,7 +73,7 @@ public:
     AudioEffectProcessor* audioEffectProcessor;
 
 public:
-    AudioDecoder(WlPlayStatus *playStatus, JavaJNICallback *javaCall);
+    AudioDecoder(PlayStatus *playStatus, JavaJNICallback *javaCall);
 
     ~AudioDecoder();
 

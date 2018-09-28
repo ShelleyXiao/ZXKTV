@@ -37,7 +37,7 @@ Java_com_zxktv_ZXPlayer_ZXVideoPlayer_nativePrepared(JNIEnv *env, jobject instan
     }
     if (playerControl == NULL) {
         playerControl = new VideoPlayerControl(javaJNICallback, url, isOnlyMusic);
-        javaJNICallback->onLoad(WL_THREAD_MAIN, true);
+        javaJNICallback->onLoad(ZXPLAYER_THREAD_MAIN, true);
         playerControl->preparedFFmpeg();
     }
 }

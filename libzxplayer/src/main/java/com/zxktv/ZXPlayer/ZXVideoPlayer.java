@@ -1,9 +1,9 @@
 package com.zxktv.ZXPlayer;
 
 import android.media.MediaCodec;
+import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Surface;
 
 import com.zxktv.audioeffect.AudioEffect;
@@ -19,6 +19,7 @@ import com.zxktv.opengles.ZXGlSurfaceView;
 import com.zxktv.util.LogUtils;
 import com.zxktv.util.MyLog;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 
@@ -425,25 +426,22 @@ public class ZXVideoPlayer {
     }
 
     public void mediacodecInit(int mimetype, int width, int height, byte[] csd0, byte[] csd1) {
-        LogUtils.i("mediacodecInit*********************");
+        LogUtils.i("************* mediacodecInit");
         if (surface != null) {
             if (mediaCodec == null) {
                 try {
-//                glSurfaceView.setCodecType(1);
-//
-//                if (!isOnlySoft() && glSurfaceViewExtend != null) {
-//                    glSurfaceViewExtend.setCodecType(1);
-//                }
-
 
                     String mtype = getMimeType(mimetype);
                     mediaFormat = MediaFormat.createVideoFormat(mtype, width, height);
+                    LogUtils.i("mediacodecInit: " + mediaFormat.getString(MediaFormat.KEY_MIME));
+//                    mediaFormat=  getMimeType_();
+
                     mediaFormat.setInteger(MediaFormat.KEY_WIDTH, width);
                     mediaFormat.setInteger(MediaFormat.KEY_HEIGHT, height);
                     mediaFormat.setLong(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);
                     mediaFormat.setByteBuffer("csd-0", ByteBuffer.wrap(csd0));
                     mediaFormat.setByteBuffer("csd-1", ByteBuffer.wrap(csd1));
-                    Log.d("ywl5320", mediaFormat.toString());
+                    LogUtils.i(mediaFormat.toString());
                     mediaCodec = MediaCodec.createDecoderByType(mtype);
                     if (surface != null) {
                         mediaCodec.configure(mediaFormat, this.surface, null, 0);
@@ -453,9 +451,12 @@ public class ZXVideoPlayer {
                     e.printStackTrace();
                 }
             } else {
+                String mtype = getMimeType(mimetype);
+                mediaFormat.setString(MediaFormat.KEY_MIME, mtype);
+                LogUtils.i("init mediaCodec mtype: " + mtype);
 //                mediaCodec.stop();
-
                 mediaCodec.reset();
+
                 mediaCodec.configure(mediaFormat, this.surface, null, 0);
                 mediaCodec.start();
 
@@ -503,8 +504,46 @@ public class ZXVideoPlayer {
             return "video/x-ms-wmv";
         } else if (type == 5) {
             return "video/mpeg2";
+        } else if(type == 6) {
+            return "video/ffmpeg";
         }
+
         return "";
+    }
+
+    private MediaFormat getMimeType_() {
+        MediaExtractor extractor = null;
+        try {
+            extractor = new MediaExtractor();
+            extractor.setDataSource(this.dataSource);
+            int trackIndex = selectTrack(extractor);
+            extractor.selectTrack(trackIndex);
+
+            MediaFormat format = extractor.getTrackFormat(trackIndex);
+            return format;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (extractor != null) {
+                extractor.release();
+            }
+        }
+
+        return null;
+
+    }
+
+    private static int selectTrack(MediaExtractor extractor) {
+        int numTracks = extractor.getTrackCount();
+        for (int i = 0; i < numTracks; i++) {
+            MediaFormat format = extractor.getTrackFormat(i);
+            String mime = format.getString(MediaFormat.KEY_MIME);
+            if (mime.startsWith("video/")) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /*

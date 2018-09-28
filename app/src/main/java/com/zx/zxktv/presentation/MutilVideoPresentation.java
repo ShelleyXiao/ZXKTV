@@ -19,11 +19,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * User: ShaudXiao
+ * User: zx
  * Date: 2018-08-21
  * Time: 09:19
  * Company: zx
- * Description:
+ * Description: 播放多个视频源（如果只是需要播放一个源，可采用一个解码多surface渲染方案）
  * FIXME
  */
 

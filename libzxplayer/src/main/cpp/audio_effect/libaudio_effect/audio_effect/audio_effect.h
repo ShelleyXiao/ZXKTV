@@ -6,6 +6,11 @@
 #include "CommonTools.h"
 #include "./audio_info.h"
 
+/**
+ * 音效处理模块来自其他项目
+ *
+ * */
+
 class AudioEffect {
 protected:
 	AudioInfo* audioInfo;

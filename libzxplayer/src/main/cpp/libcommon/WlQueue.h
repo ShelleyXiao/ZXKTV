@@ -6,7 +6,7 @@
 #define WLPLAYER_QUEUE_H
 
 #include "queue"
-#include "../WlPlayStatus.h"
+#include "../PlayStatus.h"
 
 extern "C"
 {
@@ -23,10 +23,10 @@ public:
     pthread_cond_t condFrame;
     pthread_mutex_t mutexPacket;
     pthread_cond_t condPacket;
-    WlPlayStatus *wlPlayStatus = NULL;
+    PlayStatus *wlPlayStatus = NULL;
 
 public:
-    WlQueue(WlPlayStatus *playStatus);
+    WlQueue(PlayStatus *playStatus);
     ~WlQueue();
     int putAvpacket(AVPacket *avPacket);
     int getAvpacket(AVPacket *avPacket);

@@ -14,6 +14,8 @@ protected:
 	bool isAudioEffectChanged;
 	AudioEffect* audioEffect;
 
+	AudioEffect* changedEffect;
+
 	void detectRebuildFilterChain();
 	virtual void initFilterChains();
 	virtual void destroyFilterChains();

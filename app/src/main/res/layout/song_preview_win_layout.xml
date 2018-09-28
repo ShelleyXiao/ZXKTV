@@ -20,11 +20,11 @@
         android:layout_margin="2dp"
         android:layout_weight="6">
 
-        <SurfaceView
-            android:id="@+id/video_surface"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+        <!--<SurfaceView-->
+            <!--android:id="@+id/video_surface"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--/>-->
 
         <TextureView
             android:id="@+id/video_textrue"

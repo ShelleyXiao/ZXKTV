@@ -155,6 +155,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private Disposable mDisposable;
 
+    private boolean isFirstSelected = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,7 +176,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         Intent it = new Intent(MainActivity.this, PresentationService.class);
         MainActivity.this.startService(it);
-        bindService(it, mServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(it, mServiceConnection, Context.BIND_AUTO_CREATE
+                | Context.BIND_IMPORTANT | Context.BIND_ADJUST_WITH_ACTIVITY);
 
         subscribeEvent();
     }
@@ -300,9 +303,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
             final Song song = VideoPlayListmanager.getIntanse().getTop();
             LogUtils.i("song: " + song);
-            if (song != null) {
+            if (song != null && !isFirstSelected) {
                 mPresentationService.playVideo(song);
+                isFirstSelected = true;
             }
+        } else {
+            mPresentationService.updateDisplayInfo();
         }
     }
 
@@ -393,7 +399,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         mAdapter.setListNotifyListener(this);
         rv_SongList.setAdapter(mAdapter);
         rv_SongList.setItemAnimator(null);
-        rv_SongList.setHasFixedSize(true);
+//        rv_SongList.setHasFixedSize(true);
 
 
         cb_silent.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -479,8 +485,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                         if (value.equals(RxConstants.EXTRA_KEY_UPDATE_SELECT)) {
                             int size = VideoPlayListmanager.getIntanse().getPlaySongSize();
                             mtv_num.setText(String.valueOf(size));
-
                             mAdapter.notifyDataSetChanged();
+                            if (size == 1 && !isFirstSelected) {
+                                final Song song = VideoPlayListmanager.getIntanse().getTop();
+                                LogUtils.i("song: " + song);
+                                if (song != null) {
+                                    mPresentationService.playVideo(song);
+                                    isFirstSelected = true;
+                                }
+                            } else {
+                                mPresentationService.updateDisplayInfo();
+                            }
                         }
                     }
 
@@ -504,6 +519,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                     public void onSubscribe(Disposable d) {
                         mDisposable = d;
                     }
+
                     @Override
                     public void onNext(Bundle value) {
                         if (value != null) {
@@ -620,8 +636,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void deleteSong(Song song) {
 
-                LogUtils.i(" " + rv_SongList.hasFixedSize()
-                        + rv_SongList.isAttachedToWindow());
+//                LogUtils.i(" " + rv_SongList.hasFixedSize()
+//                        + rv_SongList.isAttachedToWindow());
                 mAdapter.updateItem(song);
             }
         });
@@ -1025,7 +1041,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                 mtv_num.setText(String.valueOf(size));
 
                 cb_orignal.setChecked(true);
-
+                mAdapter.notifyDataSetChanged();
                 break;
             case R.id.btn_resing:
                 mPresentationService.songResing();
