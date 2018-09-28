@@ -87,26 +87,44 @@ public class  GLPlayRenderThread extends Thread {
     private FloatBuffer mTexCoordBuffer;
     private ShortBuffer mDrawListBuffer;
     
-    public void suspendRendering(){
-    	mSuspend = true;
-    }
-    
-    public void resumeRendering(){
-    	mSuspend = false;
-    }
-    
-    public GLPlayRenderThread(SurfaceTexture surface){
-    	mSurface = surface;
-    	
-    	this.setName("GLPlayRenderThread@" + mSurface.toString());
-    }
-    
-    public GLPlayRenderThread(SurfaceHolder holder){
-    	mHolder = holder;
-    	
-    	this.setName("GLPlayRenderThread@" + holder.toString());
-    }   
-    private static String readRawTextFile(Context context, int resId){
+
+
+	private Object mObject;
+	private renderActionListener mAction;
+
+
+	public GLPlayRenderThread(Object object, SurfaceTexture surface, renderActionListener action){
+		mObject = object;
+		mSurface = surface;
+		if(action != null) {
+			mAction = action;
+		} else {
+			throw  new IllegalArgumentException("renderActionListener null !!!");
+		}
+
+		this.setName("GLPlayRenderThread@" + mSurface.toString());
+	}
+
+	public GLPlayRenderThread(Object object, SurfaceHolder holder, renderActionListener action){
+		mObject = object;
+		mHolder = holder;
+		if(action != null) {
+			mAction = action;
+		} else {
+			throw  new IllegalArgumentException("renderActionListener null !!!");
+		}
+		this.setName("GLPlayRenderThread@" + holder.toString());
+	}
+
+	public void suspendRendering(){
+		mSuspend = true;
+	}
+
+	public void resumeRendering(){
+		mSuspend = false;
+	}
+
+	private static String readRawTextFile(Context context, int resId){
         InputStream inputStream = context.getResources().openRawResource(resId);
             
         InputStreamReader inputreader = new InputStreamReader(inputStream);
@@ -193,9 +211,9 @@ public class  GLPlayRenderThread extends Thread {
 		int textures[] = new int[1];
 		GLES20.glGenTextures(1, textures, 0);
 		
-		PresentationService app = PresentationService.getAppInstance();
+//		PresentationService app = PresentationService.getAppInstance();
 		
-		app.startPlay(textures[0]);
+		mAction.startPlay(textures[0]);
 		mTexName = textures[0];
 	}
 	
@@ -302,7 +320,7 @@ public class  GLPlayRenderThread extends Thread {
 	
 	@Override
 	public synchronized void run(){
-		PresentationService app = PresentationService.getAppInstance();
+//		PresentationService app = PresentationService.getAppInstance();
 		
 		initGL();
 			
@@ -314,11 +332,13 @@ public class  GLPlayRenderThread extends Thread {
 		while(true){
 			
 			if (false == mSuspend) {
-				synchronized(app){
+				synchronized(mObject){
 					//
 //					LogUtils.i("draw image");
-					app.attachPlayTexture(mTexName);
-					app.updatePlayPreview();
+                    if(mAction != null) {
+                        mAction.attachPlayTexture(mTexName);
+                        mAction.updatePlayPreview();
+                    }
 					GLES20.glViewport(0, 0, mWidth, mHeight);
 					if (mDeferWidth != 0){
 						mWidth = mDeferWidth;
@@ -328,7 +348,9 @@ public class  GLPlayRenderThread extends Thread {
 					GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 					GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 					drawFrame();
-					app.detachPlayTexture();
+                    if(mAction != null) {
+                        mAction.detachPlayTexture();
+                    }
 				}
 				
 				if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)){
@@ -357,5 +379,14 @@ public class  GLPlayRenderThread extends Thread {
 			mHeight = height;
 			mDeferWidth = 0;
 		}
+	}
+
+	public interface renderActionListener {
+		void attachPlayTexture(int texture);
+		void detachPlayTexture();
+
+		void updatePlayPreview();
+
+		void startPlay(int texture);
 	}
 }

@@ -72,14 +72,15 @@ import java.util.HashMap;
 import io.reactivex.disposables.Disposable;
 
 public class PresentationService extends Service implements OnFrameAvailableListener,
-        OnPreparedListener, OnCompleteListener, OnStopListener, OnInfoListener, OnErrorListener {
+        OnPreparedListener, OnCompleteListener, OnStopListener, OnInfoListener, OnErrorListener
+        , GLPlayRenderThread.renderActionListener {
 
     private final static String TAG = "PresentationService";
     private final static int PROGRESS_DETAL = 2;
     private final IBinder mBinder = new LocalBinder();
     private DisplayManager mDisplayManager;
     private GiftPresentation giftDisplay;
-    private MutilVideoPresentation mMutilVideoPresentation;
+    private MutilVideoPresentation2 mMutilVideoPresentation;
     private VideoPresentation mVideoPresentation;
 
     private ArrayList<GLPlayRenderThread> mThreadList = new ArrayList<GLPlayRenderThread>();
@@ -329,7 +330,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             Log.i(TAG, "onSurfaceCreated");
-            mThread = new GLPlayRenderThread(holder);
+            mThread = new GLPlayRenderThread(sPresentationService, holder, sPresentationService);
 
             Log.i(TAG, "width = " + holder.getSurfaceFrame().width());
             Log.i(TAG, "height = " + holder.getSurfaceFrame().height());
@@ -358,6 +359,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
         return sPresentationService;
     }
 
+    @Override
     synchronized public void startPlay(int texture) {
         if (mSurfaceTexture == null) {
 
@@ -398,14 +400,17 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
+    @Override
     public void updatePlayPreview() {
         mSurfaceTexture.updateTexImage();
     }
 
+    @Override
     public void attachPlayTexture(int texture) {
         mSurfaceTexture.attachToGLContext(texture);
     }
 
+    @Override
     public void detachPlayTexture() {
         mSurfaceTexture.detachFromGLContext();
     }
@@ -592,7 +597,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
             DisplayManager displayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
             Display[] displays = displayManager.getDisplays(null);
 
-            mMutilVideoPresentation = new MutilVideoPresentation(getApplicationContext(), displays[1], R.style.dialog);
+            mMutilVideoPresentation = new MutilVideoPresentation2(getApplicationContext(), displays[1], R.style.dialog);
             mMutilVideoPresentation.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         }
 
@@ -661,7 +666,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface,
                                               int width, int height) {
-            mThread = new GLPlayRenderThread(surface);
+            mThread = new GLPlayRenderThread(sPresentationService, surface, sPresentationService);
             mThread.setRegion(width, height);
             synchronized (mThreadList) {
                 mThreadList.add(mThread);
