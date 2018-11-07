@@ -1,1 +1,3 @@
-include ':app', ':libzxplayer'
+include ':app',  ':libijkplayer'
+include ':ijkplayerLib:ijkplayer-armv7a'
+include ':ijkplayerLib:ijkplayer-java'

@@ -10,7 +10,7 @@ AudioDecoder::AudioDecoder(PlayStatus
 ) : audioEffectProcessor(NULL){
     streamIndex = -1;
     out_buffer = (uint8_t *) malloc(sample_rate * 2 * 2 * 3 / 2);
-    queue = new WlQueue(playStatus);
+    queue = new PlayerQueue(playStatus);
     wlPlayStatus = playStatus;
     this->javaJNICall = javaJNICall;
     dst_format = AV_SAMPLE_FMT_S16;

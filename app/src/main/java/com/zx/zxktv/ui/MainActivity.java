@@ -79,33 +79,33 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private final int INTERVAL = 300; //输入时间间隔为300毫秒
 
-    private RecyclerView rv_SongList;
-    private TextView tv_PageIndex;
-    private ImageView iv_PagePre;
-    private ImageView iv_PageNext;
+    private RecyclerView rvSongList;
+    private TextView tvPageIndex;
+    private ImageView ivPagePre;
+    private ImageView ivPageNext;
 
-    private View btn_ordered;
-    private Button btn_volume;
+    private View btnOrdered;
+    private Button btnVolume;
     private Button btn_effect;
-    private CheckBox cb_orignal;
-    private Button btn_restart;
-    private CheckBox cb_silent;
-    private MagicTextView mtv_tips;
-    private MagicTextView mtv_num;
+    private CheckBox cbOrignal;
+    private Button btnRestart;
+    private CheckBox cbSilent;
+    private MagicTextView tvTips;
+    private MagicTextView tvNum;
 
-    private Button btn_search_close;
+    private Button btnSearchClose;
 
-    private LongTouchButton btn_back;
-    private LongTouchButton btn_forward;
+    private LongTouchButton btnBack;
+    private LongTouchButton btnForward;
 
-    private Button btn_nextVideo;
-    private CheckBox cb_play;
+    private Button btnNextVideo;
+    private CheckBox cbPlay;
 
 
     private View v_ll_poporder_bg;
-    private FrameLayout fl_SongsBg;
+    private FrameLayout flSongsBg;
 
-    private PopupWindow popup_Ordered;
+    private PopupWindow popupOrdered;
     private PopupWindow popup_Volume;
     private PopupWindow popup_Effect;
     private RadioButton rb_ordered;
@@ -157,6 +157,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private boolean isFirstSelected = false;
 
+    private boolean isConnected = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,7 +178,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         Intent it = new Intent(MainActivity.this, PresentationService.class);
         MainActivity.this.startService(it);
-        bindService(it, mServiceConnection, Context.BIND_AUTO_CREATE
+        isConnected = bindService(it, mServiceConnection, Context.BIND_AUTO_CREATE
                 | Context.BIND_IMPORTANT | Context.BIND_ADJUST_WITH_ACTIVITY);
 
         subscribeEvent();
@@ -207,7 +209,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onStop() {
         super.onStop();
-        VideoPlayListmanager.getIntanse().destroyListen();
     }
 
     @Override
@@ -217,8 +218,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             case 100:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mVideoModelPresenter.getData(true);
-                } else {// 没有获取到权限，做特殊处理
-                    Toast.makeText(this, "请授予权限！", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, R.string.grant_label, Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
@@ -232,11 +233,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         destoryPopupWindow();
 
-        if (mPresentationService == null) {
-            return;
-        }
-
-        unbindService(mServiceConnection);
+//        if (mPresentationService == null) {
+//            return;
+//        }
+//
+//        unbindService(mServiceConnection);
     }
 
     @Override
@@ -247,6 +248,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             mDisposable.dispose();
         }
         mVideoModelPresenter.destroy();
+
+        if (mPresentationService != null && isConnected) {
+            unbindService(mServiceConnection);
+        }
     }
 
     @Override
@@ -283,13 +288,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         tv_ErrorInfo.setVisibility(View.VISIBLE);
         rl_listView.setVisibility(View.INVISIBLE);
-        tv_PageIndex.setText("0/0");
+        tvPageIndex.setText("0/0");
     }
 
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        if (popup_Ordered != null && popup_Ordered.isShowing()) {
+        if (popupOrdered != null && popupOrdered.isShowing()) {
             return false;
         }
         return super.dispatchTouchEvent(event);
@@ -298,7 +303,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void updateList() {
         int size = VideoPlayListmanager.getIntanse().getPlaySongSize();
-        mtv_num.setText(String.valueOf(size));
+        tvNum.setText(String.valueOf(size));
         if (VideoPlayListmanager.getIntanse().getPlaySongSize() == 1) {
 
             final Song song = VideoPlayListmanager.getIntanse().getTop();
@@ -310,6 +315,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         } else {
             mPresentationService.updateDisplayInfo();
         }
+
+        cbPlay.setEnabled(true);
     }
 
 
@@ -321,61 +328,62 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         fl_videoViewSmall = (FrameLayout) findViewById(R.id.videoView_container);
         fl_videoViewPrimary = (FrameLayout) findViewById(R.id.primary_video_view);
 
-        rv_SongList = (RecyclerView) findViewById(R.id.song_list);
-        tv_PageIndex = (TextView) findViewById(R.id.page_index);
-        iv_PagePre = (ImageView) findViewById(R.id.page_pre);
-        iv_PageNext = (ImageView) findViewById(R.id.page_next);
+        rvSongList = (RecyclerView) findViewById(R.id.song_list);
+        tvPageIndex = (TextView) findViewById(R.id.page_index);
+        ivPagePre = (ImageView) findViewById(R.id.page_pre);
+        ivPageNext = (ImageView) findViewById(R.id.page_next);
 
-        btn_volume = (Button) findViewById(R.id.btn_volume);
-        btn_restart = (Button) findViewById(R.id.btn_resing);
+        btnVolume = (Button) findViewById(R.id.btn_volume);
+        btnRestart = (Button) findViewById(R.id.btn_resing);
         btn_effect = (Button) findViewById(R.id.btn_effect);
 
-        cb_orignal = (CheckBox) findViewById(R.id.cb_origin);
-        cb_silent = (CheckBox) findViewById(R.id.cb_quite);
-//        cb_orignal.setChecked(true);
-//        cb_silent.setChecked(true);
+        cbOrignal = (CheckBox) findViewById(R.id.cb_origin);
+        cbSilent = (CheckBox) findViewById(R.id.cb_quite);
+//        cbOrignal.setChecked(true);
+//        cbSilent.setChecked(true);
 
-        cb_play = (CheckBox) findViewById(R.id.cb_play);
+        cbPlay = (CheckBox) findViewById(R.id.cb_play);
+        cbPlay.setEnabled(false);
 
-        iv_PagePre.setOnClickListener(this);
-        iv_PageNext.setOnClickListener(this);
-        btn_volume.setOnClickListener(this);
-        btn_restart.setOnClickListener(this);
+        ivPagePre.setOnClickListener(this);
+        ivPageNext.setOnClickListener(this);
+        btnVolume.setOnClickListener(this);
+        btnRestart.setOnClickListener(this);
         btn_effect.setOnClickListener(this);
 
         fl_videoViewSmall.setOnClickListener(this);
         fl_videoViewPrimary.setOnClickListener(this);
 
-        btn_ordered = findViewById(R.id.rl_ordered);
-        mtv_num = (MagicTextView) findViewById(R.id.tv_order_num);
-        mtv_tips = (MagicTextView) findViewById(R.id.tv_order_tips);
+        btnOrdered = findViewById(R.id.rl_ordered);
+        tvNum = (MagicTextView) findViewById(R.id.tv_order_num);
+        tvTips = (MagicTextView) findViewById(R.id.tv_order_tips);
 
-        mtv_num.setText("0");
+        tvNum.setText("0");
 
-        btn_ordered.setOnClickListener(this);
+        btnOrdered.setOnClickListener(this);
 
-        btn_back = (LongTouchButton) findViewById(R.id.btn_back);
-        btn_forward = (LongTouchButton) findViewById(R.id.btn_forward);
+        btnBack = (LongTouchButton) findViewById(R.id.btn_back);
+        btnForward = (LongTouchButton) findViewById(R.id.btn_forward);
 
-        btn_back.setOnCumTouchListener(mCumTouchListener);
-        btn_forward.setOnCumTouchListener(mCumTouchListener);
+        btnBack.setOnCumTouchListener(mCumTouchListener);
+        btnForward.setOnCumTouchListener(mCumTouchListener);
 
-        btn_nextVideo = (Button) findViewById(R.id.btn_next);
-        btn_nextVideo.setOnClickListener(this);
+        btnNextVideo = (Button) findViewById(R.id.btn_next);
+        btnNextVideo.setOnClickListener(this);
 
         mSearchEdit = (EditText) findViewById(R.id.et_search);
         mSearchEdit.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-        btn_search_close = (Button) findViewById(R.id.btn_close_search);
-        btn_search_close.setOnClickListener(this);
+        btnSearchClose = (Button) findViewById(R.id.btn_close_search);
+        btnSearchClose.setOnClickListener(this);
 
         mLayoutManager = new PagerGridLayoutManager(mRows, mColumns, PagerGridLayoutManager
                 .HORIZONTAL);
 
-        rv_SongList.setLayoutManager(mLayoutManager);
+        rvSongList.setLayoutManager(mLayoutManager);
 
         // 设置滚动辅助工具
         PagerGridSnapHelper pageSnapHelper = new PagerGridSnapHelper();
-        pageSnapHelper.attachToRecyclerView(rv_SongList);
+        pageSnapHelper.attachToRecyclerView(rvSongList);
         mLayoutManager.setPageListener(new MainPageChangeListener());
 
         // 使用原生的 Adapter 即可
@@ -397,12 +405,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         });
 
         mAdapter.setListNotifyListener(this);
-        rv_SongList.setAdapter(mAdapter);
-        rv_SongList.setItemAnimator(null);
-//        rv_SongList.setHasFixedSize(true);
+        rvSongList.setAdapter(mAdapter);
+        rvSongList.setItemAnimator(null);
+//        rvSongList.setHasFixedSize(true);
 
 
-        cb_silent.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cbSilent.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -413,7 +421,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             }
         });
 
-        cb_orignal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cbOrignal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -426,22 +434,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             }
         });
 
-        cb_play.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cbPlay.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+//                if (isChecked) {
+//
+//                    if (mPresentationService.isPlaying()) {
+//                        mPresentationService.pauseOrStart();
+//                    } else {
+////                        Song song = (Song) mAdapter.getItem(0);
+////                        playVideo(song.filePath);
+//                    }
+//                } else {
+//                    if (mPresentationService.isPlaying()) {
+//                        mPresentationService.pauseOrStart();
+//                    }
+//                }
 
-                    if (mPresentationService.isPlaying()) {
-                        mPresentationService.pauseOrStart();
-                    } else {
-                        Song song = (Song) mAdapter.getItem(0);
-                        playVideo(song.filePath);
-                    }
-                } else {
-                    if (mPresentationService.isPlaying()) {
-                        mPresentationService.pauseOrStart();
-                    }
-                }
+                mPresentationService.pauseOrStart();
             }
         });
 
@@ -459,7 +469,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                                 .getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                         mSearchMode = true;
-                        btn_search_close.setVisibility(View.VISIBLE);
+                        btnSearchClose.setVisibility(View.VISIBLE);
                     }
                 }
                 return false;
@@ -484,7 +494,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                     public void onNext(String value) {
                         if (value.equals(RxConstants.EXTRA_KEY_UPDATE_SELECT)) {
                             int size = VideoPlayListmanager.getIntanse().getPlaySongSize();
-                            mtv_num.setText(String.valueOf(size));
+                            tvNum.setText(String.valueOf(size));
                             mAdapter.notifyDataSetChanged();
                             if (size == 1 && !isFirstSelected) {
                                 final Song song = VideoPlayListmanager.getIntanse().getTop();
@@ -496,6 +506,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                             } else {
                                 mPresentationService.updateDisplayInfo();
                             }
+
                         }
                     }
 
@@ -526,10 +537,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                             final boolean check = value.getBoolean("check");
                             if (check) {
                                 //伴唱
-                                cb_orignal.setChecked(false);
+                                cbOrignal.setChecked(false);
                                 LogUtils.i("update cb " + check);
                             } else {
-                                cb_orignal.setChecked(true);
+                                cbOrignal.setChecked(true);
                             }
                         }
                     }
@@ -554,8 +565,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         if (popup_Effect != null && popup_Effect.isShowing()) {
             popup_Effect.dismiss();
         }
-        if (popup_Ordered != null && popup_Ordered.isShowing()) {
-            popup_Ordered.dismiss();
+        if (popupOrdered != null && popupOrdered.isShowing()) {
+            popupOrdered.dismiss();
             return;
         }
         try {
@@ -566,8 +577,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     }
 
     public void onVolumeClick(View v) {
-        if (popup_Ordered != null && popup_Ordered.isShowing()) {
-            popup_Ordered.dismiss();
+        if (popupOrdered != null && popupOrdered.isShowing()) {
+            popupOrdered.dismiss();
         }
         if (popup_Effect != null && popup_Effect.isShowing()) {
             popup_Effect.dismiss();
@@ -586,8 +597,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     }
 
     public void onEffectClick() {
-        if (popup_Ordered != null && popup_Ordered.isShowing()) {
-            popup_Ordered.dismiss();
+        if (popupOrdered != null && popupOrdered.isShowing()) {
+            popupOrdered.dismiss();
         }
         if (popup_Effect != null && popup_Effect.isShowing()) {
             popup_Effect.dismiss();
@@ -613,7 +624,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         View mView = inflater.inflate(R.layout.popup_ordersongs, null);
 
         v_ll_poporder_bg = mView.findViewById(R.id.order_bg);
-        fl_SongsBg = mView.findViewById(R.id.ll_bg);
+        flSongsBg = mView.findViewById(R.id.ll_bg);
 
         Button btn_close = (Button) mView.findViewById(R.id.btn_close);
         btn_close.setOnClickListener(new CloseListener());
@@ -626,8 +637,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         mOrderSangView = new OrderSangView(this);
         mOrderSongsView = new OrderSongsView(this);
 
-        fl_SongsBg.addView(mOrderSangView);
-        fl_SongsBg.addView(mOrderSongsView);
+        flSongsBg.addView(mOrderSangView);
+        flSongsBg.addView(mOrderSongsView);
 
         mOrderSangView.setVisibility(View.GONE);
 
@@ -636,31 +647,31 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void deleteSong(Song song) {
 
-//                LogUtils.i(" " + rv_SongList.hasFixedSize()
-//                        + rv_SongList.isAttachedToWindow());
+//                LogUtils.i(" " + rvSongList.hasFixedSize()
+//                        + rvSongList.isAttachedToWindow());
                 mAdapter.updateItem(song);
             }
         });
 
         int width = (int) (dm.widthPixels * (360.0 / 1008));
-        popup_Ordered = new PopupWindow(mView, width, (int) (width * (460.0f / 360.0f)));
-        popup_Ordered.setAnimationStyle(R.style.PopUpWindowAnimation);
-        popup_Ordered.showAsDropDown(btn_ordered, 0, 50);
+        popupOrdered = new PopupWindow(mView, width, (int) (width * (460.0f / 360.0f)));
+        popupOrdered.setAnimationStyle(R.style.PopUpWindowAnimation);
+        popupOrdered.showAsDropDown(btnOrdered, 0, 50);
 
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.song_bg);
         Drawable drawable = new BitmapDrawable(getResources(), bmp);
-        popup_Ordered.setBackgroundDrawable(drawable);
-        popup_Ordered.setFocusable(true);
-        popup_Ordered.setOutsideTouchable(false);
+        popupOrdered.setBackgroundDrawable(drawable);
+        popupOrdered.setFocusable(true);
+        popupOrdered.setOutsideTouchable(false);
 
-        popup_Ordered.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        popupOrdered.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
                 try {
                     hideShadowText();
                     mOrderSangView = null;
                     mOrderSongsView = null;
-                    popup_Ordered = null;
+                    popupOrdered = null;
                     updateList();
 
                 } catch (Exception e) {
@@ -670,18 +681,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         });
         showShadowText();
 
-        VideoPlayListmanager.getIntanse().addNotifyListen(new VideoPlayListmanager.INotifyPropertyChanged() {
-            @Override
-            public void update(final int size) {
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mtv_num.setText(size + "");
-                    }
-                });
-            }
-        });
+//        VideoPlayListmanager.getIntanse().addNotifyListen(new VideoPlayListmanager.INotifyPropertyChanged() {
+//            @Override
+//            public void update(final int size) {
+//
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        tvNum.setText(size + "");
+//                    }
+//                });
+//            }
+//        });
     }
 
     private void initPopUpWindowsVolume() {
@@ -730,7 +741,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         popup_Volume = new PopupWindow(mView, width, width);
         popup_Volume.setAnimationStyle(R.style.PopUpWindowVolumeAnimation);
         popup_Volume.setOutsideTouchable(true);
-        popup_Volume.showAsDropDown(btn_volume, -5, -5);
+        popup_Volume.showAsDropDown(btnVolume, -5, -5);
     }
 
     private void initPopUpWindowsEffect() throws Exception {
@@ -989,30 +1000,30 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         if (popup_Effect != null && popup_Effect.isShowing()) {
             popup_Effect.dismiss();
         }
-        if (popup_Ordered != null && popup_Ordered.isShowing()) {
-            popup_Ordered.dismiss();
+        if (popupOrdered != null && popupOrdered.isShowing()) {
+            popupOrdered.dismiss();
         }
     }
 
 
     private void showShadowText() throws Exception {
-        mtv_num.setShadowLayer(20, 3, 0, Color.rgb(255, 144, 0));
-        mtv_num.addOuterShadow(20, 3, 0, Color.rgb(255, 144, 0));
-        mtv_tips.addOuterShadow(20, 3, 0, Color.rgb(255, 255, 255));
-        mtv_tips.setShadowLayer(20, 3, 0, Color.rgb(255, 255, 255));
-        mtv_num.addOuterShadow(20, 3, 0, Color.rgb(255, 144, 0));
-        mtv_tips.addOuterShadow(20, 3, 0, Color.rgb(255, 255, 255));
-        mtv_tips.setTextColor(Color.argb(255, 255, 255, 255));
-        mtv_num.setTextColor(Color.argb(255, 255, 144, 0));
+        tvNum.setShadowLayer(20, 3, 0, Color.rgb(255, 144, 0));
+        tvNum.addOuterShadow(20, 3, 0, Color.rgb(255, 144, 0));
+        tvTips.addOuterShadow(20, 3, 0, Color.rgb(255, 255, 255));
+        tvTips.setShadowLayer(20, 3, 0, Color.rgb(255, 255, 255));
+        tvNum.addOuterShadow(20, 3, 0, Color.rgb(255, 144, 0));
+        tvTips.addOuterShadow(20, 3, 0, Color.rgb(255, 255, 255));
+        tvTips.setTextColor(Color.argb(255, 255, 255, 255));
+        tvNum.setTextColor(Color.argb(255, 255, 144, 0));
     }
 
     private void hideShadowText() throws Exception {
-        mtv_num.setTextColor(Color.argb(155, 255, 144, 0));
-        mtv_tips.setTextColor(Color.argb(155, 255, 255, 255));
-        mtv_num.setShadowLayer(20, 3, 0, Color.argb(0, 0, 0, 0));
-        mtv_tips.setShadowLayer(20, 3, 0, Color.argb(0, 0, 0, 0));
-        mtv_num.clearOuterShadows();
-        mtv_tips.clearOuterShadows();
+        tvNum.setTextColor(Color.argb(155, 255, 144, 0));
+        tvTips.setTextColor(Color.argb(155, 255, 255, 255));
+        tvNum.setShadowLayer(20, 3, 0, Color.argb(0, 0, 0, 0));
+        tvTips.setShadowLayer(20, 3, 0, Color.argb(0, 0, 0, 0));
+        tvNum.clearOuterShadows();
+        tvTips.clearOuterShadows();
     }
 
     @Override
@@ -1038,9 +1049,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
                 mPresentationService.nextVideo();
                 int size = VideoPlayListmanager.getIntanse().getPlaySongSize();
-                mtv_num.setText(String.valueOf(size));
+                tvNum.setText(String.valueOf(size));
 
-                cb_orignal.setChecked(true);
+                cbOrignal.setChecked(true);
                 mAdapter.notifyDataSetChanged();
                 break;
             case R.id.btn_resing:
@@ -1060,7 +1071,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                 mVideoModelPresenter.getData(false);
                 mSearchMode = false;
                 mSearchEdit.setText("");
-                btn_search_close.setVisibility(View.INVISIBLE);
+                btnSearchClose.setVisibility(View.INVISIBLE);
                 rl_listView.setVisibility(View.VISIBLE);
                 break;
 
@@ -1083,7 +1094,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         mPresentationService.playVideo(song);
 
-        cb_play.setChecked(false);
+        cbPlay.setChecked(false);
     }
 
     private void playVideo(String url) {
@@ -1097,14 +1108,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         public void onPageSizeChanged(int pageSize) {
             mPageSum = pageSize;
             String pageStr = String.format("%d/%d", mCurrentPageIndex + 1, mPageSum);
-            tv_PageIndex.setText(pageStr);
+            tvPageIndex.setText(pageStr);
         }
 
         @Override
         public void onPageSelect(int pageIndex) {
             mCurrentPageIndex = pageIndex;
             String pageStr = String.format("%d/%d", pageIndex + 1, mPageSum);
-            tv_PageIndex.setText(pageStr);
+            tvPageIndex.setText(pageStr);
         }
     }
 
@@ -1147,11 +1158,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                     v_ll_poporder_bg.setBackgroundResource(R.drawable.song_bg);
                     mOrderSangView.setVisibility(View.GONE);
                     mOrderSongsView.setVisibility(View.VISIBLE);
+                    mOrderSongsView.updateDataList();
                     break;
                 case R.id.rb_rank:
                     v_ll_poporder_bg.setBackgroundResource(R.drawable.sing_bg);
                     mOrderSangView.setVisibility(View.VISIBLE);
                     mOrderSongsView.setVisibility(View.GONE);
+                    mOrderSangView.updateDataList();
                     break;
                 default:
                     break;
@@ -1164,8 +1177,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         @Override
         public void onClick(View view) {
-            if (popup_Ordered != null && popup_Ordered.isShowing()) {
-                popup_Ordered.dismiss();
+            if (popupOrdered != null && popupOrdered.isShowing()) {
+                popupOrdered.dismiss();
                 return;
             }
 

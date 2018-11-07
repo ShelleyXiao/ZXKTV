@@ -5,7 +5,7 @@
 
 
 #include "../base_player.h"
-#include "WlQueue.h"
+#include "PlayerQueue.h"
 #include "../JavaJNICallback.h"
 #include "AndroidLog.h"
 #include "audio_decoder.h"
@@ -18,7 +18,7 @@ extern "C"
 class VideoDecoder : public ZXbasePlayer{
 
 public:
-    WlQueue *queue = NULL;
+    PlayerQueue *queue = NULL;
     AudioDecoder *audioDecoder = NULL;
     PlayStatus *wlPlayStatus = NULL;
     pthread_t videoThread;

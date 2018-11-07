@@ -13,6 +13,9 @@
         android:textSize="20sp"
         android:textColor="#fff"
         android:layout_centerVertical="true"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         />
     
     <Button
@@ -21,7 +24,7 @@
         android:layout_height="42px"
         android:layout_alignParentRight="true"
         android:background="@drawable/btn_pop_ordered_first"
-        android:layout_marginRight="110px"
+        android:layout_marginRight="106px"
         />
     <Button
         android:id="@+id/btn_delete"
@@ -29,7 +32,7 @@
         android:layout_height="42px"
         android:layout_alignParentRight="true"
         android:background="@drawable/btn_pop_ordered_delete"
-        android:layout_marginRight="11px"
+        android:layout_marginRight="8px"
         />
     <com.zx.zxktv.ui.view.MagicTextView
         android:id="@+id/tv_state"

@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:textSize="23sp"
         android:textColor="#fff"
-        android:text="1.七里香"
         android:layout_centerVertical="true"
         />
 

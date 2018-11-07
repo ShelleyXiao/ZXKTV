@@ -330,7 +330,7 @@ public class  GLPlayRenderThread extends Thread {
 					drawFrame();
 					app.detachPlayTexture();
 				}
-				
+
 				if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)){
 					throw new RuntimeException("Cannot swap buffers");
 				}
@@ -343,7 +343,7 @@ public class  GLPlayRenderThread extends Thread {
 			catch (Exception e){
 				break;
 			}
-			
+
 		}
 	}
 	

@@ -160,6 +160,12 @@ public class OrderSangView extends FrameLayout implements PagerGridLayoutManager
         }
     }
 
+    public void updateDataList() {
+        VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
+        list_data.addAll(playListmanager.getPlaySangList());
+        loadDataByIndex(pageIndex);
+    }
+
     public void loadDataByIndex(int i) {
         pageNum = list_data.size() % PAGE_NUM == 0 ? list_data.size() / PAGE_NUM : list_data.size() / PAGE_NUM + 1;
         if (i >= pageNum) {

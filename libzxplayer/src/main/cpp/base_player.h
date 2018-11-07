@@ -1,9 +1,7 @@
-//
-// Created by ywl on 2017-12-3.
-//
 
-#ifndef WLPLAYER_WLBASEPLAYER_H
-#define WLPLAYER_WLBASEPLAYER_H
+
+#ifndef PLAYER_BASEPLAYER_H
+#define PLAYER_BASEPLAYER_H
 
 extern "C"
 {

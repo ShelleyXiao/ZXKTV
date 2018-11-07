@@ -3,16 +3,13 @@ package com.zxktv.opengles;
 import android.content.Context;
 import android.opengl.GLES20;
 
-import com.zxktv.util.MyLog;
+import com.zxktv.util.LogUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-/**
- * Created by ywl on 2017-12-16.
- */
 
 public class ShaderUtils {
 
@@ -41,8 +38,8 @@ public class ShaderUtils {
             int[] compiled = new int[1];
             GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0);
             if (compiled[0] == 0) {
-                MyLog.d("Could not compile shader " + shaderType + ":");
-                MyLog.d(GLES20.glGetShaderInfoLog(shader));
+                LogUtils.d("Could not compile shader " + shaderType + ":");
+                LogUtils.d(GLES20.glGetShaderInfoLog(shader));
                 GLES20.glDeleteShader(shader);
                 shader = 0;
             }
@@ -70,8 +67,8 @@ public class ShaderUtils {
             int[] linkStatus = new int[1];
             GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
             if (linkStatus[0] != GLES20.GL_TRUE) {
-                MyLog.d("Could not link program: ");
-                MyLog.d(GLES20.glGetProgramInfoLog(program));
+                LogUtils.d("Could not link program: ");
+                LogUtils.d(GLES20.glGetProgramInfoLog(program));
                 GLES20.glDeleteProgram(program);
                 program = 0;
             }
@@ -82,7 +79,7 @@ public class ShaderUtils {
     public static void checkGlError(String label) {
         int error;
         while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            MyLog.d(label + ": glError " + error);
+            LogUtils.d(label + ": glError " + error);
             throw new RuntimeException(label + ": glError " + error);
         }
     }

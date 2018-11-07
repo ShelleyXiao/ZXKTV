@@ -1,8 +1,5 @@
 package com.zxktv.ZXPlayer;
 
-/**
- * Created by ywl on 2017-12-22.
- */
 
 public class TimeBean {
 

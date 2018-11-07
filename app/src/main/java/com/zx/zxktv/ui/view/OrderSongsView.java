@@ -127,6 +127,15 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
         tv_PageIndex.setText(pageStr);
     }
 
+    public void updateDataList() {
+        LogUtils.i(" onWindowVisibilityChanged pageIndex = " + pageIndex);
+        list_data.clear();
+        list_data.addAll(VideoPlayListmanager.getIntanse().getPlaySongList());
+
+        loadDataByIndex(pageIndex);
+
+    }
+
     public void loadDataByIndex(int i) {
         pageNum = list_data.size() % PAGE_NUM == 0 ?
                 list_data.size() / PAGE_NUM : list_data.size() / PAGE_NUM + 1;

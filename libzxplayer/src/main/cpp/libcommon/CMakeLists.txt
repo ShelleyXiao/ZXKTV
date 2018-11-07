@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 add_library(libcommontool STATIC  thread.cpp
-                WlQueue.cpp
+                PlayerQueue.cpp
             	message_queue/handler.cpp
             	message_queue/message_queue.cpp
             	opensl_media/opensl_es_context.cpp

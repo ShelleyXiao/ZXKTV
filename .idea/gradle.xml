@@ -9,7 +9,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/libzxplayer" />
+            <option value="$PROJECT_DIR$/ijkplayerLib" />
+            <option value="$PROJECT_DIR$/ijkplayerLib/ijkplayer-armv7a" />
+            <option value="$PROJECT_DIR$/ijkplayerLib/ijkplayer-java" />
+            <option value="$PROJECT_DIR$/libijkplayer" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -12,7 +12,7 @@ import java.util.List;
  * Date: 2018-06-27
  * Time: 13:50
  * Company: zx
- * Description:
+ * Description: 目前 demo 简单展示，后期用数据库动态绑定监听
  * FIXME
  */
 
@@ -23,12 +23,10 @@ public class VideoPlayListmanager {
     private LinkedList<Song> mSongLinkedList;
     private LinkedList<Song> mSangLinkedList;
 
-    private List<INotifyPropertyChanged> mListens;
 
     private VideoPlayListmanager() {
         mSongLinkedList = new LinkedList<>();
         mSangLinkedList = new LinkedList<>();
-        mListens = new ArrayList<>();
     }
 
     public static VideoPlayListmanager getIntanse() {
@@ -39,29 +37,11 @@ public class VideoPlayListmanager {
         return sIntanse;
     }
 
-    public void addNotifyListen(INotifyPropertyChanged li) {
-        mListens.add(li);
-    }
-
-
-    public void destroyListen() {
-        for (INotifyPropertyChanged l : mListens) {
-            l = null;
-        }
-    }
-
-    private void notifyListen() {
-        for (INotifyPropertyChanged l : mListens) {
-            int size = mSongLinkedList.size();
-            l.update(size);
-        }
-    }
 
     public void clearList() {
         mSongLinkedList.clear();
         mSangLinkedList.clear();
 
-        notifyListen();
     }
 
     public boolean addSong(Song song) {
@@ -69,7 +49,6 @@ public class VideoPlayListmanager {
             return mSongLinkedList.add(song);
         }
 
-        notifyListen();
 
         return false;
     }
@@ -80,7 +59,6 @@ public class VideoPlayListmanager {
             return mSongLinkedList.remove(song);
         }
 
-        notifyListen();
 
         return false;
     }
@@ -91,7 +69,6 @@ public class VideoPlayListmanager {
             mSangLinkedList.add(song);
         }
 
-        notifyListen();
     }
 
     public Song getTop() {

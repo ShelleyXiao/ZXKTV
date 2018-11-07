@@ -17,6 +17,7 @@ public class AlwaysMarqueeTextView extends AppCompatTextView {
         setSingleLine();
         setEllipsize(TextUtils.TruncateAt.MARQUEE);
         setMarqueeRepeatLimit(-1);
+        setHorizontallyScrolling(true);
     }
 
     public AlwaysMarqueeTextView(Context context, AttributeSet attrs) {

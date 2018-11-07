@@ -9,7 +9,7 @@ VideoDecoder::VideoDecoder(JavaJNICallback *javaJNICall, AudioDecoder *audio,
     clock = 0;
     this->javaJNICall = javaJNICall;
     audioDecoder = audio;
-    queue = new WlQueue(playStatus);
+    queue = new PlayerQueue(playStatus);
     wlPlayStatus = playStatus;
 }
 

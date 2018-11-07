@@ -17,7 +17,6 @@ import com.zxktv.listener.OnStopListener;
 import com.zxktv.listener.Status;
 import com.zxktv.opengles.ZXGlSurfaceView;
 import com.zxktv.util.LogUtils;
-import com.zxktv.util.MyLog;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -552,7 +551,7 @@ public class ZXVideoPlayer {
      * */
     public void setFrameData(int w, int h, byte[] y, byte[] u, byte[] v) {
         if (glSurfaceView != null) {
-            MyLog.d("setFrameData");
+            LogUtils.d("setFrameData");
             glSurfaceView.setCodecType(0);
             glSurfaceView.setFrameData(w, h, y, u, v);
 

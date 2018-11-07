@@ -124,7 +124,7 @@ public class OrderSongListAdapter extends RecyclerView.Adapter<OrderSongListAdap
             tv_state = (MagicTextView) itemView.findViewById(R.id.tv_state);
             btn_first = (Button) itemView.findViewById(R.id.btn_first);
             btn_delete = (Button) itemView.findViewById(R.id.btn_delete);
-
+            tv_title.setSelected(true);
         }
     }
 }

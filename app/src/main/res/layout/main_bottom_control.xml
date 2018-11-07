@@ -150,5 +150,12 @@
     </RelativeLayout>
 
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="V1.00"
+        android:textColor="@color/lightgray"
+        android:layout_gravity="bottom|right"
+        />
 
 </FrameLayout>

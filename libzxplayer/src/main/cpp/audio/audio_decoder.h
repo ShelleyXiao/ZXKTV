@@ -7,7 +7,7 @@
 #include <libaudio_effect/audio_effect/audio_effect.h>
 #include <libaudio_effect/audio_effect_processor/audio_effect_processor.h>
 #include "../base_player.h"
-#include "WlQueue.h"
+#include "PlayerQueue.h"
 #include "AndroidLog.h"
 #include "../PlayStatus.h"
 #include "../JavaJNICallback.h"
@@ -25,7 +25,7 @@ extern "C"
 class AudioDecoder : public ZXbasePlayer {
 
 public:
-    WlQueue *queue = NULL;
+    PlayerQueue *queue = NULL;
     PlayStatus *wlPlayStatus = NULL;
     JavaJNICallback *javaJNICall = NULL;
     pthread_t audioThread;

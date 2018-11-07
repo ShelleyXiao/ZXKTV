@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getDefault());
+}
+
 android {
     compileSdkVersion rootProject.ext.android.compileSdkVersion
     defaultConfig {
@@ -15,6 +19,17 @@ android {
         release {
             minifyEnabled false
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        //输出名称为 v1.0.1_20180910
+                        def fileName = "ZXKTVDemo_V${defaultConfig.versionName}_${releaseTime()}.apk"
+                        outputFileName = new File("../../release/", fileName)
+                    }
+                }
+            }
         }
     }
 
@@ -37,6 +52,11 @@ android {
             // println strFile.absolutePath;
         }
     }
+
+
+
+
+
 }
 
 dependencies {
@@ -47,9 +67,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-//    implementation project(':playerbase')
-//    implementation project(':exoplayer')
-    implementation project(':libzxplayer')
+//    implementation project(':libzxplayer')
+
+    api project(":libijkplayer")
 
     implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'

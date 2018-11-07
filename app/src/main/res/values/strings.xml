@@ -27,4 +27,6 @@
     <string  name="btn_gift">礼物</string>
     <string  name="btn_multi_video">炫屏</string>
     <string  name="btn_close_search">关闭搜索</string>
+
+    <string name="grant_label">请授予权限！</string>
 </resources>

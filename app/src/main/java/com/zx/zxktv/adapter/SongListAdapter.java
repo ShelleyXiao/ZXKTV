@@ -60,18 +60,18 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
     protected void onBindViewHolder(final SongItemViewHolder holder, Cursor cursor) {
         final Song item = Song.valueOf(cursor);
         final String title = item.name;
-        holder.tv_SongName.setText(FileSystemUtil.getFileName(title));
+        holder.tvSongName.setText(FileSystemUtil.getFileName(title));
 
         int index = VideoPlayListmanager.getIntanse().getSongIndex(item);
         if (index != -1) {
             index++;
-            holder.tv_position.setText("(约" + index + ")");
-            holder.tv_position.setVisibility(View.VISIBLE);
+            holder.tvPosition.setText("(约" + index + ")");
+            holder.tvPosition.setVisibility(View.VISIBLE);
         } else {
-            holder.tv_position.setVisibility(View.INVISIBLE);
+            holder.tvPosition.setVisibility(View.INVISIBLE);
         }
 
-        holder.cb_preview.setOnClickListener(new View.OnClickListener() {
+        holder.cbPreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                Toast.makeText(v.getContext(), "item" + title + " 被点击了", Toast.LENGTH_SHORT).show();
@@ -82,7 +82,7 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             }
         });
 
-//        holder.cb_info.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//        holder.cbInfo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 //            @Override
 //            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 //                if(isChecked) {
@@ -95,7 +95,7 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
 //            }
 //        });
 
-        holder.cb_info.setOnClickListener(new View.OnClickListener() {
+        holder.cbInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
@@ -103,8 +103,8 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
                     playListmanager.addSong(item);
                     int index = VideoPlayListmanager.getIntanse().getSongIndex(item);
                     index++;
-                    holder.tv_position.setText("(约" + index + ")");
-                    holder.tv_position.setVisibility(View.VISIBLE);
+                    holder.tvPosition.setText("(约" + index + ")");
+                    holder.tvPosition.setVisibility(View.VISIBLE);
                     if (mListNotifyListener != null) {
                         mListNotifyListener.updateList();
                         notifyDataSetChanged();
@@ -169,45 +169,17 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
     }
 
     class SongItemViewHolder extends RecyclerView.ViewHolder {
-        ImageView iv_avatar_bg;
-        ImageView iv_avatar;
+        ImageView ivAvatarBg;
+        ImageView ivAvatar;
 
-        AlwaysMarqueeTextView tv_SongName;
-        TextView tv_position;
-        //        TextView tv_position;
-        CheckBox cb_preview;
-        CheckBox cb_info;
+        AlwaysMarqueeTextView tvSongName;
+        TextView tvPosition;
+        //        TextView tvPosition;
+        CheckBox cbPreview;
+        CheckBox cbInfo;
 
         public SongItemViewHolder(View itemView) {
             super(itemView);
-
-//            iv_avatar = (ImageView) itemView.findViewById(R.id.avatar);
-//
-//            tv_SongName = (TextView) itemView.findViewById(R.id.song_name);
-//            tv_position = (TextView) itemView.findViewById(R.id.singer_name);
-//            tv_position = (TextView) itemView.findViewById(R.id.position);
-//            cb_preview = (CheckBox) itemView.findViewById(R.id.preview);
-//            cb_info = (CheckBox) itemView.findViewById(R.id.song_info);
-//
-//            DisplayMetrics displayMetrics = ViewUtils.getScreenResolution((Activity) mContext);
-//
-//
-//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) iv_avatar.getLayoutParams();
-//
-////            params.setMargins(0,
-////                    0,
-////                    -(int) (displayMetrics.heightPixels * (300.0 / 1200f)), 0);
-////            iv_avatar.setLayoutParams(params);
-//
-//            params = (FrameLayout.LayoutParams) cb_info.getLayoutParams();
-//            params.setMargins(-(int) (displayMetrics.widthPixels * (140.0 / 1920f)),
-//                   0,
-//                    0, 0);
-//
-//
-//            cb_info.setLayoutParams(params);
-//
-//            tv_position.setAlpha(0.5f);
 
             //没有UI 其他地方找的资源
             DisplayMetrics displayMetrics = ViewUtils.getScreenResolution((Activity) mContext);
@@ -221,14 +193,14 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             mainView.setLayoutParams(as_params);
 
 
-            iv_avatar = new ImageView(mContext);
-            iv_avatar_bg = new ImageView(mContext);
-            cb_info = new CheckBox(mContext);
-            tv_position = new TextView(mContext);
-            tv_position = new TextView(mContext);
-            tv_SongName = new AlwaysMarqueeTextView(mContext);
-            cb_preview = new CheckBox(mContext);
-            cb_preview.setButtonDrawable(R.drawable.blank_button);
+            ivAvatar = new ImageView(mContext);
+            ivAvatarBg = new ImageView(mContext);
+            cbInfo = new CheckBox(mContext);
+            tvPosition = new TextView(mContext);
+            tvPosition = new TextView(mContext);
+            tvSongName = new AlwaysMarqueeTextView(mContext);
+            cbPreview = new CheckBox(mContext);
+            cbPreview.setButtonDrawable(R.drawable.blank_button);
 
             AbsoluteLayout.LayoutParams al_params = new AbsoluteLayout.LayoutParams(
                     (int) (displayMetrics.widthPixels * (304.0f / 1920.0f)),
@@ -236,16 +208,16 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
                     0, (int) (displayMetrics.heightPixels * (15.0f / 1920.0f))
             );
 
-            iv_avatar_bg.setLayoutParams(al_params);
-            iv_avatar_bg.setImageResource(R.drawable.song_list_pic_bg);
+            ivAvatarBg.setLayoutParams(al_params);
+            ivAvatarBg.setImageResource(R.drawable.song_list_pic_bg);
 
             al_params = new AbsoluteLayout.LayoutParams(
                     (int) (displayMetrics.widthPixels * (195.0f / 1920.0f)),
                     ((int) (displayMetrics.heightPixels * (195.0f / 1200.0f))),
                     (int) (displayMetrics.widthPixels * (53.0f / 1920.0f)), (int) (displayMetrics.heightPixels * (47.0 / 1200.0f))
             );
-            iv_avatar.setLayoutParams(al_params);
-            iv_avatar.setImageResource(R.drawable.ldh_icon);
+            ivAvatar.setLayoutParams(al_params);
+            ivAvatar.setImageResource(R.drawable.ldh_icon);
 
             al_params = new AbsoluteLayout.LayoutParams(
                     (int) (displayMetrics.widthPixels * (454.0f / 1920.0f)),
@@ -258,62 +230,49 @@ public class SongListAdapter extends RecyclerViewCursorAdapter<SongListAdapter.S
             ab_infomation.setLayoutParams(al_params);
             al_params = new AbsoluteLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 0, 0);
 
-            cb_info.setLayoutParams(al_params);
-            cb_info.setBackground(mContext.getResources().getDrawable(R.drawable.btn_song_list_information_bg));
-            cb_info.setButtonDrawable(R.drawable.blank_button);
+            cbInfo.setLayoutParams(al_params);
+            cbInfo.setBackground(mContext.getResources().getDrawable(R.drawable.btn_song_list_information_bg));
+            cbInfo.setButtonDrawable(R.drawable.blank_button);
 
-            al_params = new AbsoluteLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+            al_params = new AbsoluteLayout.LayoutParams((int) (displayMetrics.widthPixels * (300 / 1920.0f)),
                     (int) (displayMetrics.widthPixels * (120.0f / 1920.0f)),
                     (int) (displayMetrics.widthPixels * (82.0f / 1920.0f)),
                     (int) (displayMetrics.heightPixels * (62.0f / 1200)));
-            tv_SongName.setLayoutParams(al_params);
-            tv_SongName.setTextSize(24);
-            tv_SongName.setTextColor(Color.WHITE);
-            tv_SongName.setText("バクチ・ダンサー");
-            tv_SongName.setSingleLine();
+
+            tvSongName.setLayoutParams(al_params);
+            tvSongName.setTextSize(24);
+            tvSongName.setTextColor(Color.WHITE);
+            tvSongName.setSingleLine();
 
             al_params = new AbsoluteLayout.LayoutParams((int) (displayMetrics.widthPixels * (120.0f / 1920.0f)),
                     (int) (displayMetrics.widthPixels * (120.0f / 1920.0f)),
                     (int) (displayMetrics.widthPixels * (82.0f / 1920.0f)),
                     (int) (displayMetrics.heightPixels * (160.0f / 1200)));
-            tv_position.setLayoutParams(al_params);
-            tv_position.setTextSize(20);
-            tv_position.setAlpha(0.5f);
-            tv_position.setSingleLine();
-            tv_position.setTextColor(Color.RED);
-
-//            al_params = new AbsoluteLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-//                    ViewGroup.LayoutParams.WRAP_CONTENT,
-//                    0,
-//                    (int) (displayMetrics.heightPixels * (62.0f / 1200)));
-//            tv_position.setLayoutParams(al_params);
-//            tv_position.setGravity(Gravity.RIGHT);
-//            tv_position.setPadding(0, 0, (int) (displayMetrics.widthPixels * (82.0f / 1920.0f)), 0);
-//            tv_position.setTextSize(24);
-//            tv_position.setTextColor(Color.WHITE);
-//            tv_position.setText("(约6)");
-//            tv_position.setSingleLine();
-
+            tvPosition.setLayoutParams(al_params);
+            tvPosition.setTextSize(20);
+            tvPosition.setAlpha(0.5f);
+            tvPosition.setSingleLine();
+            tvPosition.setTextColor(Color.RED);
 
             al_params = new AbsoluteLayout.LayoutParams((int) (displayMetrics.widthPixels * 0.044)
                     , (int) (displayMetrics.heightPixels * 0.1),
                     (int) (displayMetrics.widthPixels * (300.0f / 1920.0f))
                     , (int) (displayMetrics.heightPixels * (136.0f / 1200.0f))
             );
-            cb_preview.setBackgroundResource(R.drawable.btn_song_list_preview);
-            cb_preview.setLayoutParams(al_params);
+            cbPreview.setBackgroundResource(R.drawable.btn_song_list_preview);
+            cbPreview.setLayoutParams(al_params);
 
 
-            ab_infomation.addView(cb_info);
-            ab_infomation.addView(tv_SongName);
-//            ab_infomation.addView(tv_position);
-            ab_infomation.addView(tv_position);
-            ab_infomation.addView(cb_preview);
+            ab_infomation.addView(cbInfo);
+            ab_infomation.addView(tvSongName);
+//            ab_infomation.addView(tvPosition);
+            ab_infomation.addView(tvPosition);
+            ab_infomation.addView(cbPreview);
 
-            tv_position.setVisibility(View.VISIBLE);
+            tvPosition.setVisibility(View.VISIBLE);
 
-            ((AbsoluteLayout) mainView).addView(iv_avatar_bg);
-            ((AbsoluteLayout) mainView).addView(iv_avatar);
+            ((AbsoluteLayout) mainView).addView(ivAvatarBg);
+            ((AbsoluteLayout) mainView).addView(ivAvatar);
             ((AbsoluteLayout) mainView).addView(ab_infomation);
 
             ((FrameLayout) itemView).addView(mainView);
