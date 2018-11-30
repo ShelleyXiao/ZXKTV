@@ -70,6 +70,10 @@ public class Song implements Parcelable {
         );
     }
 
+    public static Song valueOf(String path, String name) {
+        return new Song(-1,"video/*", 0, 0, name, path);
+    }
+
     @Override
     public String toString() {
         return "Song{" +

@@ -6,6 +6,7 @@
              >
 
 
+
     <FrameLayout
         android:id="@+id/framelayout2"
         android:layout_width="match_parent"
@@ -34,6 +35,18 @@
         android:textColor="#f5f2f2"
         android:textSize="24sp"
         android:visibility="gone"/>
+
+    <FrameLayout android:id="@+id/screen_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/timg"
+            />
+    </FrameLayout>
 
 
 </FrameLayout>

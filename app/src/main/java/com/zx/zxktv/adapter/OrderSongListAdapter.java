@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.zx.zxktv.R;
 import com.zx.zxktv.data.Song;
@@ -57,21 +58,22 @@ public class OrderSongListAdapter extends RecyclerView.Adapter<OrderSongListAdap
 
     @Override
     public void onBindViewHolder(SangListItemViewHolder holder, final int position) {
-        holder.tv_title.setText(String.format("%d.%s", position + 1, FileSystemUtil.getFileName(data.get(position).name)));
+        holder.tvSongIndex.setText(position + 1 + ".");
+        holder.tvTitle.setText(String.format("%s", FileSystemUtil.getFileName(data.get(position).name)));
 
         //set shadow text effect
         if (position == 0 && isFirstPage) {
-            holder.tv_title.setTextColor(Color.rgb(255, 204, 0));
-            holder.tv_state.setTextColor(Color.rgb(255, 204, 0));
-            holder.tv_state.addOuterShadow(20, 3, 3, Color.argb(102, 215, 5, 0));
-            holder.tv_state.addOuterShadow(20, 3, 3, Color.argb(102, 215, 5, 0));
-            holder.tv_title.addOuterShadow(20, 3, 3, Color.argb(102, 215, 5, 0));
-            holder.btn_delete.setVisibility(View.GONE);
-            holder.btn_first.setVisibility(View.GONE);
-            holder.tv_state.setVisibility(View.VISIBLE);
+            holder.tvTitle.setTextColor(Color.rgb(255, 204, 0));
+            holder.tvState.setTextColor(Color.rgb(255, 204, 0));
+            holder.tvState.addOuterShadow(20, 3, 3, Color.argb(102, 215, 5, 0));
+            holder.tvState.addOuterShadow(20, 3, 3, Color.argb(102, 215, 5, 0));
+            holder.tvTitle.addOuterShadow(20, 3, 3, Color.argb(102, 215, 5, 0));
+            holder.btnDelete.setVisibility(View.GONE);
+            holder.btnFirst.setVisibility(View.GONE);
+            holder.tvState.setVisibility(View.VISIBLE);
         }
 
-        holder.btn_first.setOnClickListener(new View.OnClickListener() {
+        holder.btnFirst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -84,12 +86,13 @@ public class OrderSongListAdapter extends RecyclerView.Adapter<OrderSongListAdap
             }
         });
 
-        holder.btn_delete.setOnClickListener(new View.OnClickListener() {
+        holder.btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
                     if (mOnPlayListControl != null) {
                         mOnPlayListControl.deleteItemByPosition(position);
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -112,19 +115,20 @@ public class OrderSongListAdapter extends RecyclerView.Adapter<OrderSongListAdap
     class SangListItemViewHolder extends RecyclerView.ViewHolder {
 
 
-        MagicTextView tv_title;
-        MagicTextView tv_state;
-        Button btn_first;
-        Button btn_delete;
+        MagicTextView tvTitle;
+        MagicTextView tvState;
+        Button btnFirst;
+        Button btnDelete;
+        TextView tvSongIndex;
 
         public SangListItemViewHolder(View itemView) {
             super(itemView);
-
-            tv_title = (MagicTextView) itemView.findViewById(R.id.tv_title);
-            tv_state = (MagicTextView) itemView.findViewById(R.id.tv_state);
-            btn_first = (Button) itemView.findViewById(R.id.btn_first);
-            btn_delete = (Button) itemView.findViewById(R.id.btn_delete);
-            tv_title.setSelected(true);
+            tvSongIndex = (TextView) itemView.findViewById(R.id.tv_song_index);
+            tvTitle = (MagicTextView) itemView.findViewById(R.id.tv_title);
+            tvState = (MagicTextView) itemView.findViewById(R.id.tv_state);
+            btnFirst = (Button) itemView.findViewById(R.id.btn_first);
+            btnDelete = (Button) itemView.findViewById(R.id.btn_delete);
+            tvTitle.setSelected(true);
         }
     }
 }

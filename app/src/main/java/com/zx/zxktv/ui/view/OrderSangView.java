@@ -162,6 +162,7 @@ public class OrderSangView extends FrameLayout implements PagerGridLayoutManager
 
     public void updateDataList() {
         VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
+        list_data.clear();
         list_data.addAll(playListmanager.getPlaySangList());
         loadDataByIndex(pageIndex);
     }

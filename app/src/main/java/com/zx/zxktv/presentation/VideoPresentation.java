@@ -37,6 +37,8 @@ public class VideoPresentation extends Presentation {
     private TextView tv_playingBottom;
     private VideoBean mCurVideo;
 
+    private FrameLayout flScrrenBg;
+
     private Handler mHandler = new Handler();
 
     public VideoPresentation(Context outerContext, Display display) {
@@ -48,6 +50,8 @@ public class VideoPresentation extends Presentation {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_presentation);
         mFrameLayout = (FrameLayout) findViewById(R.id.framelayout2);
+        flScrrenBg = (FrameLayout) findViewById(R.id.screen_bg);
+
         PresentationService.getAppInstance().attachFrameLayout(mFrameLayout);
 
         mtv_SongPlayInfo = (MarqueeTextView) findViewById(R.id.song_info);
@@ -81,6 +85,10 @@ public class VideoPresentation extends Presentation {
         String info = String.format(baseInfo, FileSystemUtil.getFileName(videoBean.name),
                 nextVideoInfo);
         mtv_SongPlayInfo.setText(info);
+
+        if(flScrrenBg.isShown()) {
+            flScrrenBg.setVisibility(View.GONE);
+        }
     }
 
     public void showPlaylistbottom(final boolean show) {

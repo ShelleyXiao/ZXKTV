@@ -46,6 +46,7 @@ import com.zx.zxktv.adapter.SongListAdapter;
 import com.zx.zxktv.data.LoadVideoModelPresenterImpl;
 import com.zx.zxktv.data.Song;
 import com.zx.zxktv.data.interfaces.VideoModelContract;
+import com.zx.zxktv.data.utils.AutoRefreshVideoList;
 import com.zx.zxktv.presentation.PresentationService;
 import com.zx.zxktv.ui.fragment.SongPreviewWin;
 import com.zx.zxktv.ui.view.LongTouchButton;
@@ -63,12 +64,17 @@ import com.zx.zxktv.utils.LogUtils;
 import com.zx.zxktv.utils.rxbus.RxBus;
 import com.zx.zxktv.utils.rxbus.RxConstants;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener
-        , VideoModelContract.View, SongListAdapter.OnUpdatePlayListNotifyListener, VideoModelContract.ErrorCallBack {
+        , VideoModelContract.View, SongListAdapter.OnUpdatePlayListNotifyListener,
+        VideoModelContract.ErrorCallBack, AutoRefreshVideoList.AutoRefreshListener {
 
     public static final String MEDIA_PATH = Environment.getExternalStorageDirectory() + "/media/";
 
@@ -77,8 +83,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     private final static int MUSICE_VOL_STEP = 5;
     private final static int PROGRESS_DETAL = 12000;
 
-    private final int INTERVAL = 300; //输入时间间隔为300毫秒
-
     private RecyclerView rvSongList;
     private TextView tvPageIndex;
     private ImageView ivPagePre;
@@ -86,7 +90,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private View btnOrdered;
     private Button btnVolume;
-    private Button btn_effect;
+    private Button btnEffect;
     private CheckBox cbOrignal;
     private Button btnRestart;
     private CheckBox cbSilent;
@@ -106,9 +110,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     private FrameLayout flSongsBg;
 
     private PopupWindow popupOrdered;
-    private PopupWindow popup_Volume;
-    private PopupWindow popup_Effect;
-    private RadioButton rb_ordered;
+    private PopupWindow popupVolume;
+    private PopupWindow popupEffect;
+    private RadioButton rbOrdered;
 
     private VerticalProgressBar vp_popEffect_pitch_1;
     private VerticalProgressBar vp_popEffect_pitch_2;
@@ -130,21 +134,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
     private int mRows = 3;
     private int mColumns = 3;
-    private SongListAdapter mAdapter;
+    private SongListAdapter mSongAdapter;
     private PagerGridLayoutManager mLayoutManager;
-
-    private View v_ordered;
 
     private int mPageSum;
     private int mCurrentPageIndex;
 
+    private AutoRefreshVideoList mRefreshVideoList;
+
 
     private LoadVideoModelPresenterImpl mVideoModelPresenter;
 
+    private List<Song> mSongDatas = new ArrayList<>();
 
     private AudioMngHelper mAudioMngHelper;
-
-    private Song mCurSong;
 
     private boolean mSearchMode = false;
 
@@ -182,6 +185,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                 | Context.BIND_IMPORTANT | Context.BIND_ADJUST_WITH_ACTIVITY);
 
         subscribeEvent();
+
+        mRefreshVideoList = new AutoRefreshVideoList(this, this,
+                AutoRefreshVideoList.VIDEO_FILE_SUFFIX);
     }
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -207,8 +213,50 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mRefreshVideoList.onResume();
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        destoryPopupWindow();
+        mRefreshVideoList.onPause();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDisposable != null && !mDisposable.isDisposed()) {
+            mDisposable.dispose();
+        }
+        mVideoModelPresenter.destroy();
+
+        mRefreshVideoList.unregisterAutoRefresh();
+
+        if (mPresentationService != null && isConnected) {
+            unbindService(mServiceConnection);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mSearchMode) {
+            mSearchMode = false;
+            mVideoModelPresenter.getData(false);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -228,55 +276,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-        destoryPopupWindow();
-
-//        if (mPresentationService == null) {
-//            return;
-//        }
-//
-//        unbindService(mServiceConnection);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (mDisposable != null && !mDisposable.isDisposed()) {
-            mDisposable.dispose();
-        }
-        mVideoModelPresenter.destroy();
-
-        if (mPresentationService != null && isConnected) {
-            unbindService(mServiceConnection);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mSearchMode) {
-            mSearchMode = false;
-            mVideoModelPresenter.getData(false);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public void onFinish(Cursor cursor) {
         LogUtils.i("cursor " + cursor);
         if (cursor != null /*&& !mSearchMode*/) {
             mSongCursor = cursor;
-            mAdapter.swapCursor(cursor);
+            if (cursor.moveToFirst()) {
+                do {
+                    Song song = Song.valueOf(cursor);
+                    File file = new File(song.filePath);
+                    if (file.exists()) {
+                        mSongDatas.add(song);
+                    }
+                } while (cursor.moveToNext());
+            }
+
+            mSongAdapter.setDatas(mSongDatas);
+
             if (!mSearchMode) {
                 VideoPlayListmanager.getIntanse().clearList();
             }
-            final Song song = mAdapter.getItem(0);
-//            mVideoView.setDataUri(song.uri);
-//            mVideoView.start();
-//            playSyncVideo(song);
         }
         tv_ErrorInfo.setVisibility(View.INVISIBLE);
         rl_listView.setVisibility(View.VISIBLE);
@@ -319,6 +337,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         cbPlay.setEnabled(true);
     }
 
+    @Override
+    public void orderSongError(Song song) {
+        Toast.makeText(this, song.name + " ," + getString(R.string.order_faild),
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public ArrayList<Song> onGetVideoDataList() {
+        return (ArrayList<Song>) mSongDatas;
+    }
+
+    @Override
+    public void onVideoRefresh(final ArrayList<Song> videoList) {
+        LogUtils.i("****onVideoRefresh*********** " + videoList.size());
+
+        mSongDatas.addAll(videoList);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mSongAdapter.addDatas(videoList);
+            }
+        });
+
+    }
+
+    @Override
+    public void onVideoScan() {
+
+    }
 
     private void initView() {
         rl_videoControl = (RelativeLayout) findViewById(R.id.video_control);
@@ -335,7 +382,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
         btnVolume = (Button) findViewById(R.id.btn_volume);
         btnRestart = (Button) findViewById(R.id.btn_resing);
-        btn_effect = (Button) findViewById(R.id.btn_effect);
+        btnEffect = (Button) findViewById(R.id.btn_effect);
 
         cbOrignal = (CheckBox) findViewById(R.id.cb_origin);
         cbSilent = (CheckBox) findViewById(R.id.cb_quite);
@@ -349,7 +396,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         ivPageNext.setOnClickListener(this);
         btnVolume.setOnClickListener(this);
         btnRestart.setOnClickListener(this);
-        btn_effect.setOnClickListener(this);
+        btnEffect.setOnClickListener(this);
 
         fl_videoViewSmall.setOnClickListener(this);
         fl_videoViewPrimary.setOnClickListener(this);
@@ -387,25 +434,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         mLayoutManager.setPageListener(new MainPageChangeListener());
 
         // 使用原生的 Adapter 即可
-        mAdapter = new SongListAdapter(this);
-        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+        mSongAdapter = new SongListAdapter(this);
+        mSongAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 super.onChanged();
-                int count = mAdapter.getItemCount();
-
+                int count = mSongAdapter.getItemCount();
             }
         });
 
-        mAdapter.setPreivewListener(new SongListAdapter.OnSongPreivewListener() {
+        mSongAdapter.setPreivewListener(new SongListAdapter.OnSongPreivewListener() {
             @Override
             public void onPreView(Song song) {
                 new SongPreviewWin(song).show(getFragmentManager(), "priview");
             }
         });
 
-        mAdapter.setListNotifyListener(this);
-        rvSongList.setAdapter(mAdapter);
+        mSongAdapter.setListNotifyListener(this);
+        rvSongList.setAdapter(mSongAdapter);
         rvSongList.setItemAnimator(null);
 //        rvSongList.setHasFixedSize(true);
 
@@ -429,6 +475,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                     mPresentationService.switchAccompanimentOrOriginal(false);
                 } else {//原唱
                     mPresentationService.switchAccompanimentOrOriginal(true);
+
                 }
 
             }
@@ -442,7 +489,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //                    if (mPresentationService.isPlaying()) {
 //                        mPresentationService.pauseOrStart();
 //                    } else {
-////                        Song song = (Song) mAdapter.getItem(0);
+////                        Song song = (Song) mSongAdapter.getItem(0);
 ////                        playVideo(song.filePath);
 //                    }
 //                } else {
@@ -465,14 +512,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                         mVideoModelPresenter.search(searchKey);
 
                         InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        im.hideSoftInputFromWindow(getCurrentFocus()
-                                .getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
+//                        im.hideSoftInputFromWindow(getCurrentFocus()
+//                                .getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        if (im != null) {
+                            im.hideSoftInputFromWindow(mSearchEdit.getWindowToken(), 0);
+                        }
+                        mSearchEdit.clearFocus();
                         mSearchMode = true;
                         btnSearchClose.setVisibility(View.VISIBLE);
                     }
                 }
-                return false;
+                return true;
             }
         });
     }
@@ -495,7 +545,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                         if (value.equals(RxConstants.EXTRA_KEY_UPDATE_SELECT)) {
                             int size = VideoPlayListmanager.getIntanse().getPlaySongSize();
                             tvNum.setText(String.valueOf(size));
-                            mAdapter.notifyDataSetChanged();
+                            mSongAdapter.notifyDataSetChanged();
                             if (size == 1 && !isFirstSelected) {
                                 final Song song = VideoPlayListmanager.getIntanse().getTop();
                                 LogUtils.i("song: " + song);
@@ -559,11 +609,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
     }
 
     public void onOrderedClick(View v) {
-        if (popup_Volume != null && popup_Volume.isShowing()) {
-            popup_Volume.dismiss();
+        if (popupVolume != null && popupVolume.isShowing()) {
+            popupVolume.dismiss();
         }
-        if (popup_Effect != null && popup_Effect.isShowing()) {
-            popup_Effect.dismiss();
+        if (popupEffect != null && popupEffect.isShowing()) {
+            popupEffect.dismiss();
         }
         if (popupOrdered != null && popupOrdered.isShowing()) {
             popupOrdered.dismiss();
@@ -580,11 +630,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         if (popupOrdered != null && popupOrdered.isShowing()) {
             popupOrdered.dismiss();
         }
-        if (popup_Effect != null && popup_Effect.isShowing()) {
-            popup_Effect.dismiss();
+        if (popupEffect != null && popupEffect.isShowing()) {
+            popupEffect.dismiss();
         }
-        if (popup_Volume != null && popup_Volume.isShowing()) {
-            popup_Volume.dismiss();
+        if (popupVolume != null && popupVolume.isShowing()) {
+            popupVolume.dismiss();
             return;
         }
 
@@ -600,11 +650,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         if (popupOrdered != null && popupOrdered.isShowing()) {
             popupOrdered.dismiss();
         }
-        if (popup_Effect != null && popup_Effect.isShowing()) {
-            popup_Effect.dismiss();
+        if (popupEffect != null && popupEffect.isShowing()) {
+            popupEffect.dismiss();
         }
-        if (popup_Volume != null && popup_Volume.isShowing()) {
-            popup_Volume.dismiss();
+        if (popupVolume != null && popupVolume.isShowing()) {
+            popupVolume.dismiss();
             return;
         }
 
@@ -630,8 +680,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         btn_close.setOnClickListener(new CloseListener());
 
         rg_ordered = (RadioGroup) mView.findViewById(R.id.rg_menu);
-        rb_ordered = (RadioButton) mView.findViewById(R.id.rb_order);
-        rb_ordered.setChecked(true);
+        rbOrdered = (RadioButton) mView.findViewById(R.id.rb_order);
+        rbOrdered.setChecked(true);
         rg_ordered.setOnCheckedChangeListener(new OrderedMenuCheckListener());
 
         mOrderSangView = new OrderSangView(this);
@@ -649,7 +699,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 
 //                LogUtils.i(" " + rvSongList.hasFixedSize()
 //                        + rvSongList.isAttachedToWindow());
-                mAdapter.updateItem(song);
+                mSongAdapter.updateItem(song);
             }
         });
 
@@ -712,7 +762,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         btn_close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                popup_Volume.dismiss();
+                popupVolume.dismiss();
             }
         });
 
@@ -737,11 +787,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         });
 
         //btn_popVolume_microRaise=mView.findViewById(R.id.)
-//        popup_Volume = new PopupWindow(mView, width, (int) (width * (360.0 / 370.0)));
-        popup_Volume = new PopupWindow(mView, width, width);
-        popup_Volume.setAnimationStyle(R.style.PopUpWindowVolumeAnimation);
-        popup_Volume.setOutsideTouchable(true);
-        popup_Volume.showAsDropDown(btnVolume, -5, -5);
+//        popupVolume = new PopupWindow(mView, width, (int) (width * (360.0 / 370.0)));
+        popupVolume = new PopupWindow(mView, width, width);
+        popupVolume.setAnimationStyle(R.style.PopUpWindowVolumeAnimation);
+        popupVolume.setOutsideTouchable(true);
+        popupVolume.showAsDropDown(btnVolume, -5, -5);
     }
 
     private void initPopUpWindowsEffect() throws Exception {
@@ -879,8 +929,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void onClick(View view) {
                 try {
-                    if (popup_Effect != null && popup_Effect.isShowing()) {
-                        popup_Effect.dismiss();
+                    if (popupEffect != null && popupEffect.isShowing()) {
+                        popupEffect.dismiss();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -909,10 +959,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
         });
 
 
-        popup_Effect = new PopupWindow(mView, 600, 610);
-        popup_Effect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
-        popup_Effect.setOutsideTouchable(true);
-        popup_Effect.showAsDropDown(btn_effect, 0, 5);
+        popupEffect = new PopupWindow(mView, 600, 610);
+        popupEffect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
+        popupEffect.setOutsideTouchable(true);
+        popupEffect.showAsDropDown(btnEffect, 0, 5);
     }
 
 //    private void initPopUpWindowsEffect() throws Exception {
@@ -955,8 +1005,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //            @Override
 //            public void onClick(View view) {
 //                try {
-//                    if (popup_Effect != null && popup_Effect.isShowing()) {
-//                        popup_Effect.dismiss();
+//                    if (popupEffect != null && popupEffect.isShowing()) {
+//                        popupEffect.dismiss();
 //                    }
 //                } catch (Exception e) {
 //                    e.printStackTrace();
@@ -987,18 +1037,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
 //        });
 //
 //
-//        popup_Effect = new PopupWindow(mView, 600, 610);
-//        popup_Effect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
-//        popup_Effect.setOutsideTouchable(true);
-//        popup_Effect.showAsDropDown(btn_effect, 0, 5);
+//        popupEffect = new PopupWindow(mView, 600, 610);
+//        popupEffect.setAnimationStyle(R.style.PopUpWindowEffectAnimation);
+//        popupEffect.setOutsideTouchable(true);
+//        popupEffect.showAsDropDown(btn_effect, 0, 5);
 //    }
 
     private void destoryPopupWindow() {
-        if (popup_Volume != null && popup_Volume.isShowing()) {
-            popup_Volume.dismiss();
+        if (popupVolume != null && popupVolume.isShowing()) {
+            popupVolume.dismiss();
         }
-        if (popup_Effect != null && popup_Effect.isShowing()) {
-            popup_Effect.dismiss();
+        if (popupEffect != null && popupEffect.isShowing()) {
+            popupEffect.dismiss();
         }
         if (popupOrdered != null && popupOrdered.isShowing()) {
             popupOrdered.dismiss();
@@ -1052,19 +1102,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener
                 tvNum.setText(String.valueOf(size));
 
                 cbOrignal.setChecked(true);
-                mAdapter.notifyDataSetChanged();
+                mSongAdapter.notifyDataSetChanged();
                 break;
             case R.id.btn_resing:
                 mPresentationService.songResing();
                 break;
             case R.id.btn_effect:
-//                mPresentationService.showGiftPresentation();
-//                if (!mPresentationService.isMultiVideoShow()) {
-//                    mPresentationService.showMultiVideoPresentation();
-//                } else {
-//                    mPresentationService.dismissMultiVideoPresentation();
-//                }
-
                 onEffectClick();
                 break;
             case R.id.btn_close_search:

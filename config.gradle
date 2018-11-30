@@ -2,7 +2,7 @@ ext {
     android =
             [
                     versionCode      : 1,
-                    versionName      : "1.0.0",
+                    versionName      : "1.1.0",
 
                     compileSdkVersion: 27,
                     buildToolsVersion: "25.0.2",

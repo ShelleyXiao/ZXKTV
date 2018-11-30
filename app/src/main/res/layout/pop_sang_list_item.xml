@@ -10,11 +10,14 @@
 
     <com.zx.zxktv.ui.view.AlwaysMarqueeTextView
         android:id="@+id/tv_title"
-        android:layout_width="@dimen/px400"
+        android:layout_width="@dimen/px380"
         android:layout_height="wrap_content"
         android:textSize="23sp"
         android:textColor="#fff"
         android:layout_centerVertical="true"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         />
 
     <Button

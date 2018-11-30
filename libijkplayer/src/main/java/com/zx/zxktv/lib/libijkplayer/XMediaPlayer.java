@@ -3,7 +3,6 @@ package com.zx.zxktv.lib.libijkplayer;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;
@@ -12,14 +11,6 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.ITrackInfo;
 
-/**
- * 视频播放器类
- * <p>
- * Created by android_ls on 2018/4/20.
- *
- * @author android_ls
- * @version 1.0
- */
 public class XMediaPlayer implements IMediaPlayer.OnPreparedListener, IMediaPlayer.OnCompletionListener,
         IMediaPlayer.OnBufferingUpdateListener, IMediaPlayer.OnSeekCompleteListener, IMediaPlayer.OnErrorListener,
         IMediaPlayer.OnVideoSizeChangedListener, IMediaPlayer.OnInfoListener, IXMediaPlayer {
@@ -89,8 +80,7 @@ public class XMediaPlayer implements IMediaPlayer.OnPreparedListener, IMediaPlay
         ijkMediaPlayer.setOnErrorListener(this);
 
         // 开启调试的LOG
-//        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_SILENT);
-        ijkMediaPlayer.setLogEnabled(false);
+        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_SILENT);
 
         return ijkMediaPlayer;
     }
@@ -423,48 +413,48 @@ public class XMediaPlayer implements IMediaPlayer.OnPreparedListener, IMediaPlay
 
         switch (what) {
             case IMediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING:
-                Log.d(TAG, "MEDIA_INFO_VIDEO_TRACK_LAGGING:");
+                LogUtils.d( "MEDIA_INFO_VIDEO_TRACK_LAGGING:");
                 break;
             case IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
-                Log.d(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:");
+                LogUtils.d( "MEDIA_INFO_VIDEO_RENDERING_START:");
                 break;
             case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
-                Log.d(TAG, "MEDIA_INFO_BUFFERING_START:");
+                LogUtils.d( "MEDIA_INFO_BUFFERING_START:");
                 break;
             case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
                 // 缓冲结束，开始播放，可以隐藏掉加载进度条
 
-                Log.d(TAG, "MEDIA_INFO_BUFFERING_END:");
+                LogUtils.d( "MEDIA_INFO_BUFFERING_END:");
                 break;
             case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH:
-                Log.d(TAG, "MEDIA_INFO_NETWORK_BANDWIDTH: " + extra);
+                LogUtils.d( "MEDIA_INFO_NETWORK_BANDWIDTH: " + extra);
                 break;
             case IMediaPlayer.MEDIA_INFO_BAD_INTERLEAVING:
-                Log.d(TAG, "MEDIA_INFO_BAD_INTERLEAVING:");
+                LogUtils.d( "MEDIA_INFO_BAD_INTERLEAVING:");
                 break;
             case IMediaPlayer.MEDIA_INFO_NOT_SEEKABLE:
-                Log.d(TAG, "MEDIA_INFO_NOT_SEEKABLE:");
+                LogUtils.d( "MEDIA_INFO_NOT_SEEKABLE:");
                 break;
             case IMediaPlayer.MEDIA_INFO_METADATA_UPDATE:
-                Log.d(TAG, "MEDIA_INFO_METADATA_UPDATE:");
+                LogUtils.d( "MEDIA_INFO_METADATA_UPDATE:");
                 break;
             case IMediaPlayer.MEDIA_INFO_UNSUPPORTED_SUBTITLE:
-                Log.d(TAG, "MEDIA_INFO_UNSUPPORTED_SUBTITLE:");
+                LogUtils.d( "MEDIA_INFO_UNSUPPORTED_SUBTITLE:");
                 break;
             case IMediaPlayer.MEDIA_INFO_SUBTITLE_TIMED_OUT:
-                Log.d(TAG, "MEDIA_INFO_SUBTITLE_TIMED_OUT:");
+                LogUtils.d( "MEDIA_INFO_SUBTITLE_TIMED_OUT:");
                 break;
             case IMediaPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED:
-                Log.d(TAG, "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + extra);
+                LogUtils.d( "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + extra);
 
 //                mVideoRotationDegree = arg2;
-//                Log.d(TAG, "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + arg2);
+//                LogUtils.d( "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + arg2);
 //                if (mRenderView != null)
 //                    mRenderView.setVideoRotation(arg2);
 
                 break;
             case IMediaPlayer.MEDIA_INFO_AUDIO_RENDERING_START:
-                Log.d(TAG, "MEDIA_INFO_AUDIO_RENDERING_START:");
+                LogUtils.d( "MEDIA_INFO_AUDIO_RENDERING_START:");
                 break;
         }
         return true;

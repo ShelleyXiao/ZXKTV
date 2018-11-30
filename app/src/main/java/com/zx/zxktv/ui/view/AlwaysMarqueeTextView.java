@@ -26,8 +26,6 @@ public class AlwaysMarqueeTextView extends AppCompatTextView {
 
     public AlwaysMarqueeTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
-
     }
 
     @Override

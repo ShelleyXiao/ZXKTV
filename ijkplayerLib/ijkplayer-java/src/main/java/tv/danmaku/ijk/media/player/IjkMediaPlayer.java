@@ -381,7 +381,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
             }
         }
 
-        Log.d(TAG, "Couldn't open file on client side, trying server side");
+//        Log.d(TAG, "Couldn't open file on client side, trying server side");
 
         setDataSource(uri.toString(), headers);
     }
@@ -1254,7 +1254,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
             int numCodecs = MediaCodecList.getCodecCount();
             for (int i = 0; i < numCodecs; i++) {
                 MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
-                Log.d(TAG, String.format(Locale.US, "  found codec: %s", codecInfo.getName()));
+//                Log.d(TAG, String.format(Locale.US, "  found codec: %s", codecInfo.getName()));
                 if (codecInfo.isEncoder())
                     continue;
 
@@ -1266,7 +1266,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                     if (TextUtils.isEmpty(type))
                         continue;
 
-                    Log.d(TAG, String.format(Locale.US, "    mime: %s", type));
+//                    Log.d(TAG, String.format(Locale.US, "    mime: %s", type));
                     if (!type.equalsIgnoreCase(mimeType))
                         continue;
 

@@ -29,4 +29,5 @@
     <string  name="btn_close_search">关闭搜索</string>
 
     <string name="grant_label">请授予权限！</string>
+    <string name="order_faild">订阅失败，请查看文件是否损坏！</string>
 </resources>

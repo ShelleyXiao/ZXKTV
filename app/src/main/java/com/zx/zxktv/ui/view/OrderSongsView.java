@@ -194,14 +194,12 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
 
     @Override
     public void gotoFirstPosition(int i) {
-        Song song = list_data.get(i);
-        list_data.remove(i);
+        Song song = list_curr_data.get(i);
+        list_curr_data.remove(i);
         list_data.add(1, song);
         loadDataByIndex(pageIndex);
         VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
         playListmanager.setTop(song);
-
-
     }
 
     public void setOnDeleteSongListener(IOnDeleteSongListener onDeleteSongListener) {
@@ -209,13 +207,26 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
     }
 
     @Override
-    public void deleteItemByPosition(int i) {
-        Song song = list_data.remove(i);
+    public void deleteItemByPosition(int index) {
+        LogUtils.i("delete i: " + index);
+        int songIndex = index + 1;
+        Song song = null;
+        if(index > 0) {
+            song = list_curr_data.remove(index);
+            loadDataByIndex(pageIndex);
+        } else {
+            song  = list_curr_data.get(0);
+            list_curr_data.clear();
+            loadDataByIndex(pageIndex - 1);
+        }
+        LogUtils.i("remove song: " + song);
         loadDataByIndex(pageIndex);
         VideoPlayListmanager playListmanager = VideoPlayListmanager.getIntanse();
-        playListmanager.removeSong(song);
-        if (mOnDeleteSongListener != null) {
-            mOnDeleteSongListener.deleteSong(song);
+        if(song != null) {
+            playListmanager.removeSong(song);
+            if (mOnDeleteSongListener != null) {
+                mOnDeleteSongListener.deleteSong(song);
+            }
         }
     }
 
@@ -234,11 +245,7 @@ public class OrderSongsView extends FrameLayout implements PagerGridLayoutManage
     }
 
     public void onEvent(MsgEvent event) {
-//        if (event.eventType == MsgEvent.Type.SYNC_VIDEO) {
-//            list_data.clear();
-//            list_data.addAll(VideoPlayListmanager.getIntanse().getPlaySongList());
-//            loadDataByIndex(pageIndex);
-//        }
+
         if (event.eventType == MsgEvent.Type.UPDATELIST) {
             if (event.extraMap != null && !event.extraMap.isEmpty()) {
                 String extraValue = (String) event.extraMap.get(MsgEvent.EXTRA_KEY_SEEK);
