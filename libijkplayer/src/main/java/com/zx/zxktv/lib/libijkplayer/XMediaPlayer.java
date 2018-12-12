@@ -447,10 +447,6 @@ public class XMediaPlayer implements IMediaPlayer.OnPreparedListener, IMediaPlay
             case IMediaPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED:
                 LogUtils.d( "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + extra);
 
-//                mVideoRotationDegree = arg2;
-//                LogUtils.d( "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + arg2);
-//                if (mRenderView != null)
-//                    mRenderView.setVideoRotation(arg2);
 
                 break;
             case IMediaPlayer.MEDIA_INFO_AUDIO_RENDERING_START:
@@ -462,17 +458,26 @@ public class XMediaPlayer implements IMediaPlayer.OnPreparedListener, IMediaPlay
 
     @Override
     public ITrackInfo[] getTrackInfo() {
-        return mMediaPlayer.getTrackInfo();
+        if(mMediaPlayer != null) {
+            return mMediaPlayer.getTrackInfo();
+        }
+        return null;
     }
 
     @Override
     public int getSelectedTrack(int trackType) {
-        return mMediaPlayer.getSelectedTrack(trackType);
+        if(mMediaPlayer != null) {
+            return mMediaPlayer.getSelectedTrack(trackType);
+        }
+
+        return -1;
     }
 
     @Override
     public void selectTrack(int stream) {
-         mMediaPlayer.selectTrack(stream);
+        if(mMediaPlayer != null) {
+            mMediaPlayer.selectTrack(stream);
+        }
     }
 
     @Override

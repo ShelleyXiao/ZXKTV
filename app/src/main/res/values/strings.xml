@@ -30,4 +30,8 @@
 
     <string name="grant_label">请授予权限！</string>
     <string name="order_faild">订阅失败，请查看文件是否损坏！</string>
+
+    <string name="test_file_not_exist">测试文件不存在</string>
+
+    <string name="test_version">V1.12</string>
 </resources>

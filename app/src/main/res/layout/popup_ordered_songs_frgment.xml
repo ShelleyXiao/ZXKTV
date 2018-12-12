@@ -44,16 +44,7 @@
             android:layout_marginLeft="40px"
             android:layout_centerVertical="true" />
 
-        <Button
-            android:id="@+id/btn_messCard"
-            android:layout_width="188px"
-            android:layout_height="64px"
-            android:background="@drawable/btn_pop_messcard"
-            android:layout_marginRight="10px"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:visibility="gone"
-            />
+
 
     </RelativeLayout>
 </LinearLayout>

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.zx.zxktv.R;
 import com.zx.zxktv.data.Song;
@@ -33,8 +34,6 @@ public class OrderSangListAdapter extends RecyclerView.Adapter<OrderSangListAdap
     public  List<Song> data = new ArrayList<>();
 
 
-
-
     public OrderSangListAdapter(Context context, List<Song> datas, OnResumeSongOrderListener listener) {
         mContext = context;
         this.data = datas;
@@ -51,7 +50,10 @@ public class OrderSangListAdapter extends RecyclerView.Adapter<OrderSangListAdap
     @Override
     public void onBindViewHolder(SangListItemViewHolder holder, final int position) {
 
-        holder.tvTitle.setText(String.format("%d.%s", position + 1, FileSystemUtil.getFileName(data.get(position).name)));
+        holder.tvSongIndex.setText(position + 1 + ".");
+        holder.tvTitle.setText(String.format("%s", FileSystemUtil.getFileName(data.get(position).name)));
+
+//        holder.tvTitle.setText(String.format("%d.%s", position + 1, FileSystemUtil.getFileName(data.get(position).name)));
         holder.btAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,10 +79,11 @@ public class OrderSangListAdapter extends RecyclerView.Adapter<OrderSangListAdap
 
         AlwaysMarqueeTextView tvTitle;
         Button btAgain;
+        TextView tvSongIndex;
 
         public SangListItemViewHolder(View itemView) {
             super(itemView);
-
+            tvSongIndex = (TextView) itemView.findViewById(R.id.tv_song_index);
             tvTitle = (AlwaysMarqueeTextView) itemView.findViewById(R.id.tv_title);
             btAgain = (Button) itemView.findViewById(R.id.btn_again);
 

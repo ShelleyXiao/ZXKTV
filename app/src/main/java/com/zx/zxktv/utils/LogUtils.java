@@ -5,6 +5,8 @@ import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.util.Log;
 
+import com.zx.zxktv.BuildConfig;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,7 +68,7 @@ public final class LogUtils {
     private static String sDefaultDir;// log默认存储目录
     private static String sDir;       // log存储目录
     private static String sFilePrefix        = "ZX_DEBUG";// log文件前缀
-    private static boolean sLogSwitch         = true;  // log总开关，默认开
+    private static boolean sLogSwitch         = BuildConfig.DEBUG;  // log总开关，默认开
     private static boolean sLog2ConsoleSwitch = true;  // logcat是否打印，默认打印
     private static String sGlobalTag         = "ZX_DEBUG";  // log标签
     private static boolean sTagIsSpace        = false;  // log标签是否为空白

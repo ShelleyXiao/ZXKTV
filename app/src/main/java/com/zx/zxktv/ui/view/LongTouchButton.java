@@ -2,6 +2,7 @@ package com.zx.zxktv.ui.view;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -24,9 +25,10 @@ public class LongTouchButton extends AppCompatButton {
     private static final int TIME_LONGTOUCH = 1000;
     private static final int TIME_INTERRUPT_TO_START = 10000;
 
-    /**
-     * 璁板綍褰撳墠鑷畾涔塀tn鏄惁鎸変笅
-     */
+    private static final int DOUBLE_CLICK_TIMEOUT = 400;//双击间四百毫秒延时
+    private int clickCount = 0;//记录连续点击次数
+    private Handler mCheckHandler;
+
     private boolean isStillClick = false;
 
     private CumTouchListener mListener;
@@ -36,6 +38,7 @@ public class LongTouchButton extends AppCompatButton {
 
     public LongTouchButton(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mCheckHandler = new Handler();
     }
 
     @Override
@@ -43,6 +46,21 @@ public class LongTouchButton extends AppCompatButton {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             long startTime = System.currentTimeMillis();
             isStillClick = true;
+            clickCount++;
+            mCheckHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (clickCount == 1) {
+                        mListener.onTapTouch(LongTouchButton.this);
+                    } else if (clickCount == 2) {
+                        mListener.onDoubleTouch(LongTouchButton.this);
+                    }
+
+                    mCheckHandler.removeCallbacksAndMessages(null);
+                    clickCount = 0;
+                }
+            }, DOUBLE_CLICK_TIMEOUT);
+
             new LongTouchTask().execute(startTime);
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             isStillClick = false;
@@ -72,7 +90,7 @@ public class LongTouchButton extends AppCompatButton {
                 sleep(TIME_CHECK);
 //                LogUtils.i("needCheckLongTouch " + needCheckLongTouch + "dddddddddddddd start: " + start
 //                        + " : " + (System.currentTimeMillis() - start));
-                if ( System.currentTimeMillis() - start >= TIME_LONGTOUCH) {
+                if (System.currentTimeMillis() - start >= TIME_LONGTOUCH) {
                     publishProgress(0);
 
                     startLongTouch = System.currentTimeMillis();
@@ -86,7 +104,6 @@ public class LongTouchButton extends AppCompatButton {
 
             }
 
-
             return isLongTouch;
         }
 
@@ -95,7 +112,7 @@ public class LongTouchButton extends AppCompatButton {
             if (result) {
                 mListener.onLongTouchUp(LongTouchButton.this);
             } else {
-                mListener.onShortTouch(LongTouchButton.this);
+//                mListener.onShortTouch(LongTouchButton.this);
             }
         }
 
@@ -128,8 +145,9 @@ public class LongTouchButton extends AppCompatButton {
 
         void onLongTouchDown(View v);
 
+        void onTapTouch(View v);
 
-        void onShortTouch(View v);
+        void onDoubleTouch(View v);
     }
 
     public static CumTouchListener CumTouchListener() {

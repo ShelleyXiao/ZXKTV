@@ -89,6 +89,10 @@ public class VideoPresentation extends Presentation {
         if(flScrrenBg.isShown()) {
             flScrrenBg.setVisibility(View.GONE);
         }
+
+        if(tv_playingBottom.isShown()) {
+            tv_playingBottom.setVisibility(View.GONE);
+        }
     }
 
     public void showPlaylistbottom(final boolean show) {

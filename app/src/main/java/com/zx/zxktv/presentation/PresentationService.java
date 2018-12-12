@@ -15,8 +15,6 @@
 package com.zx.zxktv.presentation;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Presentation;
 import android.app.Service;
 import android.content.Context;
@@ -26,7 +24,6 @@ import android.graphics.SurfaceTexture;
 import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,7 +45,6 @@ import com.zx.zxktv.data.Song;
 import com.zx.zxktv.lib.libijkplayer.IXMediaPlayer;
 import com.zx.zxktv.lib.libijkplayer.XMediaPlayer;
 import com.zx.zxktv.lib.libijkplayer.XMediaPlayerListener;
-import com.zx.zxktv.ui.MainActivity;
 import com.zx.zxktv.ui.widget.VideoPlayListmanager;
 import com.zx.zxktv.utils.LogUtils;
 import com.zx.zxktv.utils.SharePrefUtil;
@@ -65,21 +61,21 @@ import tv.danmaku.ijk.media.player.misc.TrackItem;
 import static tv.danmaku.ijk.media.player.IMediaPlayer.MEDIA_INFO_AUDIO_RENDERING_START;
 
 public class PresentationService extends Service implements OnFrameAvailableListener,
-        XMediaPlayerListener {
+        XMediaPlayerListener, GLPlayRenderThread.renderActionListener {
 
 
     private final static String TAG = "PresentationService";
     private final static int PROGRESS_DETAL = 1000;
+    private final static int PROGRESS_BACK_DETAIL = 1000 * 2;
     private final IBinder mBinder = new LocalBinder();
     private DisplayManager mDisplayManager;
     private GiftPresentation giftDisplay;
-    private MutilVideoPresentation mMutilVideoPresentation;
+    private MutilVideoPresentation2 mMutilVideoPresentation;
     private VideoPresentation mVideoPresentation;
 
     private ArrayList<GLPlayRenderThread> mThreadList = new ArrayList<GLPlayRenderThread>();
     private SurfaceTexture mSurfaceTexture = null;
     private String mPath;
-    private int mCurrentIndex = -1;
     private Song mCurSong;
     static private PresentationService sPresentationService = null;
     public static final boolean USE_TEXTURE_VIEW = true;
@@ -89,9 +85,9 @@ public class PresentationService extends Service implements OnFrameAvailableList
     private AudioManager mAudioManager;
 
     private int mTotalAudioTracks = 0;
-
     private ArrayList<TrackItem> mTrackItems = new ArrayList<>();
-    private int mCurrentTrackIndex = 2; //默认伴唱
+    private int mCurrentAudioTrackIndex = 2; //默认伴唱
+    private boolean isOriginal = false;
 
     //[-3, 3] 0代表正常不变调
     private float pitchShiftLevel = 0;
@@ -195,29 +191,17 @@ public class PresentationService extends Service implements OnFrameAvailableList
     @Override
     public void onPrepared(IXMediaPlayer mp) {
         ITrackInfo[] trackInfos = mIjkPlayer.getTrackInfo();
-//        LogUtils.i(" track size = " + trackInfos.length);
+        mTrackItems.clear();
         for (int i = 0; i < trackInfos.length; i++) {
-            ITrackInfo info = trackInfos[i];
-            if (info.getTrackType() == ITrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
-                if (info.getInfoInline().contains("kb/s")) {
-
-                    TrackItem item = new TrackItem(i, info);
-                    mTrackItems.add(item);
-//                    LogUtils.i(" " + item.getInfoInline());
-                }
-            }
+            TrackItem item = new TrackItem(i, trackInfos[i]);
+            mTrackItems.add(item);
         }
         mIjkPlayer.start();
-        int index = mIjkPlayer.getSelectedTrack(ITrackInfo.MEDIA_TRACK_TYPE_AUDIO);
-        for (int i = 0; i < mTrackItems.size(); i++) {
-            TrackItem item = mTrackItems.get(0);
-            if (index == item.mIndex) {
-                mCurrentIndex = i;
-                break;
-            }
-        }
+        //获取原唱音轨索引
+        mCurrentAudioTrackIndex = mIjkPlayer.getSelectedTrack(ITrackInfo.MEDIA_TRACK_TYPE_AUDIO);
 
-
+        LogUtils.i(" track size = " + mTrackItems.size()
+                + " audio track index: " + mCurrentAudioTrackIndex);
     }
 
     @Override
@@ -238,17 +222,18 @@ public class PresentationService extends Service implements OnFrameAvailableList
     @Override
     public void onInfo(int what, int extra) {
         if (what == MEDIA_INFO_AUDIO_RENDERING_START) {
-
             mTotalAudioTracks = mIjkPlayer.getAudioTrakNums();
-            if (mTotalAudioTracks >= 2) {
-                mCurrentTrackIndex = 2;
+            if (mTotalAudioTracks > 1) {
+                mCurrentAudioTrackIndex++;
 //                mIjkPlayer.switchAudioTrakcIndex(mTotalAudioTracks, mCurrentTrackIndex);
-                mIjkPlayer.selectTrack(mCurrentTrackIndex);
+                mIjkPlayer.selectTrack(mCurrentAudioTrackIndex);
+                LogUtils.i(" " + mCurrentAudioTrackIndex);
             } else {
                 mAudioManager.setParameters("channelmask_value=2");
             }
+            isOriginal = false;
             Bundle extraData = new Bundle();
-            extraData.putBoolean("check", false);
+            extraData.putBoolean("check", isOriginal);
             RxBus.getDefault().postWithCode(RxConstants.SYNC_ORIGINAL_UI_CODE, extraData);
 
             setPitch(0.0f);
@@ -271,12 +256,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
         Song song = VideoPlayListmanager.getIntanse().getTop();
         mCurSong = song;
-
-//            mVideoPresentation.updatePlayInfo(mCurSong);
-
         nextVideo();
-
-
         RxBus.getDefault().postWithCode(RxConstants.UPDATE_SELECT_SONG_CODE, RxConstants.EXTRA_KEY_UPDATE_SELECT);
     }
 
@@ -306,9 +286,9 @@ public class PresentationService extends Service implements OnFrameAvailableList
         return sPresentationService;
     }
 
+    @Override
     synchronized public void startPlay(int texture) {
         if (mSurfaceTexture == null) {
-
             mSurfaceTexture = new SurfaceTexture(texture);
             mSurfaceTexture.setOnFrameAvailableListener(this);
             mIjkPlayer = new XMediaPlayer();
@@ -318,38 +298,27 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
+    @Override
     public void updatePlayPreview() {
         mSurfaceTexture.updateTexImage();
     }
 
+    @Override
     public void attachPlayTexture(int texture) {
         mSurfaceTexture.attachToGLContext(texture);
     }
 
+    @Override
     public void detachPlayTexture() {
         mSurfaceTexture.detachFromGLContext();
     }
 
-    private void setServiceForeground() {
-        CharSequence text = getText(R.string.app_name);
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(R.drawable.ic_launcher, text,
-                System.currentTimeMillis());
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MainActivity.class), 0);
-
-    }
-
     public void playVideo(String url, int index) {
         playVideo(url);
-        mCurrentIndex = index;
     }
 
     public void playVideo(Song song) {
         playVideo(song.filePath);
-        mCurrentIndex = VideoPlayListmanager.getIntanse().getSongIndex(song);
         mCurSong = song;
 
         mVideoPresentation.updatePlayInfo(mCurSong);
@@ -365,7 +334,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
     public void songResing() {
 //        mIjkPlayer.seekTo(0);
 
-//        mVideoPresentation.updatePlayInfo(mCurSong);
         mIjkPlayer.stop();
         mIjkPlayer.releaseSurface();
         mIjkPlayer.release();
@@ -386,7 +354,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
         }
     }
 
-
     public void switchAccompanimentOrOriginal(boolean origianl) {
         if (origianl) {
             if (mTotalAudioTracks <= 1) {
@@ -395,16 +362,14 @@ public class PresentationService extends Service implements OnFrameAvailableList
                 SharePrefUtil.saveString(getApplicationContext(), "channelmask",
                         "channelmask_value=1");
             } else {
-                mCurrentTrackIndex = 1;
-//                mIjkPlayer.switchAudioTrakcIndex(1, mCurrentTrackIndex);
-
-                int audioTrackIndex = mIjkPlayer.getSelectedTrack(IjkTrackInfo.MEDIA_TRACK_TYPE_AUDIO);
-                if (audioTrackIndex != mCurrentTrackIndex) {
-                    mIjkPlayer.selectTrack(mCurrentTrackIndex);
+                if (mIjkPlayer != null) {
+                    mCurrentAudioTrackIndex--;
+                    int audioTrackIndex = mIjkPlayer.getSelectedTrack(IjkTrackInfo.MEDIA_TRACK_TYPE_AUDIO);
+                    if (audioTrackIndex != mCurrentAudioTrackIndex) {
+                        mIjkPlayer.selectTrack(mCurrentAudioTrackIndex);
+                    }
                 }
             }
-
-
         } else {
             if (mTotalAudioTracks <= 1) {
                 mAudioManager.setParameters("channelmask_value=2");
@@ -412,27 +377,15 @@ public class PresentationService extends Service implements OnFrameAvailableList
                 SharePrefUtil.saveString(getApplicationContext(), "channelmask",
                         "channelmask_value=2");
             } else {
-                mCurrentTrackIndex = 2;
-//                mIjkPlayer.switchAudioTrakcIndex(2, mCurrentTrackIndex);
-
-                LogUtils.i(mIjkPlayer.getSelectedTrack(IjkTrackInfo.MEDIA_TRACK_TYPE_AUDIO));
-                int audioTrackIndex = mIjkPlayer.getSelectedTrack(IjkTrackInfo.MEDIA_TRACK_TYPE_AUDIO);
-                if (audioTrackIndex != mCurrentTrackIndex) {
-                    mIjkPlayer.selectTrack(mCurrentTrackIndex);
+                if (mIjkPlayer != null) {
+                    mCurrentAudioTrackIndex++;
+//                LogUtils.i(mIjkPlayer.getSelectedTrack(IjkTrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+                    int audioTrackIndex = mIjkPlayer.getSelectedTrack(IjkTrackInfo.MEDIA_TRACK_TYPE_AUDIO);
+                    if (audioTrackIndex != mCurrentAudioTrackIndex) {
+                        mIjkPlayer.selectTrack(mCurrentAudioTrackIndex);
+                    }
                 }
             }
-//            if(mTrackItems.size() > 1 && mCurrentIndex >= 0) {
-//                if(mIjkPlayer != null) {
-//                    int nowTrackIndex = mIjkPlayer.getSelectedTrack(IjkTrackInfo.MEDIA_TRACK_TYPE_AUDIO);
-//                    LogUtils.i("******switchAccompanimentOrOriginal**************"
-//                            + nowTrackIndex);
-//                    if(nowTrackIndex != 2) {
-//                        mIjkPlayer.selectTrack(2);
-//                        SharePrefUtil.saveInt(getApplicationContext(), "channelIndex", 2);
-//                    }
-//                }
-//            }
-
         }
     }
 
@@ -458,7 +411,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
 
     public void seekBack() {
         long progress = mIjkPlayer.getCurrentPosition();
-        progress -= PROGRESS_DETAL;
+        progress -= PROGRESS_BACK_DETAIL;
         if (progress >= 0) {
             mIjkPlayer.seekTo(progress);
         }
@@ -521,7 +474,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
             DisplayManager displayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
             Display[] displays = displayManager.getDisplays(null);
 
-            mMutilVideoPresentation = new MutilVideoPresentation(getApplicationContext(), displays[1], R.style.dialog);
+            mMutilVideoPresentation = new MutilVideoPresentation2(getApplicationContext(), displays[1], R.style.dialog);
             mMutilVideoPresentation.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         }
 
@@ -547,7 +500,6 @@ public class PresentationService extends Service implements OnFrameAvailableList
         if (mMutilVideoPresentation != null && mMutilVideoPresentation.isShowing()) {
             mMutilVideoPresentation.destroy();
             mMutilVideoPresentation.dismiss();
-
         }
     }
 
@@ -590,7 +542,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface,
                                               int width, int height) {
-            mThread = new GLPlayRenderThread(surface);
+            mThread = new GLPlayRenderThread(sPresentationService, surface, sPresentationService);
             mThread.setRegion(width, height);
             synchronized (mThreadList) {
                 mThreadList.add(mThread);
@@ -626,7 +578,7 @@ public class PresentationService extends Service implements OnFrameAvailableList
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             Log.i(TAG, "onSurfaceCreated");
-            mThread = new GLPlayRenderThread(holder);
+            mThread = new GLPlayRenderThread(sPresentationService, holder, sPresentationService);
 
             Log.i(TAG, "width = " + holder.getSurfaceFrame().width());
             Log.i(TAG, "height = " + holder.getSurfaceFrame().height());
